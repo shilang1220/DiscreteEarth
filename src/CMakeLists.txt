@@ -41,6 +41,7 @@ add_library(third_party ${THIRDPARTY_SRCS})
 add_library(strings ${STRINGS_SRCS})
 add_library(util ${UTIL_SRCS})
 add_library(base ${BASE_SRCS})
+
 #build libs of self
 add_library(core  ${CORE_SRCS} )
 #add_library(shape  ${SHAPE_SRCS} )
