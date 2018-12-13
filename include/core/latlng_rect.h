@@ -17,7 +17,6 @@
 #include "s2/s1interval.h"
 #include "s2/s2latlng.h"
 
-//重新修改的Region类，用于适应多种网格
 #include "core/region.h"
 
 class Decoder;
@@ -25,6 +24,7 @@ class Encoder;
 class Cap;
 class Cell;
 
+//表示封闭的经纬度矩形
 // An LatLngRect represents a closed latitude-longitude rectangle.  It is
 // capable of representing the empty and full rectangles as well as single
 // points.  Note that the latitude-longitude space is considered to have a

@@ -22,6 +22,8 @@
 #include "s2/s2latlng.h"
 #include "s2/s2latlng_rect.h"
 
+// 用于计算外包矩形的类
+
 // This class computes a bounding rectangle that contains all edges defined
 // by a vertex chain v0, v1, v2, ...  All vertices must be unit length.
 // Note that the bounding rectangle of an edge can be larger than the

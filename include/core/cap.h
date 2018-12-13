@@ -25,6 +25,7 @@ class Encoder;
 class Cell;
 class LatLngRect;
 
+// 球冠类
 // Cap represents a disc-shaped region defined by a center and radius.
 // Technically this shape is called a "spherical cap" (rather than disc)
 // because it is not planar; the cap represents a portion of the sphere that

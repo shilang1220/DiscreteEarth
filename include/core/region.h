@@ -14,6 +14,9 @@ class Cap;
 class LatLngRect;
 class Cell;
 
+
+//区域类，用于封装一些标准接口
+
 class Region {
 public:
     virtual ~Region() {}

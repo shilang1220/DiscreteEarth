@@ -15,9 +15,12 @@
 #include "core/region.h"
 #include "util/math/vector.h"
 
-// An Cell is an S2Region object that represents a cell.  Unlike CellIds,
-// it supports efficient containment and intersection tests.  However, it is
-// also a more expensive representation (currently 48 bytes rather than 8).
+//Cell是四边形球面网格的抽象类，用户可根据自己需要定制自己的网格类
+//
+//An Cell is abstract class for grid cell,it derived from Region.
+//Unlike CellIds, it's main purpose is to realize efficient
+//containment and intersection operations(Spatial Operation).
+//However, it is a more expensive representation than CellId.
 
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
