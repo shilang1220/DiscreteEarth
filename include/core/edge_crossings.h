@@ -41,10 +41,11 @@
 #include "s2/s1chord_angle.h"
 #include "s2/s1interval.h"
 #include "s2/s2latlng.h"
-#include "core/latlng_rect.h"
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
 #include "util/math/vector.h"
+
+//#include "core/latlng_rect.h"
 
 namespace S2 {
 

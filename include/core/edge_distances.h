@@ -32,6 +32,7 @@ namespace S2 {
 /////////////////////////////////////////////////////////////////////////////
 ///////////////            (point, edge) functions            ///////////////
 
+// 求球面上某点X到边AB的最短距离
 // Returns the minimum distance from X to any point on the edge AB.  All
 // arguments should be unit length.  The result is very accurate for small
 // distances but may have some numerical error if the distance is large
@@ -42,6 +43,7 @@ namespace S2 {
 // then it is significantly faster to use UpdateMinDistance() below.
 S1Angle GetDistance(const S2Point& x, const S2Point& a, const S2Point& b);
 
+// 判断球面上某点X到边AB的最小距离是否小于给定阈值
 // Returns true if the distance from X to the edge AB is less than "limit".
 // (Specify limit.Successor() for "less than or equal to".)  This method is
 // significantly faster than GetDistance().  If you want to compare against a
@@ -52,6 +54,7 @@ S1Angle GetDistance(const S2Point& x, const S2Point& a, const S2Point& b);
 bool IsDistanceLess(const S2Point& x, const S2Point& a, const S2Point& b,
                     S1ChordAngle limit);
 
+// 当球面上某点X到边AB的距离小于指定阈值时，更新阈值到当前最小距离
 // If the distance from X to the edge AB is less than "min_dist", this
 // method updates "min_dist" and returns true.  Otherwise it returns false.
 // The case A == B is handled correctly.
@@ -90,6 +93,7 @@ bool UpdateMaxDistance(const S2Point& x, const S2Point& a, const S2Point& b,
 // precision when necessary.
 double GetUpdateMinDistanceMaxError(S1ChordAngle dist);
 
+// 判断球面上某点X到边AB的最小距离
 // Returns true if the minimum distance from X to the edge AB is attained at
 // an interior point of AB (i.e., not an endpoint), and that distance is less
 // than "limit".  (Specify limit.Successor() for "less than or equal to".)
