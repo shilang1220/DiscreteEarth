@@ -22,7 +22,7 @@
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-class Cell final : public Region {
+class Cell : public Region {
 public:
 
     /***************************************
@@ -32,11 +32,13 @@ public:
 
     // The default constructor is required in order to use freelists.
     // Cells should otherwise always be constructed explicitly.
-    Cell() {}
+    Cell() {};
 
     // An Cell always corresponds to a particular CellId.  The other
     // constructors are just convenience methods.
-    explicit Cell(uint64 id);
+    explicit Cell(uint64 id):id_(id){ };
+
+    ~Cell(){};
 
     /***************************************
      * 面片属性访问函数
@@ -49,6 +51,7 @@ public:
     int level() const { return level_; }
     //面片方位
     int orientation() const { return orientation_; }
+
     //返回面片在投影平面上的坐标范围
     // Returns the bounds of this cell in (u,v)-space.
     virtual R2Rect GetBoundPlanar() {return uv_;}

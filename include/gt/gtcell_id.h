@@ -2,20 +2,20 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#ifndef DISCRETEEARTH_GeosotCellId_H
-#define DISCRETEEARTH_GeosotCellId_H
+#ifndef DISCRETEEARTH_GTCellId_H
+#define DISCRETEEARTH_GTCellId_H
 
 #include "core/cell_id.h"
 
 #include "s2/s2latlng.h"
 
-class GeosotCellId final : CellId{
+class GTCellId final : CellId{
 
     // Construct a leaf cell containing the given point "p".
-    explicit GeosotCellId(const S2Point p);
+    explicit GTCellId(const S2Point p);
 
     // Construct a leaf cell containing the given S2LatLng.
-    explicit GeosotCellId(const S2LatLng ll);
+    explicit GTCellId(const S2LatLng ll);
 
 
     /************************************
@@ -109,12 +109,12 @@ class GeosotCellId final : CellId{
     // 判断本网格是否包含某个网格
     // Return true if the given cell is contained within this one.
     bool contains(const uint64 other) const override ;
-    bool contains(const GeosotCellId other) const ;
+    bool contains(const GTCellId other) const ;
 
     // 判断本网格是否和某个网格相交
     // Return true if the given cell intersects this one.
     bool intersects(const uint64 other) const override ;
-    bool intersects(const GeosotCellId other) const ;
+    bool intersects(const GTCellId other) const ;
 
 
     /************************************
@@ -198,7 +198,7 @@ class GeosotCellId final : CellId{
     // Returns -1 if the two cells do not have any common ancestor (i.e., they
     // are from different faces).
     int GetCommonAncestorLevel(uint64 other) const override ;
-    int GetCommonAncestorLevel(GeosotCellId other ) const;
+    int GetCommonAncestorLevel(GTCellId other ) const;
 
     // Iterator-style methods for traversing all the cells along the Hilbert
     // curve at a given level (across all 6 faces of the cube).  Note that the
@@ -281,4 +281,4 @@ class GeosotCellId final : CellId{
 };
 
 
-#endif //DISCRETEEARTH_GeosotCellId_H
+#endif //DISCRETEEARTH_GTCellId_H
