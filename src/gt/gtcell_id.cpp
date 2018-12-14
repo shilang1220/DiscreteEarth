@@ -1,6 +1,8 @@
 //
 // Created by 濮国梁 on 2018/12/13.
 //
+#include <gt/gtcell_id.h>
+
 #include "gt/gtcell_id.h"
 
 GTCellId::GTCellId(const S2Point p) {
@@ -73,6 +75,13 @@ bool GTCellId::contains(const uint64 other) const {
 }
 
 bool GTCellId::contains(const GTCellId other) const {
+    return false;
+}
+bool GTCellId::isChildOf(const uint64 other) const {
+    return false;
+}
+
+bool GTCellId::isChildOf(const GTCellId other) const {
     return false;
 }
 
@@ -187,6 +196,7 @@ string GTCellId::ToString() const {
 int GTCellId::GetCommonAncestorLevel(GTCellId other) const {
     return 0;
 }
+
 
 
 

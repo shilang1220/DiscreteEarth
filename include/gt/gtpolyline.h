@@ -45,7 +45,7 @@ class GTPolyline final : Region {
     // coordinates rather than S2Points.
     void Init(const std::vector<S2LatLng>& vertices);
 
-    ~GTPolyline() override;
+    ~GTPolyline();
 
     //////////////////////////////////////////////
     ///  线要素基本操作

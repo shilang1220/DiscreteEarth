@@ -9,7 +9,10 @@
 
 #include "s2/s2latlng.h"
 
-class GTCellId final : CellId{
+class GTCellId final : public CellId{
+
+public:
+    explicit GTCellId(const uint64 id){id_ = id;}
 
     // Construct a leaf cell containing the given point "p".
     explicit GTCellId(const S2Point p);
@@ -110,6 +113,10 @@ class GTCellId final : CellId{
     // Return true if the given cell is contained within this one.
     bool contains(const uint64 other) const override ;
     bool contains(const GTCellId other) const ;
+
+    //判断本网格是否某个网格other的子孙网格
+    bool isChildOf(const uint64 other) const override ;
+    bool isChildOf(const GTCellId other) const ;
 
     // 判断本网格是否和某个网格相交
     // Return true if the given cell intersects this one.
@@ -278,7 +285,34 @@ class GTCellId final : CellId{
     string ToString() const override ;
 
 
+public:
+
 };
+
+
+inline bool operator==(GTCellId x, GTCellId y) {
+    return x.id() == y.id();
+}
+
+inline bool operator!=(GTCellId x, GTCellId y) {
+    return x.id() != y.id();
+}
+
+inline bool operator<(GTCellId x, GTCellId y) {
+    return x.id() < y.id();
+}
+
+inline bool operator>(GTCellId x, GTCellId y) {
+    return x.id() > y.id();
+}
+
+inline bool operator<=(GTCellId x, GTCellId y) {
+    return x.id() <= y.id();
+}
+
+inline bool operator>=(GTCellId x, GTCellId y) {
+    return x.id() >= y.id();
+}
 
 
 #endif //DISCRETEEARTH_GTCellId_H

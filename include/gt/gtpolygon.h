@@ -2,8 +2,9 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#ifndef DISCRETEEARTH_GTLOOP_H
-#define DISCRETEEARTH_GTLOOP_H
+#ifndef DISCRETEEARTH_GTPolygon_H
+#define DISCRETEEARTH_GTPolygon_H
+
 #include <memory>
 #include <vector>
 
@@ -22,15 +23,15 @@
 #include "third_party/absl/memory/memory.h"
 
 
-class GTLoop final : Region {
-    
-    GTLoop();
+class GTPolygon final : Region{
+
+    GTPolygon();
 
     // An S2Cell always corresponds to a particular S2CellId.  The other
     // constructors are just convenience methods.
     // Convenience constructors that call Init() with the given vertices.
-    explicit GTLoop(const std::vector<S2Point>& vertices);
-    explicit GTLoop(const std::vector<S2LatLng>& vertices);
+    explicit GTPolygon(const std::vector<S2Point>& vertices);
+    explicit GTPolygon(const std::vector<S2LatLng>& vertices);
 
     // Initialize a polyline that connects the given vertices. Empty polylines are
     // allowed.  Adjacent vertices should not be identical or antipodal.  All
@@ -41,7 +42,7 @@ class GTLoop final : Region {
     // coordinates rather than S2Points.
     void Init(const std::vector<S2LatLng>& vertices);
 
-    ~GTLoop() ;
+    ~GTPolygon();
 
     //////////////////////////////////////////////
     ///  线要素基本操作
@@ -133,7 +134,7 @@ class GTLoop final : Region {
     // The running time is quadratic in the number of vertices.  (To intersect
     // polylines more efficiently, or compute the actual intersection geometry,
     // use S2BooleanOperation.)
-    bool Intersects(const GTLoop* line) const;
+    bool Intersects(const GTPolygon* line) const;
 
     // Reverse the order of the polyline vertices.
     void Reverse();
@@ -160,7 +161,7 @@ class GTLoop final : Region {
     //    (to within the given tolerance).  This is different than the
     //    Douglas-Peucker algorithm, which only guarantees geometric equivalence.
     //
-    // See also GTLoopSimplifier, which uses the same algorithm but is more
+    // See also GTPolygonSimplifier, which uses the same algorithm but is more
     // efficient and supports more features, and also S2Builder, which can
     // simplify polylines and polygons, supports snapping (e.g. to E7 lat/lng
     // coordinates or S2CellId centers), and can split polylines at intersection
@@ -168,12 +169,12 @@ class GTLoop final : Region {
     void SubsampleVertices(S1Angle tolerance, std::vector<int>* indices) const;
 
     // Return true if two polylines are exactly the same.
-    bool Equals(const GTLoop* b) const;
+    bool Equals(const GTPolygon* b) const;
 
     // Return true if two polylines have the same number of vertices, and
     // corresponding vertex pairs are separated by no more than "max_error".
     // (For testing purposes.)
-    bool ApproxEquals(const GTLoop& b,
+    bool ApproxEquals(const GTPolygon& b,
                       S1Angle max_error = S1Angle::Radians(1e-15)) const;
 
     // Return true if "covered" is within "max_error" of a contiguous subpath of
@@ -190,7 +191,7 @@ class GTLoop final : Region {
     // This function is well-defined for empty polylines:
     //    anything.covers(empty) = true
     //    empty.covers(nonempty) = false
-    bool NearlyCovers(const GTLoop& covered, S1Angle max_error) const;
+    bool NearlyCovers(const GTPolygon& covered, S1Angle max_error) const;
 
     // Returns the total number of bytes used by the polyline.
     size_t SpaceUsed() const;
@@ -201,7 +202,7 @@ class GTLoop final : Region {
     ///  Region interface realization
     /////////////////////////////////////////////
 
-    GTLoop* Clone() const override;
+    GTPolygon* Clone() const override;
     Cap GetCapBound() const override;
     LatLngRect GetRectBound() const override;
     bool Contains(const Cell& cell) const override;
@@ -212,13 +213,13 @@ class GTLoop final : Region {
     ///  串行化函数
     /////////////////////////////////////////////////////////
 
-    // Appends a serialized representation of the GTLoop to "encoder".
+    // Appends a serialized representation of the GTPolygon to "encoder".
     //
     // REQUIRES: "encoder" uses the default constructor, so that its buffer
     //           can be enlarged as necessary by calling Ensure(int).
     void Encode(Encoder* const encoder) const;
 
-    // Decodes an GTLoop encoded with Encode().  Returns true on success.
+    // Decodes an GTPolygon encoded with Encode().  Returns true on success.
     bool Decode(Decoder* const decoder);
 
     ///////////////////////////////////////////////////////////
@@ -234,4 +235,4 @@ private:
 };
 
 
-#endif //DISCRETEEARTH_GTLOOP_H
+#endif //DISCRETEEARTH_GTPolygon_H

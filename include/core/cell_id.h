@@ -166,13 +166,18 @@ public:
     /************************************
     *  网格空间关系计算函数
     ************************************/
-    // 判断本网格是否包含某个网格
+    // 判断本网格是否包含某个网格（other是否自己的子孙网格）
     // Return true if the given cell is contained within this one.
     virtual bool contains(const uint64 other) const = 0 ;
+
+    //判断本网格是否某个网格other的子孙网格
+    virtual bool isChildOf(const uint64 other) const = 0 ;
 
     // 判断本网格是否和某个网格相交
     // Return true if the given cell intersects this one.
     virtual bool intersects(const uint64 other) const = 0 ;
+
+
 
     /************************************
     *  祖先节点或子孙节点访问函数
@@ -224,19 +229,6 @@ public:
     // return value is always non-negative.
     virtual int64 distance_from_begin() const = 0 ;
 
-//    // Like next() and prev(), but these methods wrap around from the last face
-//    // to the first and vice versa.  They should *not* be used for iteration in
-//    // conjunction with child_begin(), child_end(), Begin(), or End().  The
-//    // input must be a valid cell id.
-//    virtual  CellId* next_wrap() const = 0 ;
-//    virtual  CellId* prev_wrap() const = 0 ;
-
-//    // This method advances or retreats the indicated number of steps along the
-//    // Hilbert curve at the current level, and returns the new position.  The
-//    // position wraps between the first and last faces as necessary.  The input
-//    // must be a valid cell id.
-//    virtual  CellId* advance_wrap(int64 steps) const = 0 ;
-
     // Return the largest cell with the same range_min() and such that
     // range_max() < limit.range_min().  Returns "limit" if no such cell exists.
     // This method can be used to generate a small set of CellIDs that covers
@@ -251,12 +243,14 @@ public:
     // gradually get smaller (as "limit" is approached).
     virtual uint64 maximum_tile(uint64 limit) const = 0;
 
+    //返回本网格和指定网格other的共同祖先所在的层
     // Returns the level of the lowest common ancestor of this cell and "other",
     // that is, the maximum level such that parent(level) == other.parent(level).
     // Returns -1 if the two cells do not have any common ancestor (i.e., they
     // are from different faces).
     virtual int GetCommonAncestorLevel(uint64 other) const = 0 ;
 
+    // 迭代器风格的函数，可用于遍历访问某一层级的所有网格
     // Iterator-style methods for traversing all the cells along the Hilbert
     // curve at a given level (across all 6 faces of the cube).  Note that the
     // end value is exclusive (just like standard STL iterators), and is not a
@@ -343,7 +337,7 @@ public:
     // used.  This is much faster when the comparison function is cheap.
     typedef std::true_type goog_btree_prefer_linear_node_search;
 
-private:
+protected:
    uint64 id_;
 };
 
