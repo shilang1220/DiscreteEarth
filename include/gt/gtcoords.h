@@ -22,6 +22,7 @@
 #ifndef DISCRETEEARTH_GTCOORDS_H
 #define DISCRETEEARTH_GTCOORDS_H
 
+#include "base/integral_types.h"
 
 namespace GT{
 // 网格最大层级
