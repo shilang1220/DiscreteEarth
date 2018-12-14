@@ -38,9 +38,7 @@ bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level) const {
     return false;
 }
 
-bool GTCellId::is_valid() const {
-    return false;
-}
+
 
 uint64 GTCellId::pos() const {
     return 0;
@@ -75,8 +73,11 @@ bool GTCellId::contains(const uint64 other) const {
 }
 
 bool GTCellId::contains(const GTCellId other) const {
-    return false;
+    S2_DCHECK(is_valid());
+    S2_DCHECK(other.is_valid());
+    return other >= range_min_cell() && other <= range_max_cell();
 }
+
 bool GTCellId::isChildOf(const uint64 other) const {
     return false;
 }

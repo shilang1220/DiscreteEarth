@@ -23,9 +23,24 @@
 #define DISCRETEEARTH_GTCOORDS_H
 
 
-class GTCoords {
+namespace GT{
+// 网格最大层级
+// This is the number of levels needed to specify a leaf cell.  This
+// constant is defined here so that the S2::Metric class and the conversion
+// functions below can be implemented without including s2cell_id.h.  Please
+// see s2cell_id.h for other useful constants and conversion functions.
+    const int kMaxCellLevel = 31;
 
-};
+// 叶子节点（I，J）索引值的最大值
+// The maximum index of a valid leaf cell plus one.  The range of valid leaf
+// cell indices is [0..kLimitIJ-1].
+    const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
+
+// （Si，Ti）坐标的最大值，为能够有效表示叶子节点的边缘和中心，通常在叶子节点基础上，再四分一级
+// The maximum value of an si- or ti-coordinate.  The range of valid (si,ti)
+// values is [0..kMaxSiTi].
+    const uint64 kMaxSiTi = 1U << (kMaxCellLevel + 1);
+}
 
 
 #endif //DISCRETEEARTH_GTCOORDS_H
