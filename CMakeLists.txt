@@ -44,16 +44,16 @@ add_definitions(-D_USE_MATH_DEFINES)
 ########################################################################
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-    configure_file(
-            ${PROJECT_DOC_DIR}/Doxyfile.in
-            ${PROJECT_BIN_DIR}/Doxyfile
-            @ONLY)
-
-    add_custom_target(DiscreateEarth_doc
-            ${DOXYGEN_EXECUTABLE} ${PROJECT_BIN_DIR}/Doxyfile
-            WORKING_DIRECTORY ${PROJECT_BIN_DIR}
-            COMMENT "Generating documentation with Doxygen" VERBATIM
-            )
+#    configure_file(
+#            ${PROJECT_DOC_DIR}/Doxyfile.in
+#            ${PROJECT_BIN_DIR}/Doxyfile
+#            @ONLY)
+#
+#    add_custom_target(DiscreateEarth_doc
+#            ${DOXYGEN_EXECUTABLE} ${PROJECT_BIN_DIR}/Doxyfile
+#            WORKING_DIRECTORY ${PROJECT_BIN_DIR}
+#            COMMENT "Generating documentation with Doxygen" VERBATIM
+#            )
 endif(DOXYGEN_FOUND)
 
 ########################################################################
