@@ -56,9 +56,12 @@ namespace GT{
     bool LLtoIJ(const R2Point ll,uint32* I,uint32* J);        //当ll经纬度超届时，返回false
 
     //球面坐标系（X,Y,Z）与扩展坐标系（U,V）之间的转换函数
-    bool XYZtoUV(const S2Point& p, double* pu, double* pv);
-    R2Point XYZtoUV(const S2Point& p);
-    S2Point UVtoXYZ(const double u,const double v);
+    bool XYZtoUV(const S2Point& p, double* pu, double* pv);     //当（X,Y,Z）为非球面点时，返回false
+    bool UVtoXYZ(const double u,const double v, S2Point* pPnt);  //当（U,V）不对应实际空间时，返回false
+
+    //球面坐标系（X,Y,Z）与网格坐标系（I,J）之间的转换函数
+    bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);     //当（X,Y,Z）为非球面点时，返回false
+    bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);  //当（I,J）不对应实际空间时，返回false
 
 }
 
