@@ -39,19 +39,6 @@ bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level) const {
 }
 
 
-
-uint64 GTCellId::pos() const {
-    return 0;
-}
-
-int GTCellId::level() const {
-    return 0;
-}
-
-bool GTCellId::is_leaf() const {
-    return false;
-}
-
 int GTCellId::child_position() const {
     return 0;
 }

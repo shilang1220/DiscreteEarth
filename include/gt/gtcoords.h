@@ -22,6 +22,10 @@
 #ifndef DISCRETEEARTH_GTCOORDS_H
 #define DISCRETEEARTH_GTCOORDS_H
 
+#include "base/integral_types.h"
+#include "s2/s2point.h"
+#include "gt/gtcoords.h"
+
 // GT网格系统涉及四个坐标系统
 // 经纬度          （LNG,LAT）       double
 //                  -180.00 ≤ LNG ≤ +180.00，-90.00 ≤ LAT ≤ +90.00
@@ -29,9 +33,12 @@
 //                  -512.00 ≤ U ≤ +512.00，-512.00 ≤ L ≤ +512.00
 // 球面坐标系      （X,Y,Z）         double
 //                  X**2 + Y**2 + Z**2 =1
-// 网格坐标系      （I，J）          unsigned long long
+// 网格坐标系      （I，J）          unsigned long(uint32)
 //                  0 ≤ I ≤ 2**kMaxCellLevel，0 ≤ J ≤ 2**kMaxCellLevel
-
+//Z序一维网格编码     GTCellID       unsigned long long(uint64)
+//                  0X1<<1(0B 0000 0000 .... 0010) ≤ GTCellID ≤ 0XFFFFFFFFFFFFFFE(0B 1111 1111 .... 1110)
+//                  0X0 特殊编码，用于标识全球
+//                  0XFF FF FF FF FF FF FF FF，特殊编码，用途待定
 
 namespace GT{
 // 网格最大层级
@@ -47,22 +54,29 @@ namespace GT{
     const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
 
 
+    //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
+    bool XYZtoLL (const S2Point &p, double *pU, double *pV) ;
+    bool LLtoXYZ (const double U, const double V, S2Point *pPnt) ;
+
+
     //扩展坐标系（U，V）与网格坐标系（I，J）之间的转换函数
-    double IJtoUV(uint32 IJ);
-    uint32 UVtoIJ(double UV);
+    bool IJtoUV(const uint32 I,const uint32 J, double* pU, double* pV);
+    bool UVtoIJ(const double U,const double V,uint32* pI,uint32* pJ);
 
     //经纬度坐标系（LNG，LAT）与网格坐标系（I，J）之间的转换函数
-    bool IJtoLL(const uint32 I, const uint32 J,R2Point* ll);  //当（I,J）不对应经纬度时，返回false
-    bool LLtoIJ(const R2Point ll,uint32* I,uint32* J);        //当ll经纬度超届时，返回false
+    bool IJtoLL(const uint32 I, const uint32 J,double* pLng,double* pLat);  //当（I,J）不对应经纬度时，返回false
+    bool LLtoIJ(const double Lng,const double Lat,uint32* pI,uint32* pJ);        //当ll经纬度超届时，返回false
 
     //球面坐标系（X,Y,Z）与扩展坐标系（U,V）之间的转换函数
-    bool XYZtoUV(const S2Point& p, double* pu, double* pv);     //当（X,Y,Z）为非球面点时，返回false
-    bool UVtoXYZ(const double u,const double v, S2Point* pPnt);  //当（U,V）不对应实际空间时，返回false
+    bool XYZtoUV(const S2Point& p, double* pU, double* pV);     //当（X,Y,Z）为非球面点时，返回false
+    bool UVtoXYZ(const double U,const double V, S2Point* pPnt);  //当（U,V）不对应实际空间时，返回false
 
     //球面坐标系（X,Y,Z）与网格坐标系（I,J）之间的转换函数
     bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);     //当（X,Y,Z）为非球面点时，返回false
     bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);  //当（I,J）不对应实际空间时，返回false
 
+    bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID);
+    bool CellIDtoIJ(const uint64 CellID, uint32* I, const uint32* J);
 }
 
 
