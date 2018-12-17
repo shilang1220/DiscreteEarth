@@ -18,6 +18,7 @@
 #include "s2/s2latlng.h"
 
 #include "core/region.h"
+#include "exports.h"
 
 class Decoder;
 class Encoder;
@@ -47,7 +48,7 @@ class Cell;
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-class LatLngRect final : public Region {
+DE_API class LatLngRect final : public Region {
 public:
     // Construct a rectangle from minimum and maximum latitudes and longitudes.
     // If lo.lng() > hi.lng(), the rectangle spans the 180 degree longitude
@@ -366,58 +367,6 @@ private:
     S1Interval lng_;
 };
 
-inline LatLngRect::LatLngRect(const S2LatLng& lo, const S2LatLng& hi)
-        : lat_(lo.lat().radians(), hi.lat().radians()),
-          lng_(lo.lng().radians(), hi.lng().radians()) {
-            S2_DLOG_IF(ERROR, !is_valid())
-            << "Invalid rect: " << lo << ", " << hi;
-}
-
-inline LatLngRect::LatLngRect(const R1Interval& lat, const S1Interval& lng)
-        : lat_(lat), lng_(lng) {
-            S2_DLOG_IF(ERROR, !is_valid())
-            << "Invalid rect: " << lat << ", " << lng;
-}
-
-inline LatLngRect::LatLngRect()
-        : lat_(R1Interval::Empty()), lng_(S1Interval::Empty()) {
-}
-
-inline LatLngRect LatLngRect::Empty() {
-    return LatLngRect();
-}
-
-inline LatLngRect LatLngRect::Full() {
-    return LatLngRect(FullLat(), FullLng());
-}
-
-inline bool LatLngRect::is_valid() const {
-    // The lat/lng ranges must either be both empty or both non-empty.
-    return (std::fabs(lat_.lo()) <= M_PI_2 &&
-            std::fabs(lat_.hi()) <= M_PI_2 &&
-            lng_.is_valid() &&
-            lat_.is_empty() == lng_.is_empty());
-}
-
-inline bool LatLngRect::is_empty() const {
-    return lat_.is_empty();
-}
-
-inline bool LatLngRect::is_full() const {
-    return lat_ == FullLat() && lng_.is_full();
-}
-
-inline bool LatLngRect::is_point() const {
-    return lat_.lo() == lat_.hi() && lng_.lo() == lng_.hi();
-}
-
-inline bool LatLngRect::operator==(const LatLngRect& other) const {
-    return lat() == other.lat() && lng() == other.lng();
-}
-
-inline bool LatLngRect::operator!=(const LatLngRect& other) const {
-    return !operator==(other);
-}
 
 std::ostream& operator<<(std::ostream& os, const LatLngRect& r);
 

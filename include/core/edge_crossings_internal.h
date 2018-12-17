@@ -23,13 +23,13 @@
 
 #include "s2/s1angle.h"
 #include "s2/s2point.h"
-
+#include "exports.h"
 namespace S2 {
 namespace internal {
 
 // Returns the intersection point of two edges computed using exact arithmetic
 // and rounded to the nearest representable S2Point.
-S2Point GetIntersectionExact(const S2Point& a0, const S2Point& a1,
+DE_API S2Point GetIntersectionExact(const S2Point& a0, const S2Point& a1,
                              const S2Point& b0, const S2Point& b1);
 
 // The maximum error in the method above.
@@ -51,7 +51,7 @@ enum class IntersectionMethod {
   EXACT,
   NUM_METHODS
 };
-const char* GetIntersectionMethodName(IntersectionMethod method);
+DE_API const char* GetIntersectionMethodName(IntersectionMethod method);
 
 }  // namespace internal
 }  // namespace S2

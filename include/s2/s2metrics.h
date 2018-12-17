@@ -31,10 +31,13 @@
 #include <algorithm>
 #include <cmath>
 
-#include "s2/s2coords.h"
+//#include "s2/s2coords.h"
 #include "util/math/mathutil.h"
+#include "exports.h"
 
 namespace S2 {
+
+    const int kMaxCellLevel = 31;
 
 // Defines a cell metric of the given dimension (1 == length, 2 == area).
 template <int dim> class Metric {

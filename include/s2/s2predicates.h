@@ -38,6 +38,7 @@
 #include "s2/s1chord_angle.h"
 #include "s2/s2debug.h"
 #include "s2/s2pointutil.h"
+#include "exports.h"
 
 // 用于预测单位球面上，边之间相交关系的各种函数
 
@@ -75,7 +76,7 @@ namespace s2pred {
 // On the other hand, note that it is not true in general that
 // Sign(-a,b,c) == -Sign(a,b,c), or any similar identities
 // involving antipodal points.
-int Sign(const S2Point& a, const S2Point& b, const S2Point& c);
+DE_API int Sign(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Given 4 points on the unit sphere, return true if the edges OA, OB, and
 // OC are encountered in that order while sweeping CCW around the point O.
@@ -89,7 +90,7 @@ int Sign(const S2Point& a, const S2Point& b, const S2Point& c);
 //  (3) If OrderedCCW(a,b,c,o) && OrderedCCW(c,b,a,o), then a == b == c
 //  (4) If a == b or b == c, then OrderedCCW(a,b,c,o) is true
 //  (5) Otherwise if a == c, then OrderedCCW(a,b,c,o) is false
-bool OrderedCCW(const S2Point& a, const S2Point& b, const S2Point& c,
+DE_API bool OrderedCCW(const S2Point& a, const S2Point& b, const S2Point& c,
                 const S2Point& o);
 
 // Returns -1, 0, or +1 according to whether AX < BX, A == B, or AX > BX
@@ -100,13 +101,13 @@ bool OrderedCCW(const S2Point& a, const S2Point& b, const S2Point& c,
 // exactly, or even when A and B project to the same point on the sphere.
 // Such results are guaranteed to be self-consistent, i.e. if AB < BC and
 // BC < AC, then AB < AC.
-int CompareDistances(const S2Point& x, const S2Point& a, const S2Point& b);
+DE_API int CompareDistances(const S2Point& x, const S2Point& a, const S2Point& b);
 
 // Returns -1, 0, or +1 according to whether the distance XY is less than,
 // equal to, or greater than "r" respectively.  Distances are measured with
 // respect the positions of all points as though they are projected to lie
 // exactly on the surface of the unit sphere.
-int CompareDistance(const S2Point& x, const S2Point& y, S1ChordAngle r);
+DE_API int CompareDistance(const S2Point& x, const S2Point& y, S1ChordAngle r);
 
 // Returns -1, 0, or +1 according to whether the distance from the point X to
 // the edge A is less than, equal to, or greater than "r" respectively.
@@ -120,7 +121,7 @@ int CompareDistance(const S2Point& x, const S2Point& y, S1ChordAngle r);
 // edges consisting of antipodal points by implementing additional symbolic
 // perturbation logic (similar to Sign) in order to rigorously define the
 // direction of such edges.
-int CompareEdgeDistance(const S2Point& x, const S2Point& a0, const S2Point& a1,
+DE_API int CompareEdgeDistance(const S2Point& x, const S2Point& a0, const S2Point& a1,
                         S1ChordAngle r);
 
 // Returns -1, 0, or +1 according to whether the normal of edge A has
@@ -139,7 +140,7 @@ int CompareEdgeDistance(const S2Point& x, const S2Point& a0, const S2Point& a1,
 //
 // REQUIRES: Neither edge can consist of antipodal points (e.g., A0 == -A1)
 //           (see comments in CompareEdgeDistance).
-int CompareEdgeDirections(const S2Point& a0, const S2Point& a1,
+DE_API int CompareEdgeDirections(const S2Point& a0, const S2Point& a1,
                           const S2Point& b0, const S2Point& b1);
 
 // Returns Sign(X0, X1, Z) where Z is the circumcenter of triangle ABC.
@@ -155,7 +156,7 @@ int CompareEdgeDirections(const S2Point& a0, const S2Point& a1,
 //
 // REQUIRES: X0 and X1 do not project to antipodal points (e.g., X0 == -X1)
 //           (see comments in CompareEdgeDistance).
-int EdgeCircumcenterSign(const S2Point& x0, const S2Point& x1,
+DE_API int EdgeCircumcenterSign(const S2Point& x0, const S2Point& x1,
                          const S2Point& a, const S2Point& b, const S2Point& c);
 
 // This is a specialized method that is used to compute the intersection of an
@@ -190,6 +191,7 @@ int EdgeCircumcenterSign(const S2Point& x0, const S2Point& x1,
 //           (see comments in CompareEdgeDistance).
 enum class Excluded { FIRST, SECOND, NEITHER, UNCERTAIN };
 std::ostream& operator<<(std::ostream& os, Excluded excluded);
+
 Excluded GetVoronoiSiteExclusion(const S2Point& a, const S2Point& b,
                                  const S2Point& x0, const S2Point& x1,
                                  S1ChordAngle r);

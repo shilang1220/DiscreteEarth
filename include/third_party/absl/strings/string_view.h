@@ -541,7 +541,7 @@ class string_view {
 
  private:
   static constexpr size_type kMaxSize =
-      std::numeric_limits<difference_type>::max();
+      (std::numeric_limits<difference_type>::max)();
 
   // check whether __builtin_strlen is provided by the compiler.
   // GCC doesn't have __has_builtin()

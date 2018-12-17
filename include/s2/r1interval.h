@@ -23,9 +23,11 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
+#include "base/logging.h"
 #include "util/math/vector.h"  // IWYU pragma: export
+
+#include "exports.h"
 
 // 平面一维间隔类
 // An R1Interval represents a closed, bounded interval on the real line.
@@ -34,7 +36,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-class R1Interval {
+DE_API class R1Interval {
  public:
   // Constructor.  If lo > hi, the interval is empty.
   R1Interval(double lo, double hi) : bounds_(lo, hi) {}
@@ -214,7 +216,7 @@ class R1Interval {
   Vector2_d bounds_;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const R1Interval& x) {
+DE_API inline std::ostream& operator<<(std::ostream& os, const R1Interval& x) {
   return os << "[" << x.lo() << ", " << x.hi() << "]";
 }
 

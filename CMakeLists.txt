@@ -3,8 +3,11 @@
 # Project setup
 ########################################################################
 cmake_minimum_required(VERSION 3.1)
+
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type: None Debug Release RelWithDebInfo MinSizeRel")
+
 project(DiscreteEarth)
+set(CMAKE_CXX_STANDARD 11)
 
 set(VERSION_INFO_MAJOR_VERSION 1)
 set(VERSION_INFO_MINOR_VERSION 3)
@@ -26,12 +29,41 @@ set(PROJECT_TEST_DIR "${PROJECT_SOURCE_DIR}/test")
 ########################################################################
 # Environment setup
 ########################################################################
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w") #-Wall
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w") #-Wall
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
+#编译选项
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# No compiler-specific extensions, i.e. -std=c++11, not -std=gnu++11.
+set(CMAKE_CXX_EXTENSIONS OFF)
+#宏定义
+add_definitions(-DDISCRETEEARTH_EXPORTS)
+#头文件目录
 include_directories(${PROJECT_INC_DIR})
-add_definitions(-D_USE_MATH_DEFINES)
+if(WIN32)
+    include_directories("C:/OpenSSL-Win64/include")
+else()
+    include_directories("/usr/local/include")
+endif()
+#共享库目录
+link_directories(${PROJECT_LIB_DIR})
+
+if (WIN32)
+    # Use unsigned characters
+    add_definitions(-J)
+    # Make sure cmath header defines things like M_PI
+    add_definitions(-D_USE_MATH_DEFINES)
+    # Make sure Windows doesn't define min/max macros that interfere with STL
+    add_definitions(-DNOMINMAX)
+    add_definitions(-W3)
+else()
+    # Avoid megabytes of warnings like:
+    # util/math/vector.h:178:16: warning: optimization attribute on
+    # ‘double sqrt(double)’ follows definition but the attribute doesn’t
+    # match [-Wattributes]
+    add_definitions(-Wno-attributes)
+    add_definitions(-Wno-deprecated-declarations)
+endif()
+
+
 
 ########################################################################
 # Dependencies setup
@@ -42,8 +74,8 @@ add_definitions(-D_USE_MATH_DEFINES)
 ########################################################################
 # Setup doxygen
 ########################################################################
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
+#find_package(Doxygen)
+#if(DOXYGEN_FOUND)
 #    configure_file(
 #            ${PROJECT_DOC_DIR}/Doxyfile.in
 #            ${PROJECT_BIN_DIR}/Doxyfile
@@ -54,7 +86,7 @@ if(DOXYGEN_FOUND)
 #            WORKING_DIRECTORY ${PROJECT_BIN_DIR}
 #            COMMENT "Generating documentation with Doxygen" VERBATIM
 #            )
-endif(DOXYGEN_FOUND)
+#endif(DOXYGEN_FOUND)
 
 ########################################################################
 # Setup the package config file

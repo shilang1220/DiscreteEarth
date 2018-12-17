@@ -21,7 +21,7 @@
 #include "base/logging.h"
 #include "third_party/absl/types/span.h"
 #include "s2/s2point.h"
-
+#include "exports.h"
 
 //  坐标串包装类
 
@@ -42,7 +42,7 @@ using S2PointSpan = absl::Span<const S2Point>;
 //
 // This property is useful for implementing algorithms where the elements of
 // the span represent the vertices of a loop.
-class S2PointLoopSpan : public S2PointSpan {
+DE_API class S2PointLoopSpan : public S2PointSpan {
  public:
   // Inherit all constructors.
   using absl::Span<const S2Point>::Span;

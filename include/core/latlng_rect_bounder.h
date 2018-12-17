@@ -20,7 +20,8 @@
 
 #include "s2/s2point.h"
 #include "s2/s2latlng.h"
-#include "s2/s2latlng_rect.h"
+#include "core/latlng_rect.h"
+#include "exports.h"
 
 // 用于计算外包矩形的类
 
@@ -35,9 +36,9 @@
 // guarantees the following.  Let L be a closed edge chain (loop) such that
 // the interior of the loop does not contain either pole.  Now if P is any
 // point such that L.Contains(P), then RectBound(L).Contains(S2LatLng(P)).
-class S2LatLngRectBounder {
+DE_API class LatLngRectBounder {
  public:
-  S2LatLngRectBounder() : bound_(S2LatLngRect::Empty()) {}
+  LatLngRectBounder() : bound_(LatLngRect::Empty()) {}
 
   // This method is called to add a vertex to the chain when the vertex is
   // represented as an S2Point.  Requires that 'b' has unit length.  Repeated
@@ -52,7 +53,7 @@ class S2LatLngRectBounder {
   // vertices defined so far.  This bound satisfies the guarantee made
   // above, i.e. if the edge chain defines a loop, then the bound contains
   // the S2LatLng coordinates of all S2Points contained by the loop.
-  S2LatLngRect GetBound() const;
+  LatLngRect GetBound() const;
 
   // Expands a bound returned by GetBound() so that it is guaranteed to
   // contain the bounds of any subregion whose bounds are computed using
@@ -68,11 +69,11 @@ class S2LatLngRectBounder {
   // is a loop such that L.Contains(S), then
   //
   //   ExpandForSubregions(RectBound(L)).Contains(RectBound(S)).
-  static S2LatLngRect ExpandForSubregions(const S2LatLngRect& bound);
+  static LatLngRect ExpandForSubregions(const LatLngRect& bound);
 
   // Returns the maximum error in GetBound() provided that the result does
   // not include either pole.  It is only to be used for testing purposes
-  // (e.g., by passing it to S2LatLngRect::ApproxEquals).
+  // (e.g., by passing it to LatLngRect::ApproxEquals).
   static S2LatLng MaxErrorForTests();
 
  private:
@@ -82,10 +83,10 @@ class S2LatLngRectBounder {
 
   S2Point a_;             // The previous vertex in the chain.
   S2LatLng a_latlng_;     // The corresponding latitude-longitude.
-  S2LatLngRect bound_;    // The current bounding rectangle.
+  LatLngRect bound_;    // The current bounding rectangle.
 
-  S2LatLngRectBounder(const S2LatLngRectBounder&) = delete;
-  void operator=(const S2LatLngRectBounder&) = delete;
+  LatLngRectBounder(const LatLngRectBounder&) = delete;
+  void operator=(const LatLngRectBounder&) = delete;
 };
 
 #endif  // S2_S2LATLNG_RECT_BOUNDER_H_

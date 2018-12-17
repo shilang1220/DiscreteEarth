@@ -23,7 +23,7 @@
 #include "s2/s1chord_angle.h"
 #include "s2/s2point.h"
 #include "s2/s2projections.h"
-
+#include "exports.h"
 // Given an edge in some 2D projection (e.g., Mercator), S2EdgeTessellator
 // converts the edge into a chain of spherical geodesic edges such that the
 // maximum distance between the original edge and the geodesic edge chain is
@@ -31,7 +31,7 @@
 // into a chain of edges in a given 2D projection such that the maximum
 // distance between the geodesic edge and the chain of projected edges is at
 // most "tolerance".
-class S2EdgeTessellator {
+DE_API class S2EdgeTessellator {
  public:
   // Constructs an S2EdgeTessellator using the given projection and error
   // tolerance.  The projection object must be valid for the entire lifetime

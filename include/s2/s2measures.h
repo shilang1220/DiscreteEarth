@@ -25,7 +25,7 @@
 #define S2_S2MEASURES_H_
 
 #include "s2/s2point.h"
-
+#include "exports.h"
 namespace S2 {
 
 // Return the interior angle at the vertex B in the triangle ABC.  The
@@ -35,7 +35,7 @@ namespace S2 {
 // The angle is undefined if A or C is diametrically opposite from B, and
 // becomes numerically unstable as the length of edge AB or BC approaches
 // 180 degrees.
-double Angle(const S2Point& a, const S2Point& b, const S2Point& c);
+DE_API double Angle(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Return the exterior angle at vertex B in the triangle ABC.  The return
 // value is positive if ABC is counterclockwise and negative otherwise.  If
@@ -46,7 +46,7 @@ double Angle(const S2Point& a, const S2Point& b, const S2Point& c);
 // Ensures that TurnAngle(a,b,c) == -TurnAngle(c,b,a) for all distinct
 // a,b,c. The result is undefined if (a == b || b == c), but is either
 // -Pi or Pi if (a == c).  All points should be normalized.
-double TurnAngle(const S2Point& a, const S2Point& b, const S2Point& c);
+DE_API double TurnAngle(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Return the area of triangle ABC.  This method combines two different
 // algorithms to get accurate results for both large and small triangles.
@@ -58,7 +58,7 @@ double TurnAngle(const S2Point& a, const S2Point& b, const S2Point& c);
 //
 // All points should be unit length, and no two points should be antipodal.
 // The area is always positive.
-double Area(const S2Point& a, const S2Point& b, const S2Point& c);
+DE_API double Area(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Return the area of the triangle computed using Girard's formula.  All
 // points should be unit length, and no two points should be antipodal.
@@ -70,11 +70,11 @@ double Area(const S2Point& a, const S2Point& b, const S2Point& c);
 // edge length of the triangle approaches 180 degrees.  But note that for
 // such triangles, tiny perturbations of the input points can change the
 // true mathematical area dramatically.
-double GirardArea(const S2Point& a, const S2Point& b, const S2Point& c);
+DE_API double GirardArea(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Like Area(), but returns a positive value for counterclockwise triangles
 // and a negative value otherwise.
-double SignedArea(const S2Point& a, const S2Point& b, const S2Point& c);
+DE_API double SignedArea(const S2Point& a, const S2Point& b, const S2Point& c);
 
 }  // namespace S2
 

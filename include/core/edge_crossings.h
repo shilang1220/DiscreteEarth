@@ -44,7 +44,7 @@
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
 #include "util/math/vector.h"
-
+#include "exports.h"
 //#include "core/latlng_rect.h"
 
 namespace S2 {
@@ -73,7 +73,7 @@ namespace S2 {
 //
 // Note that if you want to check an edge against a collection of other edges,
 // it is much more efficient to use an S2EdgeCrosser (see s2edge_crosser.h).
-int CrossingSign(const S2Point& a, const S2Point& b,
+DE_API int CrossingSign(const S2Point& a, const S2Point& b,
                  const S2Point& c, const S2Point& d);
 
 // Given two edges AB and CD where at least two vertices are identical
@@ -99,7 +99,7 @@ int CrossingSign(const S2Point& a, const S2Point& b,
 //      VC(a,b,c,d) and VC(c,d,a,b) is true
 //
 // It is an error to call this method with 4 distinct vertices.
-bool VertexCrossing(const S2Point& a, const S2Point& b,
+DE_API bool VertexCrossing(const S2Point& a, const S2Point& b,
                     const S2Point& c, const S2Point& d);
 
 // A convenience function that calls CrossingSign() to handle cases
@@ -107,7 +107,7 @@ bool VertexCrossing(const S2Point& a, const S2Point& b,
 // cases where two or more vertices are the same.  This defines a crossing
 // function such that point-in-polygon containment tests can be implemented
 // by simply counting edge crossings.
-bool EdgeOrVertexCrossing(const S2Point& a, const S2Point& b,
+    DE_API bool EdgeOrVertexCrossing(const S2Point& a, const S2Point& b,
                           const S2Point& c, const S2Point& d);
 
 // Given two edges AB and CD such that CrossingSign(A, B, C, D) > 0, returns
@@ -119,7 +119,7 @@ bool EdgeOrVertexCrossing(const S2Point& a, const S2Point& b,
 // The returned intersection point X is guaranteed to be very close to the
 // true intersection point of AB and CD, even if the edges intersect at a
 // very small angle.  See "kIntersectionError" below for details.
-S2Point GetIntersection(const S2Point& a, const S2Point& b,
+DE_API S2Point GetIntersection(const S2Point& a, const S2Point& b,
                         const S2Point& c, const S2Point& d);
 
 // kIntersectionError is an upper bound on the distance from the intersection

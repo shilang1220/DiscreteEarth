@@ -16,13 +16,9 @@
 #include "core/latlng_rect.h"
 #include "core/region.h"
 #include "core/cap.h"
+#include "exports.h"
 
-//#include "shape/s2shape.h"
-#include "third_party/absl/base/macros.h"
-#include "third_party/absl/memory/memory.h"
-
-
-class GTLoop final : Region {
+DE_API class GTLoop final : Region {
     
     GTLoop();
 
@@ -232,6 +228,5 @@ private:
     int num_vertices_ = 0;
     std::unique_ptr<S2Point[]> vertices_;
 };
-
 
 #endif //DISCRETEEARTH_GTLOOP_H

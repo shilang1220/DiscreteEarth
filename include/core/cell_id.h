@@ -21,7 +21,7 @@
 #include "third_party/absl/strings/string_view.h"
 #include "util/bits/bits.h"
 #include "util/coding/coder.h"
-
+#include "exports.h"
 class S2LatLng;
 
 //CellId 是球面网格编码的抽象类，用户可定义自己的编码类
@@ -57,7 +57,7 @@ class S2LatLng;
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-class CellId {
+DE_API class CellId {
 public:
     // The extra position bit (61 rather than 60) let us encode each cell as its
     // Hilbert curve position at the cell center (which is halfway along the
@@ -79,9 +79,9 @@ public:
     // error is 2 * DBL_EPSILON (the same as Normalize).
     virtual S2Point  ToPoint() const = 0 ;
     // 根据球面坐标创建对应的网格ID
-    virtual bool  FromPoint(S2Point point) const = 0;
+    virtual bool  FromPoint(S2Point point)  = 0;
     // 根据球面坐标和指定层级，创建对应的网格ID
-    virtual bool  FromPoint(S2Point point, unsigned int level) const = 0;
+    virtual bool  FromPoint(S2Point point, unsigned int level)  = 0;
 
     /************************************
       *  网格ID与经纬度之间的转换函数
@@ -90,9 +90,9 @@ public:
     // Return the S2LatLng corresponding to the center of the given cell.
     virtual  S2LatLng ToLatLng() const = 0;
     //  根据经纬度，生成对应的网格ID
-    virtual  bool FromLatLng(S2LatLng latLng) const = 0;
+    virtual  bool FromLatLng(S2LatLng latLng)  = 0;
 //  根据经纬度和指定层级，生成对应的网格ID
-    virtual  bool FromLatLng(S2LatLng latLng, unsigned int level) const = 0;
+    virtual  bool FromLatLng(S2LatLng latLng, unsigned int level)  = 0;
 
     /************************************
    *  网格ID属性访问函数

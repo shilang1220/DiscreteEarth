@@ -23,6 +23,23 @@
 #define DISCRETEEARTH_GTCOORDS_H
 
 #include "base/integral_types.h"
+#include "s2/s2point.h"
+#include "gt/gtcoords.h"
+#include "exports.h"
+
+// GT网格系统涉及四个坐标系统
+// 经纬度          （LNG,LAT）       double
+//                  -180.00 ≤ LNG ≤ +180.00，-90.00 ≤ LAT ≤ +90.00
+// 扩展坐标系      （U,V）           double
+//                  -512.00 ≤ U ≤ +512.00，-512.00 ≤ L ≤ +512.00
+// 球面坐标系      （X,Y,Z）         double
+//                  X**2 + Y**2 + Z**2 =1
+// 网格坐标系      （I，J）          unsigned long(uint32)
+//                  0 ≤ I ≤ 2**32，0 ≤ J ≤ 2**32
+//Z序一维网格编码     GTCellID       unsigned long long(uint64),仅使用前62bit（31级），末尾2bit预留作截止位（第32级弃用）
+//                  0X1<<1(0B 0000 0000 .... 0010) ≤ GTCellID ≤ 0XFFFFFFFFFFFFFFE(0B 1111 1111 .... 1110)
+//                  0X0 特殊编码，用于标识全球
+//                  0XFF FF FF FF FF FF FF FF，特殊编码，用途待定
 
 namespace GT{
 // 网格最大层级
@@ -37,10 +54,42 @@ namespace GT{
 // cell indices is [0..kLimitIJ-1].
     const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
 
-// （Si，Ti）坐标的最大值，为能够有效表示叶子节点的边缘和中心，通常在叶子节点基础上，再四分一级
-// The maximum value of an si- or ti-coordinate.  The range of valid (si,ti)
-// values is [0..kMaxSiTi].
-    const uint64 kMaxSiTi = 1U << (kMaxCellLevel + 1);
+    const double kMin2Degree =  1/(double)60.00;
+    const double kSec2Degree =  2048/(double) 3600.00;
+
+    //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
+    DE_API bool XYZtoLL (const S2Point &p, double *pU, double *pV) ;
+    DE_API bool LLtoXYZ (const double U, const double V, S2Point *pPnt) ;
+
+
+    //扩展坐标系（U，V）与网格坐标系（I，J）之间的转换函数
+    DE_API bool IJtoUV(const uint32 I,const uint32 J, double* pU, double* pV);
+    DE_API bool UVtoIJ(const double U,const double V,uint32* pI,uint32* pJ);
+
+    //经纬度坐标系（LNG，LAT）与网格坐标系（I，J）之间的转换函数
+    DE_API bool IJtoLL(const uint32 I, const uint32 J,double* pLng,double* pLat);  //当（I,J）不对应经纬度时，返回false
+    DE_API bool LLtoIJ(const double Lng,const double Lat,uint32* pI,uint32* pJ);        //当ll经纬度超届时，返回false
+
+    //球面坐标系（X,Y,Z）与扩展坐标系（U,V）之间的转换函数
+    DE_API bool XYZtoUV(const S2Point& p, double* pU, double* pV);     //当（X,Y,Z）为非球面点时，返回false
+    DE_API bool UVtoXYZ(const double U,const double V, S2Point* pPnt);  //当（U,V）不对应实际空间时，返回false
+
+    //球面坐标系（X,Y,Z）与网格坐标系（I,J）之间的转换函数
+    DE_API bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);     //当（X,Y,Z）为非球面点时，返回false
+    DE_API bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);  //当（I,J）不对应实际空间时，返回false
+
+    //Z序编码与网格坐标系（I,J）之间的转换函数
+    DE_API bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID);
+    DE_API bool CellIDtoIJ(const uint64 CellID, uint32* pI, uint32* pJ);
+
+    //Z序编码与经纬度坐标系（Lng,Lat）之间的转换函数
+    DE_API bool LLtoCellID(const double Lng, const double Lat, uint64* pCellID);
+    DE_API bool CellIDtoLL(const uint64 CellID, double* pLng, double* pLat);
+
+    //Z序编码与球面坐标系（X,Y,Z）之间的转换函数
+    DE_API bool XYZtoCellID(const S2Point pnt, uint64* pCellID);
+    DE_API bool CellIDtoXYZ(const uint64 CellID, S2Point* pPnt);
+
 }
 
 

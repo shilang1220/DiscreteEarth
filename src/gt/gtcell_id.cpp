@@ -1,49 +1,90 @@
 //
 // Created by 濮国梁 on 2018/12/13.
 //
-#include <gt/gtcell_id.h>
-
 #include "gt/gtcell_id.h"
+#include "gt/gtcoords.h"
 
 GTCellId::GTCellId(const S2Point p) {
-
+    //默认为叶子网格
+    uint32 I,J;
+    GT::XYZtoIJ(p,&I,&J);
+    GT::IJtoCellID(I,J,&id_);
 }
 GTCellId::GTCellId(const S2LatLng ll) {
-
+    //默认为叶子网格
+    uint32 I,J;
+    GT::LLtoIJ(ll.lng().degrees(),ll.lat().degrees(),&I,&J);
+    GT::IJtoCellID(I,J,&id_);
 }
-
 
 S2Point GTCellId::ToPoint() const {
-    return S2Point();
+    S2Point pnt;
+
+    GT::CellIDtoXYZ(id_,&pnt);
+
+    return pnt;
 }
 
-bool GTCellId::FromPoint(S2Point point) const {
-    return false;
+bool GTCellId::FromPoint(S2Point point) {
+
+    uint64 id;
+
+    GT::XYZtoCellID(point,&id);
+    id_ = id;
+
+    return true;
 }
 
-bool GTCellId::FromPoint(S2Point point, unsigned int level) const {
-    return false;
+bool GTCellId::FromPoint(S2Point point, unsigned int level)  {
+    uint32 I,J,mask;
+
+    S2_DCHECK_LE(level,31);
+
+    GT::XYZtoIJ(point,&I,&J);
+
+    mask = 0XFFFFFFFF << (kMaxLevel - level + 1);
+
+    I = I & mask;
+    J = J & mask;
+
+    GT::IJtoCellID(I,J,&id_);
+
+    return true;
 }
 
 
 S2LatLng GTCellId::ToLatLng() const {
-    return S2LatLng();
+    double lng,lat;
+
+    GT::CellIDtoLL(id_,&lng,&lat);
+
+    return S2LatLng().FromDegrees(lat,lng);
 }
 
-bool GTCellId::FromLatLng(S2LatLng latLng) const {
-    return false;
+bool GTCellId::FromLatLng(S2LatLng latLng)  {
+    GT::LLtoCellID(latLng.lng().degrees(),latLng.lat().degrees(),&id_);
+    return true;
 }
 
-bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level) const {
-    return false;
+bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level)  {
+    uint32 I,J,mask;
+
+    S2_DCHECK_LE(level,31);
+
+    GT::LLtoIJ(latLng.lng().degrees(),latLng.lat().degrees(),&I,&J);
+
+    mask = 0XFFFFFFFF << (kMaxLevel - level + 1);
+
+    I = I & mask;
+    J = J & mask;
+
+    GT::IJtoCellID(I,J,&id_);
+
+    return true;
 }
 
-
-////////////////////////////////////////////////////////
-//  网格ID编码的属性获取函数
-/////////////////////////////////////////////////////////
 inline uint64 GTCellId::lsb() const {
-    return id_ & (~id_ + 2);  //如果是非法编码的话
+    return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
 }
 
 inline bool GTCellId::is_valid() const {
@@ -51,74 +92,31 @@ inline bool GTCellId::is_valid() const {
     return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
 }
 
+inline GTCellId GTCellId::range_min_cell() const {
+    return GTCellId(id_ - (lsb() - 1));
+}
+
+inline GTCellId GTCellId::range_max_cell() const {
+    return GTCellId(id_ + (lsb() - 1));
+}
+
+uint64 GTCellId::range_min() const {
+    return range_min_cell().id();
+}
+
+uint64 GTCellId::range_max() const {
+    return range_max_cell().id();
+}
+
 inline int GTCellId::level() const {
     // We can't just S2_DCHECK(is_valid()) because we want level() to be
     // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
     // no good way to define S2CellId::None().level(), so we do prohibit that.
-            S2_DCHECK(id_ != 0);
+    S2_DCHECK(id_ != 0);
 
     // A special case for leaf cells is not worthwhile.
     return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
 }
-
-inline uint64 GTCellId::pos() const {
-    return 0;
-}
-
-inline bool GTCellId::is_leaf() const {
-    return (id_ & 0x02ULL);
-}
-
-inline GTCellId GTCellId::range_min_cell() const {
-    return GTCellId(id_ - (lsb() - 0x2));
-}
-
-inline GTCellId GTCellId::range_max_cell() const {
-    return GTCellId(id_ + (lsb() - 0x2));
-}
-
-uint64 GTCellId::range_min() const {
-    return (id_ - (lsb() - 0x2));
-}
-
-uint64 GTCellId::range_max() const {
-    return (id_ + (lsb() - 0x2));
-}
-
-
-inline R2Point GTCellId::GetCenterBL() const {
-    return R2Point();
-}
-
-inline double GTCellId::GetSizeBL() const {
-    return 0;
-}
-
-inline double GTCellId::GetSizeBL(int level) {
-    return 0;
-}
-
-inline int GTCellId::GetSizeIJ() const {
-    return 0;
-}
-
-inline int GTCellId::GetSizeIJ(int level) {
-    return 0;
-}
-
-inline int GTCellId::GetCenterSiTi(int *psi, int *pti) const {
-    return 0;
-}
-
-
-////////////////////////////////////////////////////////
-//  网格编码的属性获取
-/////////////////////////////////////////////////////////
-
-
-
-
-
 
 int GTCellId::child_position() const {
     return 0;
@@ -127,8 +125,6 @@ int GTCellId::child_position() const {
 int GTCellId::child_position(int level) const {
     return 0;
 }
-
-
 
 bool GTCellId::contains(const uint64 other) const {
     return false;
@@ -253,7 +249,7 @@ bool GTCellId::Decode(Decoder *const decoder) {
 }
 
 string GTCellId::ToString() const {
-    return std::__cxx11::string();
+    return std::string();
 }
 
 int GTCellId::GetCommonAncestorLevel(GTCellId other) const {

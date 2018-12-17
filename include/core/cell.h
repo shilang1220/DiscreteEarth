@@ -14,6 +14,7 @@
 #include "core/cell_id.h"
 #include "core/region.h"
 #include "util/math/vector.h"
+#include "exports.h"
 
 //Cell是四边形球面网格的抽象类，用户可根据自己需要定制自己的网格类
 //
@@ -25,7 +26,7 @@
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-class Cell : public Region {
+DE_API class Cell : public Region {
 public:
 
     /***************************************
@@ -181,29 +182,5 @@ private:
     int8 orientation_;
     R2Rect uv_;
 };
-
-inline bool operator==(const Cell& x, const Cell& y) {
-    return x.id() == y.id();
-}
-
-inline bool operator!=(const Cell& x, const Cell& y) {
-    return x.id() != y.id();
-}
-
-inline bool operator<(const Cell& x, const Cell& y) {
-    return x.id() < y.id();
-}
-
-inline bool operator>(const Cell& x, const Cell& y) {
-    return x.id() > y.id();
-}
-
-inline bool operator<=(const Cell& x, const Cell& y) {
-    return x.id() <= y.id();
-}
-
-inline bool operator>=(const Cell& x, const Cell& y) {
-    return x.id() >= y.id();
-}
 
 #endif //DISCRETEEARTH_CELL_H

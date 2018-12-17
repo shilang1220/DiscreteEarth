@@ -2,15 +2,16 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#ifndef DISCRETEEARTH_GTCellId_H
-#define DISCRETEEARTH_GTCellId_H
+#ifndef DISCRETEEARTH_GTCELLID_H
+#define DISCRETEEARTH_GTCELLID_H
 
 #include "core/cell_id.h"
 #include "s2/s2latlng.h"
-
 #include "gt/gtcoords.h"
 
-class GTCellId final : public CellId{
+#include "exports.h"
+
+DE_API class GTCellId final : public CellId{
 
 public:
     ///////////////////////////////////////////////
@@ -30,29 +31,24 @@ public:
     // 0b 1101 1100 1110 0110  第7级的第2个子网格
     // 0b 1101 1100 1110 1010  第7级的第3个子网格
     // 0b 1101 1100 1110 1110  第7级的第4个子网格
-    // 0b 1101 1100 1110 1100  非法网格编码，没有截止指示bit
-    // 0b 1101 1100 1110 0100  非法网格编码，没有截止指示bit
+    // 0b 1101 1100 1110 1100  非法网格编码
+    // 0b 1101 1100 1110 0100  非法网格编码
     // 0b 1101 1100 1110 1000  合法网格编码，只能被解释为第6级的第3个子网格
-    // 0b 1101 1100 1110 1100  非法网格编码，没有截止指示bit
-    // 0b 1101 1100 1100 0000  非法网格编码，没有截止指示bit
-    // 0b 1101 1100 1101 0000  非法网格编码，没有截止指示bit
-    // 0b 1101 1100 1111 0000  非法网格编码，没有截止指示bit
+    // 0b 1101 1100 1110 1100  非法网格编码
+    // 0b 1101 1100 1100 0000  非法网格编码
+    // 0b 1101 1100 1101 0000  非法网格编码
+    // 0b 1101 1100 1111 0000  非法网格编码
     /////////////////////////////////////////////
 
     ///////////////////////////////////////////////
     // 构造函数
     //////////////////////////////////////////////
-    //缺省构造函数，赋值为0（非法网格编码）
-    GTCellId(){ id_ = 0;}
 
-    // 根据指定ID直接构造对象
     explicit GTCellId(const uint64 id){id_ = id;}
 
-    // 根据球面坐标构造叶子节点网格ID
     // Construct a leaf cell containing the given point "p".
     explicit GTCellId(const S2Point p);
 
-    // 根据经纬度坐标构造叶子节点网格ID
     // Construct a leaf cell containing the given S2LatLng.
     explicit GTCellId(const S2LatLng ll);
 
@@ -69,9 +65,9 @@ public:
     // mathematical result) is 1.5 * DBL_EPSILON radians, and the maximum length
     // error is 2 * DBL_EPSILON (the same as Normalize).
     S2Point  ToPoint() const override;
-    // 根据球面坐标创建对应的网格ID
-    bool  FromPoint(S2Point point) const override;
-    bool  FromPoint(S2Point point, unsigned int level) const override;
+    // 根据球面坐标创建对应的网格ID, point为地心矢量，ID对应其与球面的交点
+    bool  FromPoint(S2Point point)  override;
+    bool  FromPoint(S2Point point, unsigned int level)  override;
 
     /************************************
       *  GEOSOT网格ID与经纬度之间的转换函数
@@ -80,12 +76,26 @@ public:
     // Return the S2LatLng corresponding to the center of the given cell.
     S2LatLng ToLatLng() const override;
     //  根据经纬度，生成对应的网格ID
-    bool FromLatLng(S2LatLng latLng) const override;
-    bool FromLatLng(S2LatLng latLng, unsigned int level) const override;
+    bool FromLatLng(S2LatLng latLng)  override;
+    bool FromLatLng(S2LatLng latLng, unsigned int level)  override;
 
     /************************************
-     *  网格ID属性访问函数
-     ************************************/
+ *  网格ID属性访问函数
+ ************************************/
+    // Return true if id() represents a valid cell.
+    bool is_valid() const override;
+
+    // 网格ID所在的曲线位置
+    uint64 pos() const override;
+
+    // 网格ID所在的层级
+    int level() const override ;
+
+    // 网格ID是否对应叶子节点
+    // Return true if this is a leaf cell (more efficient than checking
+    // whether level() == kMaxLevel).
+    bool is_leaf() const override;
+
     // 返回该网格编码的最低有效位
     // Return the lowest-numbered bit that is on for this cell id, which is
     // equal to (uint64{1} << (2 * (kMaxLevel - level))).  So for example,
@@ -93,21 +103,18 @@ public:
     // first test is more efficient.
     uint64 lsb() const ;
 
-    // 判断是否是有效的网格
-    // Return true if id() represents a valid cell.
-    bool is_valid() const override;
+    // 网格ID在其父节点中的位置（0..3）
+    // Return the child position (0..3) of this cell within its parent.
+    // REQUIRES: level() >= 1.
+    int child_position() const override;
 
-    // 返回网格ID所在的层级
-    int level() const override ;
+    // 网格ID的某个层级祖先节点在其父节点中的位置
+    // Return the child position (0..3) of this cell's ancestor at the given
+    // level within its parent.  For example, child_position(1) returns the
+    // position of this cell's level-1 ancestor within its top-level face cell.
+    // REQUIRES: 1 <= level <= this->level().
+    int child_position(int level) const override;
 
-    // 返回网格ID在该层级曲线中的顺序位置
-    uint64 pos() const override;
-
-    // 判断网格ID是否叶子节点
-    // Return true if this is a leaf cell (more efficient than checking
-    // whether level() == kMaxLevel).
-
-    bool is_leaf() const override;
     // These methods return the range of cell ids that are contained within this
     // cell (including itself).  The range is *inclusive* (i.e. test using >=
     // and <=) and the return values of both methods are valid leaf cell ids.
@@ -144,47 +151,6 @@ public:
     // 本网格包含的子网格中ID的最大值，根据编码的定义，最大值出现在叶子结点
     uint64 range_max() const override ;
     GTCellId range_max_cell() const ;
-
-    /************************************
-     *  网格ID几何属性访问函数
-     ************************************/
-
-    // 返回网格中心点的经纬度
-    // Return the center of the cell in (s,t) coordinates (see s2coords.h).
-    R2Point GetCenterBL() const;
-
-    // 返回网格的经纬度尺寸
-    // Return the edge length of this cell in (s,t)-space.
-    double GetSizeBL() const;
-
-    // 返回指定层级的经纬度尺寸
-    // Return the edge length in (s,t)-space of cells at the given level.
-    static double GetSizeBL(int level);
-
-    //返回网格在（I，J）坐标系下的尺寸，（I，J）坐标系由第kMaxLevel的所有网格构成
-    int GetSizeIJ( ) const;
-
-    // 返回某个层级网格在（I，J）坐标系下的尺寸，（I，J）坐标系由第kMaxLevel中的所有网格构成
-    // Like the above, but return the size of cells at the given level.
-    static int GetSizeIJ(int level);
-
-    //返回网格中心点的（Si，Ti）坐标，（Si，Ti）坐标系由第kMaxLevel+1层中的所有网格构成
-    int GetCenterSiTi(int* psi, int* pti) const;
-
-
-    // 网格ID在其父节点中的位置（0..3）
-    // Return the child position (0..3) of this cell within its parent.
-    // REQUIRES: level() >= 1.
-    int child_position() const override;
-
-    // 网格ID的某个层级祖先节点在其父节点中的位置
-    // Return the child position (0..3) of this cell's ancestor at the given
-    // level within its parent.  For example, child_position(1) returns the
-    // position of this cell's level-1 ancestor within its top-level face cell.
-    // REQUIRES: 1 <= level <= this->level().
-    int child_position(int level) const override;
-
-
 
     /************************************
     *  网格空间关系计算函数
@@ -364,35 +330,34 @@ public:
     // CellId::FromFace(3).child(0).child(2).
     string ToString() const override ;
 
+
+public:
+
 };
 
-
-////////////////////////////////////////////////////////
-//  定义基本BOOL操作
-/////////////////////////////////////////////////////////
-
-inline bool operator==(GTCellId x, GTCellId y) {
+//重载逻辑表达运算的全局函数
+DE_API inline bool operator==(GTCellId x, GTCellId y) {
     return x.id() == y.id();
 }
 
-inline bool operator!=(GTCellId x, GTCellId y) {
+DE_API inline bool operator!=(GTCellId x, GTCellId y) {
     return x.id() != y.id();
 }
 
-inline bool operator<(GTCellId x, GTCellId y) {
+DE_API inline bool operator<(GTCellId x, GTCellId y) {
     return x.id() < y.id();
 }
 
-inline bool operator>(GTCellId x, GTCellId y) {
+DE_API inline bool operator>(GTCellId x, GTCellId y) {
     return x.id() > y.id();
 }
 
-inline bool operator<=(GTCellId x, GTCellId y) {
+DE_API inline bool operator<=(GTCellId x, GTCellId y) {
     return x.id() <= y.id();
 }
 
-inline bool operator>=(GTCellId x, GTCellId y) {
+DE_API inline bool operator>=(GTCellId x, GTCellId y) {
     return x.id() >= y.id();
 }
 
-#endif //DISCRETEEARTH_GTCellId_H
+#endif //DISCRETEEARTH_GTCELLID_H
