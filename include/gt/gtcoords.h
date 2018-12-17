@@ -34,8 +34,8 @@
 // 球面坐标系      （X,Y,Z）         double
 //                  X**2 + Y**2 + Z**2 =1
 // 网格坐标系      （I，J）          unsigned long(uint32)
-//                  0 ≤ I ≤ 2**kMaxCellLevel，0 ≤ J ≤ 2**kMaxCellLevel
-//Z序一维网格编码     GTCellID       unsigned long long(uint64)
+//                  0 ≤ I ≤ 2**32，0 ≤ J ≤ 2**32
+//Z序一维网格编码     GTCellID       unsigned long long(uint64),仅使用前62bit（31级），末尾2bit预留作截止位（第32级弃用）
 //                  0X1<<1(0B 0000 0000 .... 0010) ≤ GTCellID ≤ 0XFFFFFFFFFFFFFFE(0B 1111 1111 .... 1110)
 //                  0X0 特殊编码，用于标识全球
 //                  0XFF FF FF FF FF FF FF FF，特殊编码，用途待定
@@ -53,6 +53,8 @@ namespace GT{
 // cell indices is [0..kLimitIJ-1].
     const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
 
+    const double kMin2Degree =  1/(double)60.00;
+    const double kSec2Degree =  2048/(double) 3600.00;
 
     //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
     bool XYZtoLL (const S2Point &p, double *pU, double *pV) ;
@@ -75,8 +77,9 @@ namespace GT{
     bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);     //当（X,Y,Z）为非球面点时，返回false
     bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);  //当（I,J）不对应实际空间时，返回false
 
+    //Z序编码与网格坐标系（I,J）之间的转换函数
     bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID);
-    bool CellIDtoIJ(const uint64 CellID, uint32* I, const uint32* J);
+    bool CellIDtoIJ(const uint64 CellID, uint32* pI, uint32* pJ);
 }
 
 

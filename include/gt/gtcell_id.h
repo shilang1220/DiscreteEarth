@@ -64,7 +64,7 @@ public:
     // mathematical result) is 1.5 * DBL_EPSILON radians, and the maximum length
     // error is 2 * DBL_EPSILON (the same as Normalize).
     S2Point  ToPoint() const override;
-    // 根据球面坐标创建对应的网格ID
+    // 根据球面坐标创建对应的网格ID, point为地心矢量，ID对应其与球面的交点
     bool  FromPoint(S2Point point) const override;
     bool  FromPoint(S2Point point, unsigned int level) const override;
 
