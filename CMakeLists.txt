@@ -3,8 +3,11 @@
 # Project setup
 ########################################################################
 cmake_minimum_required(VERSION 3.1)
+
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type: None Debug Release RelWithDebInfo MinSizeRel")
+
 project(DiscreteEarth)
+set(CMAKE_CXX_STANDARD 11)
 
 set(VERSION_INFO_MAJOR_VERSION 1)
 set(VERSION_INFO_MINOR_VERSION 3)
@@ -27,11 +30,18 @@ set(PROJECT_TEST_DIR "${PROJECT_SOURCE_DIR}/test")
 # Environment setup
 ########################################################################
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w") #-Wall
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w") #-Wall
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w") #-Wall
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /J")
+    add_definitions(-DNOMINMAX)
+endif(MSVC)
 
 include_directories(${PROJECT_INC_DIR})
+include_directories("C:/OpenSSL-Win64/include")
 add_definitions(-D_USE_MATH_DEFINES)
+add_definitions(-DDISCRETEEARTH_EXPORTS)
 
 ########################################################################
 # Dependencies setup
@@ -42,8 +52,8 @@ add_definitions(-D_USE_MATH_DEFINES)
 ########################################################################
 # Setup doxygen
 ########################################################################
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
+#find_package(Doxygen)
+#if(DOXYGEN_FOUND)
 #    configure_file(
 #            ${PROJECT_DOC_DIR}/Doxyfile.in
 #            ${PROJECT_BIN_DIR}/Doxyfile
@@ -54,7 +64,7 @@ if(DOXYGEN_FOUND)
 #            WORKING_DIRECTORY ${PROJECT_BIN_DIR}
 #            COMMENT "Generating documentation with Doxygen" VERBATIM
 #            )
-endif(DOXYGEN_FOUND)
+#endif(DOXYGEN_FOUND)
 
 ########################################################################
 # Setup the package config file

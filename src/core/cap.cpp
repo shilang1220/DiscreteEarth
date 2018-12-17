@@ -28,6 +28,58 @@ using std::max;
 using std::min;
 using std::vector;
 
+//////////////////   Implementation details follow   ////////////////////
+
+
+inline Cap::Cap(const S2Point& center, S1Angle radius)
+        : center_(center), radius_(std::min(radius, S1Angle::Radians(M_PI))) {
+    // The "min" calculation above is necessary to handle S1Angle::Infinity().
+            S2_DCHECK(is_valid());
+}
+
+inline Cap::Cap(const S2Point& center, S1ChordAngle radius)
+        : center_(center), radius_(radius) {
+            S2_DCHECK(is_valid());
+}
+
+inline Cap Cap::FromPoint(const S2Point& center) {
+    return Cap(center, S1ChordAngle::Zero());
+}
+
+inline Cap Cap::FromCenterHeight(const S2Point& center, double height) {
+    return Cap(center, S1ChordAngle::FromLength2(2 * height));
+}
+
+inline Cap Cap::FromCenterArea(const S2Point& center, double area) {
+    return Cap(center, S1ChordAngle::FromLength2(area / M_PI));
+}
+
+inline Cap Cap::Empty() { return Cap(); }
+
+inline Cap Cap::Full() {
+    return Cap(S2Point(1, 0, 0), S1ChordAngle::Straight());
+}
+
+inline double Cap::height() const {
+    return 0.5 * radius_.length2();
+}
+
+inline S1Angle Cap::GetRadius() const {
+    return radius_.ToAngle();
+}
+
+inline bool Cap::is_valid() const {
+    return S2::IsUnitLength(center_) && radius_.length2() <= 4;
+}
+
+inline bool Cap::is_empty() const {
+    return radius_.is_negative();
+}
+
+inline bool Cap::is_full() const {
+    return radius_.length2() == 4;
+}
+
 double Cap::GetArea() const {
     return 2 * M_PI * max(0.0, height());
 }

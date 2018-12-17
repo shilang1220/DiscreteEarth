@@ -26,12 +26,13 @@
 #include <string>
 
 #include "base/port.h"
+#include "exports.h"
 
 //错误代码维护类
 
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-class S2Error {
+DE_API class S2Error {
  public:
   enum Code {
     OK = 0,                  // No error.

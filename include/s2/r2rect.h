@@ -20,18 +20,19 @@
 
 #include <iosfwd>
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
+#include "base/logging.h"
 #include "s2/r1interval.h"
 #include "s2/r2.h"
 
+#include "exports.h"
 // 平面二维矩形类，可用于表达投影平面
 // An R2Rect represents a closed axis-aligned rectangle in the (x,y) plane.
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-class R2Rect {
+DE_API class R2Rect {
  public:
   // Construct a rectangle from the given lower-left and upper-right points.
   R2Rect(const R2Point& lo, const R2Point& hi);
@@ -160,75 +161,6 @@ class R2Rect {
  private:
   R1Interval bounds_[2];
 };
-
-inline R2Rect::R2Rect(const R2Point& lo, const R2Point& hi) {
-  bounds_[0] = R1Interval(lo.x(), hi.x());
-  bounds_[1] = R1Interval(lo.y(), hi.y());
-  S2_DCHECK(is_valid());
-}
-
-inline R2Rect::R2Rect(const R1Interval& x, const R1Interval& y) {
-  bounds_[0] = x;
-  bounds_[1] = y;
-  S2_DCHECK(is_valid());
-}
-
-inline R2Rect::R2Rect() {
-  // The default R1Interval constructor creates an empty interval.
-  S2_DCHECK(is_valid());
-}
-
-inline R2Rect R2Rect::Empty() {
-  return R2Rect(R1Interval::Empty(), R1Interval::Empty());
-}
-
-inline bool R2Rect::is_valid() const {
-  // The x/y ranges must either be both empty or both non-empty.
-  return x().is_empty() == y().is_empty();
-}
-
-inline bool R2Rect::is_empty() const {
-  return x().is_empty();
-}
-
-inline R2Rect R2Rect::FromPoint(const R2Point& p) {
-  return R2Rect(p, p);
-}
-
-inline R2Point R2Rect::GetVertex(int k) const {
-  // Twiddle bits to return the points in CCW order (lower left, lower right,
-  // upper right, upper left).
-  int j = (k >> 1) & 1;
-  return GetVertex(j ^ (k & 1), j);
-}
-
-inline R2Point R2Rect::GetVertex(int i, int j) const {
-  return R2Point(bounds_[0][i], bounds_[1][j]);
-}
-
-inline R2Point R2Rect::GetCenter() const {
-  return R2Point(x().GetCenter(), y().GetCenter());
-}
-
-inline R2Point R2Rect::GetSize() const {
-  return R2Point(x().GetLength(), y().GetLength());
-}
-
-inline bool R2Rect::Contains(const R2Point& p) const {
-  return x().Contains(p.x()) && y().Contains(p.y());
-}
-
-inline bool R2Rect::InteriorContains(const R2Point& p) const {
-  return x().InteriorContains(p.x()) && y().InteriorContains(p.y());
-}
-
-inline R2Rect R2Rect::Expanded(double margin) const {
-  return Expanded(R2Point(margin, margin));
-}
-
-inline bool R2Rect::operator==(const R2Rect& other) const {
-  return x() == other.x() && y() == other.y();
-}
 
 std::ostream& operator<<(std::ostream& os, const R2Rect& r);
 

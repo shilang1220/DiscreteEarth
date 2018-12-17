@@ -29,13 +29,14 @@
 #include "s2/r2.h"
 #include "s2/s2latlng.h"
 #include "s2/s2point.h"
+#include "exports.h"
 
 namespace S2 {
 
 // For the purposes of the S2 library, a projection is a function that maps
 // between S2Points and R2Points.  It can also define the coordinate wrapping
 // behavior along each axis.
-class Projection {
+DE_API class Projection {
  public:
   virtual ~Projection() {}
 
@@ -96,7 +97,7 @@ class Projection {
 // Note that (x, y) coordinates are backwards compared to the usual (latitude,
 // longitude) ordering, in order to match the usual convention for graphs in
 // which "x" is horizontal and "y" is vertical.
-class PlateCarreeProjection final : public Projection {
+DE_API class PlateCarreeProjection final : public Projection {
  public:
   // Constructs the plate carree projection where the x coordinates
   // (longitude) span [-x_scale, x_scale] and the y coordinates (latitude)
@@ -133,7 +134,7 @@ class PlateCarreeProjection final : public Projection {
 // infinite "y" values.  (Note that this will cause problems if you tessellate
 // a Mercator edge where one endpoint is a pole.  If you need to do this, clip
 // the edge first so that the "y" coordinate is no more than about 5 * max_x.)
-class MercatorProjection final : public Projection {
+DE_API class MercatorProjection final : public Projection {
  public:
   // Constructs a Mercator projection where "x" corresponds to longitude in
   // the range [-max_x, max_x] , and "y" corresponds to latitude and can be

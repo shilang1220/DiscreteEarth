@@ -23,6 +23,8 @@
 
 #include <cmath>
 #include <cfloat>
+#include <gt/gtcoords.h>
+
 
 #include "base/logging.h"
 #include "util/math/mathutil.h"
@@ -219,6 +221,38 @@ inline bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ) {
     }
     *pI = tmpI;
     *pJ = tmpJ;
+
+    return true;
+}
+
+bool GT::LLtoCellID(const double Lng, const double Lat, uint64 *pCellID) {
+    uint32 I,J;
+    LLtoIJ(Lng,Lat,&I,&J);
+    IJtoCellID(I,J,pCellID);
+    return true;
+}
+
+bool GT::CellIDtoLL(const uint64 CellID, double *pLng, double *pLat) {
+    uint32 I,J;
+    CellIDtoIJ(CellID,&I,&J);
+    IJtoLL(I,J,pLng,pLat);
+    return false;
+}
+
+bool GT::XYZtoCellID(const S2Point pnt, uint64 *pCellID) {
+    uint32 I,J;
+
+    XYZtoIJ(pnt,&I,&J);
+    IJtoCellID(I,J,pCellID);
+
+    return true;
+}
+
+bool GT::CellIDtoXYZ(const uint64 CellID, S2Point *pPnt) {
+    uint32 I,J;
+
+    CellIDtoIJ(CellID,&I,&J);
+    IJtoXYZ(I,J,pPnt);
 
     return true;
 }

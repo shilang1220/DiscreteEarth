@@ -17,13 +17,9 @@
 #include "core/latlng_rect.h"
 #include "core/region.h"
 #include "core/cap.h"
+#include "exports.h"
 
-//#include "shape/s2shape.h"
-#include "third_party/absl/base/macros.h"
-#include "third_party/absl/memory/memory.h"
-
-
-class GTPolygon final : Region{
+DE_API class GTPolygon final : Region{
 
     GTPolygon();
 

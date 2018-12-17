@@ -18,15 +18,13 @@
 #include "core/latlng_rect.h"
 #include "core/region.h"
 #include "core/cap.h"
-
-//#include "shape/s2shape.h"
-#include "third_party/absl/base/macros.h"
-#include "third_party/absl/memory/memory.h"
+#include "exports.h"
 
 class Encoder;
 class Decoder;
 
-class GTPolyline final : Region {
+
+DE_API class GTPolyline final : Region {
 
     GTPolyline();
 
@@ -236,6 +234,5 @@ private:
     int num_vertices_ = 0;
     std::unique_ptr<S2Point[]> vertices_;
 };
-
 
 #endif //DISCRETEEARTH_GTPOLYLINE_H

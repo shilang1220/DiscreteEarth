@@ -28,7 +28,7 @@
 #include "s2/r2.h"
 #include "s2/s1angle.h"
 #include "util/math/vector.h"
-
+#include "exports.h"
 // 单位球面上的经纬度类，用于单位球面上各种表述方式和坐标系的转换，基于经纬度的测量等
 
 // This class represents a point on the unit sphere as a pair
@@ -39,7 +39,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-class S2LatLng {
+DE_API class S2LatLng {
  public:
   // Constructor.  The latitude and longitude are allowed to be outside
   // the is_valid() range.  However, note that most methods that accept

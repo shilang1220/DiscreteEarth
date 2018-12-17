@@ -23,6 +23,7 @@
 
 #include "_fp_contract_off.h"
 #include "util/math/vector.h"  // IWYU pragma: export
+#include "exports.h"
 
 using R2Point = Vector2_d;
 

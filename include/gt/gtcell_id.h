@@ -2,15 +2,16 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#ifndef DISCRETEEARTH_GTCellId_H
-#define DISCRETEEARTH_GTCellId_H
+#ifndef DISCRETEEARTH_GTCELLID_H
+#define DISCRETEEARTH_GTCELLID_H
 
 #include "core/cell_id.h"
 #include "s2/s2latlng.h"
-
 #include "gt/gtcoords.h"
 
-class GTCellId final : public CellId{
+#include "exports.h"
+
+DE_API class GTCellId final : public CellId{
 
 public:
     ///////////////////////////////////////////////
@@ -330,56 +331,29 @@ public:
 
 };
 
-
-inline bool operator==(GTCellId x, GTCellId y) {
+//重载逻辑表达运算的全局函数
+DE_API inline bool operator==(GTCellId x, GTCellId y) {
     return x.id() == y.id();
 }
 
-inline bool operator!=(GTCellId x, GTCellId y) {
+DE_API inline bool operator!=(GTCellId x, GTCellId y) {
     return x.id() != y.id();
 }
 
-inline bool operator<(GTCellId x, GTCellId y) {
+DE_API inline bool operator<(GTCellId x, GTCellId y) {
     return x.id() < y.id();
 }
 
-inline bool operator>(GTCellId x, GTCellId y) {
+DE_API inline bool operator>(GTCellId x, GTCellId y) {
     return x.id() > y.id();
 }
 
-inline bool operator<=(GTCellId x, GTCellId y) {
+DE_API inline bool operator<=(GTCellId x, GTCellId y) {
     return x.id() <= y.id();
 }
 
-inline bool operator>=(GTCellId x, GTCellId y) {
+DE_API inline bool operator>=(GTCellId x, GTCellId y) {
     return x.id() >= y.id();
 }
 
-inline uint64 GTCellId::lsb() const {
-    return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
-}
-
-inline bool GTCellId::is_valid() const {
-    // 采用末尾补100..0方式表示层级时，至少有一个偶数位bit必须为1
-    return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
-}
-
-inline GTCellId GTCellId::range_min_cell() const {
-    return GTCellId(id_ - (lsb() - 1));
-}
-
-inline GTCellId GTCellId::range_max_cell() const {
-    return GTCellId(id_ + (lsb() - 1));
-}
-
-inline int GTCellId::level() const {
-    // We can't just S2_DCHECK(is_valid()) because we want level() to be
-    // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
-    // no good way to define S2CellId::None().level(), so we do prohibit that.
-    S2_DCHECK(id_ != 0);
-
-    // A special case for leaf cells is not worthwhile.
-    return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
-}
-
-#endif //DISCRETEEARTH_GTCellId_H
+#endif //DISCRETEEARTH_GTCELLID_H

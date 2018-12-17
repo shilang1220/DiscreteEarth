@@ -34,15 +34,15 @@ int32 strto32_adapter(const char *nptr, char **endptr, int base) {
   errno = 0;
   const long result = strtol(nptr, endptr, base);
   if (errno == ERANGE && result == LONG_MIN) {
-    return std::numeric_limits<int32>::min();
+    return (std::numeric_limits<int32>::min)();
   } else if (errno == ERANGE && result == LONG_MAX) {
-    return std::numeric_limits<int32>::max();
-  } else if (errno == 0 && result < std::numeric_limits<int32>::min()) {
+    return (std::numeric_limits<int32>::max)();
+  } else if (errno == 0 && result < (std::numeric_limits<int32>::min)()) {
     errno = ERANGE;
-    return std::numeric_limits<int32>::min();
-  } else if (errno == 0 && result > std::numeric_limits<int32>::max()) {
+    return (std::numeric_limits<int32>::min)();
+  } else if (errno == 0 && result > (std::numeric_limits<int32>::max)()) {
     errno = ERANGE;
-    return std::numeric_limits<int32>::max();
+    return (std::numeric_limits<int32>::max)();
   }
   if (errno == 0)
     errno = saved_errno;
@@ -54,10 +54,10 @@ uint32 strtou32_adapter(const char *nptr, char **endptr, int base) {
   errno = 0;
   const unsigned long result = strtoul(nptr, endptr, base);
   if (errno == ERANGE && result == ULONG_MAX) {
-    return std::numeric_limits<uint32>::max();
-  } else if (errno == 0 && result > std::numeric_limits<uint32>::max()) {
+    return (std::numeric_limits<uint32>::max)();
+  } else if (errno == 0 && result > (std::numeric_limits<uint32>::max)()) {
     errno = ERANGE;
-    return std::numeric_limits<uint32>::max();
+    return (std::numeric_limits<uint32>::max)();
   }
   if (errno == 0)
     errno = saved_errno;

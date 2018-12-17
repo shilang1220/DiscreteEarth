@@ -31,8 +31,9 @@
 #include "s2/s2latlng.h"
 #include "s2/s2point.h"
 #include "util/units/length-units.h"
+#include "exports.h"
 
-class S2Earth {
+DE_API class S2Earth {
  public:
   // These functions convert between distances on the unit sphere
   // (expressed as angles subtended from the sphere's center) and

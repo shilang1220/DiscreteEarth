@@ -9,7 +9,10 @@
 #include "core/cap.h"
 #include "core/latlng_rect.h"
 
-class GTCell final : Cell{
+#include "exports.h"
+
+
+DE_API class GTCell final : Cell{
     /***************************************
      * 构造函数
      *************************************/
