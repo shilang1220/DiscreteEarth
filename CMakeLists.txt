@@ -7,8 +7,12 @@ cmake_minimum_required(VERSION 3.1)
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type: None Debug Release RelWithDebInfo MinSizeRel")
 
 project(DiscreteEarth)
-set(CMAKE_CXX_STANDARD 11)
+include(CMakeDependentOption)
+include(CheckCXXCompilerFlag)
+include(FeatureSummary)
+include(FindPackageHandleStandardArgs)
 
+set(CMAKE_CXX_STANDARD 11)
 set(VERSION_INFO_MAJOR_VERSION 1)
 set(VERSION_INFO_MINOR_VERSION 3)
 set(VERSION_INFO_MAINT_VERSION 0git)
@@ -16,6 +20,9 @@ set(VERSION_INFO_MAINT_VERSION 0git)
 enable_language(CXX)
 enable_language(C)
 enable_testing()
+
+option(BUILD_EXAMPLES "Build GT examples." ON)
+option(BUILD_TEST "Build GT tests." ON)
 
 set(PROJECT_INC_DIR "${PROJECT_SOURCE_DIR}/include")
 set(PROJECT_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
@@ -68,7 +75,8 @@ endif()
 ########################################################################
 # Dependencies setup
 ########################################################################
-
+find_package(OpenSSL REQUIRED)
+find_package(GTest REQUIRED)
 
 
 ########################################################################
@@ -202,8 +210,12 @@ message(STATUS "  Modify using: -DENABLE_TESTING=ON/OFF")
 # Setup the library
 ########################################################################
 add_subdirectory(${PROJECT_SRC_DIR})
-add_subdirectory(${PROJECT_EXM_DIR})
-add_subdirectory(${PROJECT_TEST_DIR})
+if (BUILD_EXAMPLES)
+    add_subdirectory(${PROJECT_EXM_DIR})
+endif()
+if(BUILD_TEST)
+    add_subdirectory(${PROJECT_TEST_DIR})
+endif()
 
 ########################################################################
 # Print summary

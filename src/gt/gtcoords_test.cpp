@@ -8,6 +8,6 @@ TEST(CellID_TEST, ll){
     double lng, lat;
     lng = 180.00;lat = 90.00;
     uint64 id;
-    GT::LLtoCellID(lng,lat,&id)
+    GT::LLtoCellID(lng,lat,&id);
     EXPECT_EQ(0X0,id);
 }
