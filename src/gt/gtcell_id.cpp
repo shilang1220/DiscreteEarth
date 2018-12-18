@@ -229,7 +229,7 @@ void GTCellId::AppendAllNeighbors(int nbr_level, std::vector<CellId> *output) co
 }
 
 string GTCellId::ToToken() const {
-    return std::__cxx11::string();
+    return std::string();
 }
 
 uint64 GTCellId::FromToken(const char *token, size_t length) {
