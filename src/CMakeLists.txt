@@ -42,7 +42,12 @@ add_library(third_party ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_S
 
 #build libs of self
 #add_library(core SHARED ${CORE_SRCS})
-add_library(gt  ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} gt/gtcell_test.cpp gt/gtcoords_test.cpp)
+add_library(gt  ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} )
+add_executable(gtcoords_test "${PROJECT_SRC_DIR}/gt/gtcoords_test.cpp" )
+target_link_libraries(
+        gtcoords_test
+        gt third_party gtest_main)
+add_test(gtcoords_test gtcoords_test)
 #add_library(shape  ${SHAPE_SRCS} )
 #add_library(builder  ${BUILDER_SRCS} )
 #add_library(index  ${INDEX_SRCS} )
