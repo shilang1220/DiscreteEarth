@@ -16,5 +16,6 @@
 //S2支撑类库（s2）
 
 //GT基础类库（gt）
+#include "gt/gtcoords.h"
 
 #endif //DISCRETEEARTH_GT_H

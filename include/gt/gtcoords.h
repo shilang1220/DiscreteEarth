@@ -49,15 +49,15 @@ namespace GT{
 // constant is defined here so that the S2::Metric class and the conversion
 // functions below can be implemented without including s2cell_id.h.  Please
 // see s2cell_id.h for other useful constants and conversion functions.
-    GT_API const int kMaxCellLevel = 31;
+    const int kMaxCellLevel = 31;
 
 // 叶子节点（I，J）索引值的最大值
 // The maximum index of a valid leaf cell plus one.  The range of valid leaf
 // cell indices is [0..kLimitIJ-1].
-    GT_API const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
+    const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
 
-    GT_API const double kMin2Degree = 1/60.00;
-    GT_API const double kSec2Degree = 2048.00/3600;
+    const double kMin2Degree = 1/60.00;
+    const double kSec2Degree = 2048.00/3600;
 
     //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
     GT_API bool XYZtoLL (const S2Point &p, double *pU, double *pV) ;
