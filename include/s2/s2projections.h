@@ -26,17 +26,19 @@
 #ifndef S2_S2PROJECTIONS_H_
 #define S2_S2PROJECTIONS_H_
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "s2/r2.h"
 #include "s2/s2latlng.h"
 #include "s2/s2point.h"
-#include "exports.h"
 
 namespace S2 {
 
 // For the purposes of the S2 library, a projection is a function that maps
 // between S2Points and R2Points.  It can also define the coordinate wrapping
 // behavior along each axis.
- class Projection {
+class GT_API Projection {
  public:
   virtual ~Projection() {}
 

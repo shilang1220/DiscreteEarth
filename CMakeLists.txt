@@ -21,7 +21,7 @@ if (WIN32)  #MSVC编译选项
     # 不使用<windef.h>中的min、max，避免和标准库冲突
     add_definitions(-DNOMINMAX)
     # 警告等级设置为3级，W1) : 显示严重的警告消息；W2显示等级1警告以及某些不太严重的警告；W3显示等级2警告以及某些不太严重的警告；W4显示所有等级 3 警告以及信息性警告。
-    add_definitions(-W1)
+    add_definitions(-W0)                                #暂时取消警告提醒
 else()      #GCC编译选项
     message(STATUS "Building on linux.")
     #-w禁止所有警告；-Wall开启所有警告；
@@ -42,12 +42,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)           #不支持编译器自身对标准的扩
 enable_language(C)                      #添加C语言编译支持
 
 # 编译范围选项设置
-option(BUILD_SHARED_LIBS "Build shared libraries instead of static." OFF)    #编译为共享库
-#add_feature_info(SHARED_LIBS BUILD_SHARED_LIBS "builds shared libraries instead of static.")
-option(BUILD_EXAMPLES "Build s2 documentation examples." OFF)                #编译EXAMPLES
-#add_feature_info(EXAMPLES BUILD_EXAMPLES "builds examples.")
-option(BUILD_TEST "Build s2 documentation examples." ON)                    #编译TEST
-#add_feature_info(TESTS BUILD_TEST "builds tests.")
+option(BUILD_GT_LIBS "Build GT libraries." OFF)                              #编译GT库
+option(BUILD_SHARED_LIBS "Build shared libraries instead of static." ON)    #将GT库编译为共享库
+option(BUILD_EXAMPLES "Build GT examples." OFF)                #编译EXAMPLES
+option(BUILD_TEST "Build GT tests." ON)                     #编译TEST
+
 
 ########################################################################
 # 第三方依赖设置 Dependencies setup
@@ -189,6 +188,7 @@ include_directories(${PROJECT_INC_DIR})
 ########################################################################
 if(BUILD_TEST)
     aux_source_directory("${PROJECT_TEST_DIR}" TESTFILES)
+    link_directories("${PROJECT_LIB_DIR}")
     enable_testing()
    foreach (test_cc ${TESTFILES})
         get_filename_component(test ${test_cc} NAME_WE)
@@ -214,61 +214,46 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BIN_DIR})
 set(LIBRARY_OUTPUT_PATH  ${PROJECT_LIB_DIR})
 
-if(BUILD_SHARED_LIBS)
-    add_definitions(-DDISCRETEEARTH_EXPORTS)            #按照输出库编译
+#获取编译文件列表
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base/internal" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/numeric" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings/internal" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/strings" STRINGS_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/bits" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/coding" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/math" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/math/exactfloat" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/unit" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/base" BASE_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/s2" S2_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/core" CORE_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
 
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base/internal" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/numeric" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings/internal" THIRDPARTY_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/strings" STRINGS_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/util/bits" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/coding" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/math" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/math/exactfloat" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/unit" UTIL_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/base" BASE_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/s2" S2_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/core" CORE_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
-
-    #aux_source_directory("${PROJECT_SRC_DIR}/shape" SHAPE_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/object" OBJECT_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/builder" BUILDER_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/encode" ENCODE_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/index" INDEX_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/query" QUERY_SRCS)
-
-    #add_library(s2geometry ${THIRDPARTY_SRCS} ${STRINGS_SRCS}  ${UTIL_SRCS} ${BASE_SRCS} ${CORE_SRCS} ${SHAPE_SRCS} ${BUILDER_SRCS} ${INDEX_SRCS} ${OBJECT_SRCS} ${QUERY_SRCS} ${ENCODE_SRCS})
-    #build libs from third party
-    #add_library(third_party SHARED ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
-    #add_library(third_party ${THIRDPARTY_SRCS})
-    #add_library(strings ${STRINGS_SRCS})
-    #add_library(util ${UTIL_SRCS})
-    #add_library(base ${BASE_SRCS})
-    #add_library(s2 ${S2_SRCS})
-
-    #build libs of self
-    #add_library(core SHARED ${CORE_SRCS})
-    add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
-
-    target_link_libraries(
-            gt
-            openssl libcrypto libssl
-    )
-    #add_library(shape  ${SHAPE_SRCS} )
-    #add_library(builder  ${BUILDER_SRCS} )
-    #add_library(index  ${INDEX_SRCS} )
-    #add_library(object ${OBJECT_SRCS})
-    #add_library(query ${QUERY_SRCS})
-    #add_library(encode ${ENCODE_SRCS})
+#aux_source_directory("${PROJECT_SRC_DIR}/shape" SHAPE_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/object" OBJECT_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/builder" BUILDER_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/encode" ENCODE_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/index" INDEX_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/query" QUERY_SRCS)
+if(BUILD_GT_LIBS)
+    if(BUILD_SHARED_LIBS)   #编译为动态库
+        add_definitions(-DGT_CREATE_SHARED_LIBRARY)             #添加共享库编译预定义宏
+        add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
+        target_link_libraries(
+                gt
+                openssl libcrypto libssl
+        )
+    else()  #编译为静态库
+        add_library(gt STATIC ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
+        target_link_libraries(
+                gt
+                openssl libcrypto libssl
+        )
+    endif()
 endif()
+
 if(BUILD_EXAMPLES)
     aux_source_directory("${PROJECT_SRC_DIR}/examples" EXAMPLES_SRCS)
     foreach (example_cc ${EXAMPLES_SRCS})

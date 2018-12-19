@@ -23,6 +23,9 @@
 
 #include <limits>
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "third_party/absl/base/casts.h"
 #include "s2/s1chord_angle.h"
 #include "s2/s2predicates.h"

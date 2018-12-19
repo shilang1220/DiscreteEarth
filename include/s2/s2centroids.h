@@ -47,8 +47,11 @@
 #ifndef S2_S2CENTROIDS_H_
 #define S2_S2CENTROIDS_H_
 
-#include "s2/s2point.h"
+#include "_fp_contract_off.h"
 #include "exports.h"
+
+#include "s2/s2point.h"
+
 //球面三角形或弧的质心计算类
 
 namespace S2 {

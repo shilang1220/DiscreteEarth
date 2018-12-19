@@ -5,13 +5,15 @@
 #ifndef DISCRETEEARTH_GTCELLID_H
 #define DISCRETEEARTH_GTCELLID_H
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "core/cell_id.h"
 #include "s2/s2latlng.h"
 #include "gt/gtcoords.h"
 
-#include "exports.h"
 
- class GTCellId final : public CellId{
+class GT_API GTCellId final : public CellId{
 
 public:
     ///////////////////////////////////////////////

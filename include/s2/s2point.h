@@ -18,10 +18,13 @@
 #ifndef S2_S2POINT_H_
 #define S2_S2POINT_H_
 
+
 #include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "util/math/vector.h"  // IWYU pragma: export
 #include "util/math/vector3_hash.h"
-#include "exports.h"
+
 // 单位球面上的三维点坐标
 
 // An S2Point represents a point on the unit sphere as a 3D vector.  Usually

@@ -20,19 +20,21 @@
 
 #include <iosfwd>
 
+
 #include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "base/logging.h"
 #include "s2/r1interval.h"
 #include "s2/r2.h"
 
-#include "exports.h"
 // 平面二维矩形类，可用于表达投影平面
 // An R2Rect represents a closed axis-aligned rectangle in the (x,y) plane.
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
- class R2Rect {
+ class GT_API R2Rect {
  public:
   // Construct a rectangle from the given lower-left and upper-right points.
   R2Rect(const R2Point& lo, const R2Point& hi);

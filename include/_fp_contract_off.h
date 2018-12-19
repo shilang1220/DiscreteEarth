@@ -18,6 +18,7 @@
 #ifndef S2__FP_CONTRACT_OFF_H_
 #define S2__FP_CONTRACT_OFF_H_
 
+//关闭fp-contract浮点数编译选项
 // Turn off the fused multiply-add optimization ("fp-contract").  With
 // fp-contract on, any expression of the form "a * b + c" has two possible
 // results, and the compiler is free to choose either of them.  Effectively

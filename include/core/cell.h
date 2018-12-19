@@ -5,16 +5,18 @@
 #ifndef DISCRETEEARTH_CELL_H
 #define DISCRETEEARTH_CELL_H
 
+#include "_fp_contract_off.h"
+#include "exports.h"
 
 #include "base/integral_types.h"
 #include "base/logging.h"
-#include "_fp_contract_off.h"
+
 #include "s2/r2rect.h"
 #include "s2/s1chord_angle.h"
 #include "core/cell_id.h"
 #include "core/region.h"
 #include "util/math/vector.h"
-#include "exports.h"
+
 
 //Cell是四边形球面网格的抽象类，用户可根据自己需要定制自己的网格类
 //
@@ -26,7 +28,7 @@
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
- class Cell : public Region {
+ class GT_API Cell : public Region {
 public:
 
     /***************************************

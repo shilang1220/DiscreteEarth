@@ -21,11 +21,13 @@
 #ifndef S2_S2POINTUTIL_H_
 #define S2_S2POINTUTIL_H_
 
+
 #include "_fp_contract_off.h"
+
 #include "s2/s1angle.h"
 #include "s2/s2point.h"
 #include "util/math/matrix3x3.h"
-#include "exports.h"
+
 // 一些常用的常数和工具函数
 
 // S2 is a namespace for constants and simple utility functions that are used

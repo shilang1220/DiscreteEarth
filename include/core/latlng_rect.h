@@ -10,15 +10,15 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
+#include "exports.h"
+
+#include "base/logging.h"
 #include "s2/r1interval.h"
 #include "s2/s1angle.h"
 #include "s2/s1interval.h"
 #include "s2/s2latlng.h"
-
 #include "core/region.h"
-#include "exports.h"
 
 class Decoder;
 class Encoder;
@@ -48,7 +48,7 @@ class Cell;
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-class LatLngRect final : public Region {
+class GT_API  LatLngRect final : public Region {
 public:
     // Construct a rectangle from minimum and maximum latitudes and longitudes.
     // If lo.lng() > hi.lng(), the rectangle spans the 180 degree longitude

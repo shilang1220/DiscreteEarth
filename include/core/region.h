@@ -8,8 +8,9 @@
 #include <vector>
 
 #include "_fp_contract_off.h"
-#include "s2/s1angle.h"
 #include "exports.h"
+
+#include "s2/s1angle.h"
 
 class Cap;
 class LatLngRect;
@@ -18,7 +19,7 @@ class Cell;
 
 //区域类，用于封装一些标准接口
 
-  class Region {
+class GT_API Region {
 public:
     virtual ~Region() {}
 

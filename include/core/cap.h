@@ -12,13 +12,14 @@
 #include <iosfwd>
 #include <vector>
 
-#include "base/logging.h"
+#include "exports.h"
 #include "_fp_contract_off.h"
+
 #include "s2/s1angle.h"
 #include "s2/s1chord_angle.h"
 #include "s2/s2pointutil.h"
 #include "core/region.h"
-#include "exports.h"
+
 
 class Decoder;
 class Encoder;
@@ -47,7 +48,7 @@ class LatLngRect;
 // This class is intended to be copied by value as desired.  It uses the
 // default copy constructor and assignment operator, however it is not a
 // "plain old datatype" (POD) because it has virtual functions.
- class Cap final : public Region {
+ class GT_API Cap final : public Region {
 public:
     // The default constructor returns an empty Cap.
     Cap() : center_(1, 0, 0), radius_(S1ChordAngle::Negative()) {}

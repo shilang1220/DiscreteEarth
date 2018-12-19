@@ -11,17 +11,21 @@
 #include <string>
 #include <vector>
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "base/integral_types.h"
 #include "base/logging.h"
 #include "base/port.h"
-#include "_fp_contract_off.h"
+
 #include "s2/r2.h"
 #include "s2/r2rect.h"
 #include "s2/s1angle.h"
 #include "third_party/absl/strings/string_view.h"
 #include "util/bits/bits.h"
 #include "util/coding/coder.h"
-#include "exports.h"
+
+
 class S2LatLng;
 
 //CellId 是球面网格编码的抽象类，用户可定义自己的编码类
@@ -57,7 +61,7 @@ class S2LatLng;
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
- class CellId {
+ class GT_API CellId {
 public:
     // The extra position bit (61 rather than 60) let us encode each cell as its
     // Hilbert curve position at the cell center (which is halfway along the

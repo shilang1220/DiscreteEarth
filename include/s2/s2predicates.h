@@ -35,10 +35,11 @@
 #include <iosfwd>
 
 #include "_fp_contract_off.h"
+
 #include "s2/s1chord_angle.h"
 #include "s2/s2debug.h"
 #include "s2/s2pointutil.h"
-#include "exports.h"
+
 
 // 用于预测单位球面上，边之间相交关系的各种函数
 

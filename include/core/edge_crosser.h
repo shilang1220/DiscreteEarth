@@ -18,12 +18,14 @@
 #ifndef S2_S2EDGE_CROSSER_H_
 #define S2_S2EDGE_CROSSER_H_
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
+#include "exports.h"
+
+#include "base/logging.h"
 #include "core/edge_crossings.h"
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
-#include "exports.h"
+
 
 class S2CopyingEdgeCrosser;  // Forward declaration
 
@@ -49,7 +51,7 @@ class S2CopyingEdgeCrosser;  // Forward declaration
 // stored in memory, so that this class can refer to them with pointers and
 // does not need to make its own copies.  If this is not the case (e.g., you
 // want to pass temporary objects as vertices), see S2CopyingEdgeCrosser.
-class EdgeCrosser {
+class GT_API EdgeCrosser {
  public:
   // Default constructor; must be followed by a call to Init().
   EdgeCrosser() {}

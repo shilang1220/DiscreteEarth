@@ -18,10 +18,12 @@
 #ifndef S2_S2LATLNG_RECT_BOUNDER_H_
 #define S2_S2LATLNG_RECT_BOUNDER_H_
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "s2/s2point.h"
 #include "s2/s2latlng.h"
 #include "core/latlng_rect.h"
-#include "exports.h"
 
 // 用于计算外包矩形的类
 
@@ -36,7 +38,7 @@
 // guarantees the following.  Let L be a closed edge chain (loop) such that
 // the interior of the loop does not contain either pole.  Now if P is any
 // point such that L.Contains(P), then RectBound(L).Contains(S2LatLng(P)).
- class LatLngRectBounder {
+ class GT_API LatLngRectBounder {
  public:
   LatLngRectBounder() : bound_(LatLngRect::Empty()) {}
 

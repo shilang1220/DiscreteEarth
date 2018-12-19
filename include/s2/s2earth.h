@@ -26,14 +26,16 @@
 #ifndef S2_S2EARTH_H_
 #define S2_S2EARTH_H_
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "s2/s1angle.h"
 #include "s2/s1chord_angle.h"
 #include "s2/s2latlng.h"
 #include "s2/s2point.h"
 #include "util/units/length-units.h"
-#include "exports.h"
 
- class S2Earth {
+class GT_API S2Earth {
  public:
   // These functions convert between distances on the unit sphere
   // (expressed as angles subtended from the sphere's center) and

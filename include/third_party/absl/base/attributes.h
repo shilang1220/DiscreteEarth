@@ -532,8 +532,8 @@
 // packages/targets, as this may lead to conflicting definitions of functions at
 // link-time.
 //
-#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_always_instrument) && \
-    !defined(ABSL_NO_XRAY_ATTRIBUTES)
+
+#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_always_instrument) && !defined(ABSL_NO_XRAY_ATTRIBUTES)
 #define ABSL_XRAY_ALWAYS_INSTRUMENT [[clang::xray_always_instrument]]
 #define ABSL_XRAY_NEVER_INSTRUMENT [[clang::xray_never_instrument]]
 #if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_log_args)
