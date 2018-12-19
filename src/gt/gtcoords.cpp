@@ -33,7 +33,7 @@
 ////////////////////////////////////////////////////////
 //扩展坐标系（U，V）与网格坐标系（I，J）之间的转换函数
 ///////////////////////////////////////////////////////
-inline bool GT::IJtoUV (const uint32 I, const uint32 J, double *pU, double *pV) {
+bool GT::IJtoUV (const uint32 I, const uint32 J, double *pU, double *pV) {
     bool bRet = false;
 
     //边界检查
@@ -74,7 +74,7 @@ inline bool GT::IJtoUV (const uint32 I, const uint32 J, double *pU, double *pV) 
     return bRet;
 }
 
-inline bool GT::UVtoIJ (const double U, const double V, uint32 *pI, uint32 *pJ) {
+bool GT::UVtoIJ (const double U, const double V, uint32 *pI, uint32 *pJ) {
     bool bRet = false;
     
     // 检查是否越界
@@ -125,18 +125,18 @@ inline bool GT::UVtoIJ (const double U, const double V, uint32 *pI, uint32 *pJ) 
 ////////////////////////////////////////////////////////
 //经纬度坐标系（LNG，LAT）与网格坐标系（I，J）之间的转换函数
 ///////////////////////////////////////////////////////
-inline bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
+bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
     return(IJtoUV(I,J,pLng,pLat));
 }
 
-inline bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
+bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     return(UVtoIJ(Lng,Lat,pI,pJ));
 }
 
 ////////////////////////////////////////////////////////
 //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
 ///////////////////////////////////////////////////////
-inline  bool GT::XYZtoLL (const S2Point &p, double *pLng, double *pLat) {
+ bool GT::XYZtoLL (const S2Point &p, double *pLng, double *pLat) {
 
     *pLat = S2LatLng::Latitude(p).degrees();
     *pLng = S2LatLng::Longitude(p).degrees();
@@ -144,7 +144,7 @@ inline  bool GT::XYZtoLL (const S2Point &p, double *pLng, double *pLat) {
     return false;
 }
 
-inline bool GT::LLtoXYZ (const double Lng, const double Lat, S2Point *pPnt) {
+bool GT::LLtoXYZ (const double Lng, const double Lat, S2Point *pPnt) {
     S2LatLng latLng;
 
     latLng.FromDegrees(Lat,Lng);
@@ -158,31 +158,31 @@ inline bool GT::LLtoXYZ (const double Lng, const double Lat, S2Point *pPnt) {
 ////////////////////////////////////////////////////////
 //球面坐标系（X，Y,Z）与扩展坐标系（U，V）之间的转换函数
 ///////////////////////////////////////////////////////
-inline  bool GT::XYZtoUV (const S2Point &p, double *pU, double *pV) {
+ bool GT::XYZtoUV (const S2Point &p, double *pU, double *pV) {
     XYZtoLL(p,pU,pV);
     return false;
 }
 
-inline bool GT::UVtoXYZ (const double U, const double V, S2Point *pPnt) {
+bool GT::UVtoXYZ (const double U, const double V, S2Point *pPnt) {
     LLtoXYZ(U,V,pPnt);
     return false;
 }
 
-inline bool GT::XYZtoIJ (const S2Point &p, uint32 *pI, uint32 *pJ) {
+bool GT::XYZtoIJ (const S2Point &p, uint32 *pI, uint32 *pJ) {
     double u,v;
     XYZtoUV(p,&u,&v);
     UVtoIJ(u,v,pI,pJ);
     return false;
 }
 
-inline bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt) {
+bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt) {
     double u,v;
     IJtoUV(I,J,&u,&v);
     UVtoXYZ(u,v,pPnt);
     return false;
 }
 
-inline bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
+bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
 
    uint64 cellID = 0X0;
    uint64 bitI,bitJ,mask;
@@ -201,7 +201,7 @@ inline bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
    return true;
 }
 
-inline bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ) {
+bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ) {
     uint32 bitI,bitJ,tmpI=0,tmpJ=0;
     uint64 maskI,maskJ;
 

@@ -25,6 +25,7 @@
 #include "s2/s1chord_angle.h"
 #include "s2/s1interval.h"
 #include "s2/s2pointutil.h"
+#include "core/latlng_rect.h"
 
 using std::fabs;
 using std::max;

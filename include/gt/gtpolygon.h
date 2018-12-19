@@ -19,7 +19,7 @@
 #include "core/cap.h"
 #include "exports.h"
 
-DE_API class GTPolygon final : Region{
+ class GTPolygon final : Region{
 
     GTPolygon();
 

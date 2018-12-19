@@ -32,7 +32,7 @@
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-DE_API class R2Rect {
+ class R2Rect {
  public:
   // Construct a rectangle from the given lower-left and upper-right points.
   R2Rect(const R2Point& lo, const R2Point& hi);

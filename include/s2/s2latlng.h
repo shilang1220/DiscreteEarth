@@ -39,7 +39,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S2LatLng {
+ class S2LatLng {
  public:
   // Constructor.  The latitude and longitude are allowed to be outside
   // the is_valid() range.  However, note that most methods that accept

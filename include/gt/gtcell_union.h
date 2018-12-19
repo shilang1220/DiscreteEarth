@@ -54,7 +54,7 @@ DECLARE_int32(s2cell_union_decode_max_num_cells);
 // return different results if they are not (e.g., Contains(GTCellUnion).)
 //
 // GTCellUnion is movable and copyable.
-DE_API class GTCellUnion final : Region {
+ class GTCellUnion final : Region {
  public:
   // Creates an empty cell union.
   GTCellUnion() {}

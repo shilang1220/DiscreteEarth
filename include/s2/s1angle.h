@@ -84,7 +84,7 @@ class S2LatLng;
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S1Angle {
+ class S1Angle {
  public:
   // These methods construct S1Angle objects from their measure in radians
   // or degrees.

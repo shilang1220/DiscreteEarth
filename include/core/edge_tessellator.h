@@ -31,7 +31,7 @@
 // into a chain of edges in a given 2D projection such that the maximum
 // distance between the geodesic edge and the chain of projected edges is at
 // most "tolerance".
-DE_API class S2EdgeTessellator {
+ class S2EdgeTessellator {
  public:
   // Constructs an S2EdgeTessellator using the given projection and error
   // tolerance.  The projection object must be valid for the entire lifetime

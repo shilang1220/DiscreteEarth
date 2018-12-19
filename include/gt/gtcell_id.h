@@ -11,7 +11,7 @@
 
 #include "exports.h"
 
-DE_API class GTCellId final : public CellId{
+ class GTCellId final : public CellId{
 
 public:
     ///////////////////////////////////////////////
@@ -336,27 +336,27 @@ public:
 };
 
 //重载逻辑表达运算的全局函数
-DE_API inline bool operator==(GTCellId x, GTCellId y) {
+ inline bool operator==(GTCellId x, GTCellId y) {
     return x.id() == y.id();
 }
 
-DE_API inline bool operator!=(GTCellId x, GTCellId y) {
+ inline bool operator!=(GTCellId x, GTCellId y) {
     return x.id() != y.id();
 }
 
-DE_API inline bool operator<(GTCellId x, GTCellId y) {
+ inline bool operator<(GTCellId x, GTCellId y) {
     return x.id() < y.id();
 }
 
-DE_API inline bool operator>(GTCellId x, GTCellId y) {
+ inline bool operator>(GTCellId x, GTCellId y) {
     return x.id() > y.id();
 }
 
-DE_API inline bool operator<=(GTCellId x, GTCellId y) {
+ inline bool operator<=(GTCellId x, GTCellId y) {
     return x.id() <= y.id();
 }
 
-DE_API inline bool operator>=(GTCellId x, GTCellId y) {
+ inline bool operator>=(GTCellId x, GTCellId y) {
     return x.id() >= y.id();
 }
 

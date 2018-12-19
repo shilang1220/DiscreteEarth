@@ -57,7 +57,7 @@ class S2LatLng;
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class CellId {
+ class CellId {
 public:
     // The extra position bit (61 rather than 60) let us encode each cell as its
     // Hilbert curve position at the cell center (which is halfway along the

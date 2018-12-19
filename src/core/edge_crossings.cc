@@ -74,8 +74,9 @@ const char* GetIntersectionMethodName(IntersectionMethod method) {
 
 int CrossingSign(const S2Point& a, const S2Point& b,
                  const S2Point& c, const S2Point& d) {
-  S2EdgeCrosser crosser(&a, &b, &c);
-  return crosser.CrossingSign(&d);
+  EdgeCrosser crosser(&a, &b, &c);
+  int iRet =crosser.CrossingSign(&d);
+  return iRet;
 }
 
 bool VertexCrossing(const S2Point& a, const S2Point& b,

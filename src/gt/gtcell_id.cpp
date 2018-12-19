@@ -1,6 +1,8 @@
 //
 // Created by 濮国梁 on 2018/12/13.
 //
+#include <gt/gtcell_id.h>
+
 #include "gt/gtcell_id.h"
 #include "gt/gtcoords.h"
 
@@ -254,6 +256,14 @@ string GTCellId::ToString() const {
 
 int GTCellId::GetCommonAncestorLevel(GTCellId other) const {
     return 0;
+}
+
+uint64 GTCellId::pos() const {
+    return 0;
+}
+
+bool GTCellId::is_leaf() const {
+    return false;
 }
 
 

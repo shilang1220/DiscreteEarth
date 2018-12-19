@@ -12,7 +12,7 @@
 #include "exports.h"
 
 
-DE_API class GTCell final : Cell{
+ class GTCell final : Cell{
     /***************************************
      * 构造函数
      *************************************/

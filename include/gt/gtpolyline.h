@@ -24,7 +24,7 @@ class Encoder;
 class Decoder;
 
 
-DE_API class GTPolyline final : Region {
+ class GTPolyline final : Region {
 
     GTPolyline();
 

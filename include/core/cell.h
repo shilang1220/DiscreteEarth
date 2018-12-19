@@ -26,7 +26,7 @@
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-DE_API class Cell : public Region {
+ class Cell : public Region {
 public:
 
     /***************************************

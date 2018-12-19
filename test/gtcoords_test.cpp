@@ -8,6 +8,9 @@ TEST(GTCOORDS_TEST, ll){
     double lng, lat;
     lng = 180.00;lat = 90.00;
     uint64 id;
+
+    std::cout << " testcase event teardown." << std::endl;
     GT::LLtoCellID(lng,lat,&id);
+    std::cout << id << std::endl;
     EXPECT_EQ(0X0,id);
 }

@@ -47,7 +47,7 @@ class LatLngRect;
 // This class is intended to be copied by value as desired.  It uses the
 // default copy constructor and assignment operator, however it is not a
 // "plain old datatype" (POD) because it has virtual functions.
-DE_API class Cap final : public Region {
+ class Cap final : public Region {
 public:
     // The default constructor returns an empty Cap.
     Cap() : center_(1, 0, 0), radius_(S1ChordAngle::Negative()) {}
@@ -223,5 +223,56 @@ private:
 std::ostream& operator<<(std::ostream& os, const Cap& cap);
 
 
+//////////////////   Implementation details follow   ////////////////////
+
+
+inline Cap::Cap(const S2Point& center, S1Angle radius)
+        : center_(center), radius_(std::min(radius, S1Angle::Radians(M_PI))) {
+   // The "min" calculation above is necessary to handle S1Angle::Infinity().
+           S2_DCHECK(is_valid());
+}
+
+inline Cap::Cap(const S2Point& center, S1ChordAngle radius)
+        : center_(center), radius_(radius) {
+           S2_DCHECK(is_valid());
+}
+
+inline Cap Cap::FromPoint(const S2Point& center) {
+   return Cap(center, S1ChordAngle::Zero());
+}
+
+inline Cap Cap::FromCenterHeight(const S2Point& center, double height) {
+   return Cap(center, S1ChordAngle::FromLength2(2 * height));
+}
+
+inline Cap Cap::FromCenterArea(const S2Point& center, double area) {
+   return Cap(center, S1ChordAngle::FromLength2(area / M_PI));
+}
+
+inline Cap Cap::Empty() { return Cap(); }
+
+inline Cap Cap::Full() {
+   return Cap(S2Point(1, 0, 0), S1ChordAngle::Straight());
+}
+
+inline double Cap::height() const {
+   return 0.5 * radius_.length2();
+}
+
+inline S1Angle Cap::GetRadius() const {
+   return radius_.ToAngle();
+}
+
+inline bool Cap::is_valid() const {
+   return S2::IsUnitLength(center_) && radius_.length2() <= 4;
+}
+
+inline bool Cap::is_empty() const {
+   return radius_.is_negative();
+}
+
+inline bool Cap::is_full() const {
+   return radius_.length2() == 4;
+}
 
 #endif //DISCRETEEARTH_CAP_H

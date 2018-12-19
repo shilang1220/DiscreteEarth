@@ -18,7 +18,7 @@
 #include "core/cap.h"
 #include "exports.h"
 
-DE_API class GTLoop final : Region {
+ class GTLoop final : Region {
     
     GTLoop();
 

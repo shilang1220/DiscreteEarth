@@ -47,7 +47,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S1Interval {
+ class S1Interval {
  public:
   // Constructor.  Both endpoints must be in the range -Pi to Pi inclusive.
   // The value -Pi is converted internally to Pi except for the Full()

@@ -18,7 +18,7 @@ class Cell;
 
 //区域类，用于封装一些标准接口
 
-DE_API  class Region {
+  class Region {
 public:
     virtual ~Region() {}
 

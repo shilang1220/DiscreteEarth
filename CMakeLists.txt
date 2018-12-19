@@ -13,6 +13,7 @@ project(DiscreteEarth)
 
 #编译选项宏定义
 if (WIN32)  #MSVC编译选项
+    message(STATUS "Building on windows.")
     # 使用无符号字符
     add_definitions(-J)
     # 使用cmath头文件中的M_PI、DBL_EPISLON等宏定义
@@ -22,6 +23,7 @@ if (WIN32)  #MSVC编译选项
     # 警告等级设置为3级，W1) : 显示严重的警告消息；W2显示等级1警告以及某些不太严重的警告；W3显示等级2警告以及某些不太严重的警告；W4显示所有等级 3 警告以及信息性警告。
     add_definitions(-W1)
 else()      #GCC编译选项
+    message(STATUS "Building on linux.")
     #-w禁止所有警告；-Wall开启所有警告；
     add_definitions(-w)#Wno-attributes)
     add_definitions(-Wno-deprecated-declarations)
@@ -40,30 +42,35 @@ set(CMAKE_CXX_EXTENSIONS OFF)           #不支持编译器自身对标准的扩
 enable_language(C)                      #添加C语言编译支持
 
 # 编译范围选项设置
-option(BUILD_SHARED_LIBS "Build shared libraries instead of static." ON)    #编译为共享库
+option(BUILD_SHARED_LIBS "Build shared libraries instead of static." OFF)    #编译为共享库
 #add_feature_info(SHARED_LIBS BUILD_SHARED_LIBS "builds shared libraries instead of static.")
 option(BUILD_EXAMPLES "Build s2 documentation examples." OFF)                #编译EXAMPLES
 #add_feature_info(EXAMPLES BUILD_EXAMPLES "builds examples.")
-option(BUILD_TEST "Build s2 documentation examples." OFF)                    #编译TEST
+option(BUILD_TEST "Build s2 documentation examples." ON)                    #编译TEST
 #add_feature_info(TESTS BUILD_TEST "builds tests.")
 
 ########################################################################
-# Dependencies setup
+# 第三方依赖设置 Dependencies setup
 ########################################################################
 
 #第三方头文件和库文件目录,OpenSSL和GoogleTest是必须项，否则编译会出现错误
 if(WIN32)       #MSVC下的第三方库的头文件和链接库文件目录
+    set(OPENSSL_INCLUDE "C:/OpenSSL-Win64/include")
     set(OPENSSL_LIBRARIES "C:/OpenSSL-Win64/lib")
+    set(GTEST_INCLUDE "C:/gtest/include")
     set(GTEST_LIBRARIES "C:/gtest/lib")
-    include_directories("C:/OpenSSL-Win64/include")     #openssl头文件目录
-    include_directories("C:/gtest/inclue")              #googletest头文件目录
 else()          #GCC的第三方库头文件目录
-    add_definitions(-DOPENSSL_LIBRARIES=/usr/lib/openssl)
+    set(OPENSSL_INCLUDE "/usr/local/include")
     set(OPENSSL_LIBRARIES "/usr/lib/openssl")
+    set(GTEST_INCLUDE "/usr/local/include")
     set(GTEST_LIBRARIES "/usr/lib/gtest")
-    include_directories("/usr/local/include")           #openssl和gtest的头文件目录
-    link_directories("/usr/lib/openssl")                  #openssl和gtest库文件目录
 endif()
+message(STATUS  "Link openssl libs in directory ${OPENSSL_LIBRARIES}.")
+message(STATUS  "Link googletest libs in directory ${GTEST_LIBRARIES}.")
+include_directories("${OPENSSL_INCLUDE}")     #openssl头文件目录
+include_directories("${GTEST_INCLUDE}")              #googletest头文件目录
+link_directories("${OPENSSL_LIBRARIES}")
+link_directories("${GTEST_LIBRARIES}")
 
 ##########################################################################################
 #  以下禁止修改
@@ -84,7 +91,7 @@ set(PROJECT_RC_DIR "${PROJECT_SOURCE_DIR}/resource")
 set(PROJECT_TEST_DIR "${PROJECT_SOURCE_DIR}/test")
 
 include_directories(${PROJECT_INC_DIR})
-
+#link_libraries(${PROJECT_LIB_DIR})
 
 ########################################################################
 # Setup doxygen
@@ -188,7 +195,7 @@ if(BUILD_TEST)
         add_executable(${test} ${test_cc})
         target_link_libraries(
                     ${test}
-                    s2testing gt gtest_main)
+                    gt libgtest_maind libgtestd)
         add_test(${test} ${test})
     endforeach()
 else()
@@ -250,9 +257,10 @@ if(BUILD_SHARED_LIBS)
     #build libs of self
     #add_library(core SHARED ${CORE_SRCS})
     add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
+
     target_link_libraries(
             gt
-            ${OPENSSL_LIBRARIES} ${GTEST_LIBRARIES}
+            openssl libcrypto libssl
     )
     #add_library(shape  ${SHAPE_SRCS} )
     #add_library(builder  ${BUILDER_SRCS} )
@@ -268,7 +276,7 @@ if(BUILD_EXAMPLES)
         add_executable(${example} ${example_cc})
         target_link_libraries(
                 ${example}
-                gt ${OPENSSL_LIBRARIES} ${GTEST_LIBRARIES}
+                gt openssl libcrypto libssl libgtest_maind libgtestd
         )
     endforeach()
 endif()

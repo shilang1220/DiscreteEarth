@@ -36,7 +36,7 @@
 // guarantees the following.  Let L be a closed edge chain (loop) such that
 // the interior of the loop does not contain either pole.  Now if P is any
 // point such that L.Contains(P), then RectBound(L).Contains(S2LatLng(P)).
-DE_API class LatLngRectBounder {
+ class LatLngRectBounder {
  public:
   LatLngRectBounder() : bound_(LatLngRect::Empty()) {}
 

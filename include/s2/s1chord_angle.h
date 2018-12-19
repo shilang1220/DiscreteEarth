@@ -45,7 +45,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S1ChordAngle {
+ class S1ChordAngle {
  public:
   // The default constructor yields a zero angle.  This is useful for STL
   // containers and class methods with output arguments.
