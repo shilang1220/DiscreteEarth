@@ -10,7 +10,7 @@
 
 #include "core/cell.h"
 #include "core/cap.h"
-#include "core/latlng_rect.h"
+#include "latlng_rect.h"
 
 
  class GT_API GTCell final : Cell{

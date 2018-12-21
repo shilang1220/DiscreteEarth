@@ -27,7 +27,7 @@
 
 #include "base/integral_types.h"
 #include "s2/s2point.h"
-#include "gt/gtcoords.h"
+#include "gtcoords.h"
 
 // GT网格系统涉及四个坐标系统
 // 经纬度          （LNG,LAT）       double

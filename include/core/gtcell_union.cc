@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "gt/gtcell_union.h"
+#include "gtcell_union.h"
 
 #include <algorithm>
 #include <vector>
@@ -30,8 +30,8 @@
 #include "core/latlng_rect.h"
 #include "core/cap.h"
 
-#include "gt/gtcell.h"
-#include "gt/gtcell_id.h"
+#include "core/gtcell.h"
+#include "core/gtcell_id.h"
 
 
 using std::is_sorted;

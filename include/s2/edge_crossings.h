@@ -37,6 +37,7 @@
 #include "base/logging.h"
 #include "third_party/absl/base/macros.h"
 #include "third_party/absl/container/inlined_vector.h"
+#include "util/math/vector.h"
 
 #include "s2/r2.h"
 #include "s2/r2rect.h"
@@ -46,7 +47,7 @@
 #include "s2/s2latlng.h"
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
-#include "util/math/vector.h"
+
 
 
 

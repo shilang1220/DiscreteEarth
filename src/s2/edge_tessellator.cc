@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "core/edge_tessellator.h"
+#include "s2/edge_tessellator.h"
 
 #include <cmath>
 #include "s2/s2latlng.h"

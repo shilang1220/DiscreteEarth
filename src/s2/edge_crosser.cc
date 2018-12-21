@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "core/edge_crosser.h"
+#include "s2/edge_crosser.h"
 
 #include "base/logging.h"
 #include "s2/s2pointutil.h"

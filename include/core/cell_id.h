@@ -17,14 +17,13 @@
 #include "base/integral_types.h"
 #include "base/logging.h"
 #include "base/port.h"
-
-#include "s2/r2.h"
-#include "s2/r2rect.h"
-#include "s2/s1angle.h"
 #include "third_party/absl/strings/string_view.h"
 #include "util/bits/bits.h"
 #include "util/coding/coder.h"
 
+#include "s2/r2.h"
+#include "s2/r2rect.h"
+#include "s2/s1angle.h"
 
 class S2LatLng;
 

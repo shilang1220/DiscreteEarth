@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "core/edge_distances.h"
+#include "s2/edge_distances.h"
 
 #include <cfloat>
 #include <cmath>
@@ -25,7 +25,7 @@
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
 
-#include "core/edge_crossings.h"
+#include "s2/edge_crossings.h"
 
 using std::max;
 using std::min;

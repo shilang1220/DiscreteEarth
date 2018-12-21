@@ -13,7 +13,7 @@
 #include "util/coding/coder.h"
 #include "core/cap.h"
 #include "core/cell.h"
-#include "core/edge_distances.h"
+#include "s2/edge_distances.h"
 #include "s2/s2debug.h"
 #include "s2/s2pointutil.h"
 

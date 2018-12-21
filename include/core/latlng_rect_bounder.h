@@ -23,9 +23,9 @@
 
 #include "s2/s2point.h"
 #include "s2/s2latlng.h"
-#include "core/latlng_rect.h"
+#include "latlng_rect.h"
 
-// 用于计算外包矩形的类
+// 用于外包矩形计算器类
 
 // This class computes a bounding rectangle that contains all edges defined
 // by a vertex chain v0, v1, v2, ...  All vertices must be unit length.

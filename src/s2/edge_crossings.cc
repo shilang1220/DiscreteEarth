@@ -15,8 +15,8 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "core/edge_crossings.h"
-#include "core/edge_crossings_internal.h"
+#include "s2/edge_crossings.h"
+#include "s2/edge_crossings_internal.h"
 
 #include <cmath>
 
@@ -28,7 +28,7 @@
 #include "s2/s2predicates_internal.h"
 #include "util/math/exactfloat/exactfloat.h"
 
-#include "core/edge_crosser.h"
+#include "s2/edge_crosser.h"
 
 namespace S2 {
 
