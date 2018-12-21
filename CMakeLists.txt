@@ -21,9 +21,15 @@ enable_language(CXX)
 enable_language(C)
 enable_testing()
 
-option(BUILD_EXAMPLES "Build GT examples." ON)
-option(BUILD_TEST "Build GT tests." ON)
+##########################################################################################
+#  以下禁止修改
+##########################################################################################
 
+
+########################################################################
+# Environment setup
+########################################################################
+# 目录环境变量设置
 set(PROJECT_INC_DIR "${PROJECT_SOURCE_DIR}/include")
 set(PROJECT_SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 set(PROJECT_BIN_DIR "${PROJECT_SOURCE_DIR}/bin")
@@ -33,50 +39,7 @@ set(PROJECT_EXM_DIR "${PROJECT_SOURCE_DIR}/examples")
 set(PROJECT_RC_DIR "${PROJECT_SOURCE_DIR}/resource")
 set(PROJECT_TEST_DIR "${PROJECT_SOURCE_DIR}/test")
 
-########################################################################
-# Environment setup
-########################################################################
-#编译选项
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# No compiler-specific extensions, i.e. -std=c++11, not -std=gnu++11.
-set(CMAKE_CXX_EXTENSIONS OFF)
-#宏定义
-add_definitions(-DDISCRETEEARTH_EXPORTS)
-#头文件目录
 include_directories(${PROJECT_INC_DIR})
-if(WIN32)
-    include_directories("C:/OpenSSL-Win64/include")
-else()
-    include_directories("/usr/local/include")
-endif()
-#共享库目录
-link_directories(${PROJECT_LIB_DIR})
-
-if (WIN32)
-    # Use unsigned characters
-    add_definitions(-J)
-    # Make sure cmath header defines things like M_PI
-    add_definitions(-D_USE_MATH_DEFINES)
-    # Make sure Windows doesn't define min/max macros that interfere with STL
-    add_definitions(-DNOMINMAX)
-    add_definitions(-W3)
-else()
-    # Avoid megabytes of warnings like:
-    # util/math/vector.h:178:16: warning: optimization attribute on
-    # ‘double sqrt(double)’ follows definition but the attribute doesn’t
-    # match [-Wattributes]
-    add_definitions(-Wno-attributes)
-    add_definitions(-Wno-deprecated-declarations)
-endif()
-
-
-
-########################################################################
-# Dependencies setup
-########################################################################
-find_package(OpenSSL REQUIRED)
-find_package(GTest REQUIRED)
 
 
 ########################################################################
@@ -171,50 +134,102 @@ find_package(GTest REQUIRED)
 #)
 
 ########################################################################
-# Option to enable QA testing, on by default
+# QA testing
 ########################################################################
-OPTION(ENABLE_TESTING "Enable QA testing" ON)
-if(ENABLE_TESTING)
-    message(STATUS "QA Testing is enabled.")
+if(BUILD_TEST)
+    aux_source_directory("${PROJECT_TEST_DIR}" TESTFILES)
+    enable_testing()
+   foreach (test_cc ${TESTFILES})
+        get_filename_component(test ${test_cc} NAME_WE)
+        add_executable(${test} ${test_cc})
+        target_link_libraries(
+                    ${test}
+                    s2testing gt gtest_main)
+        add_test(${test} ${test})
+    endforeach()
 else()
     message(STATUS "QA Testing is disabled.")
 endif()
-message(STATUS "  Modify using: -DENABLE_TESTING=ON/OFF")
 
 ########################################################################
 # Option to enable post-build profiling using volk_profile, off by default
 ########################################################################
-#OPTION(ENABLE_PROFILING "Launch system profiler after build" OFF)
-#if(ENABLE_PROFILING)
-#    if(DEFINED VOLK_CONFIGPATH)
-#        get_filename_component(VOLK_CONFIGPATH ${VOLK_CONFIGPATH} ABSOLUTE)
-#        set(VOLK_CONFIGPATH "${VOLK_CONFIGPATH}/volk")
-#        message(STATUS "System profiling is enabled, using path: ${VOLK_CONFIGPATH}")
-#    elseif(DEFINED ENV{VOLK_CONFIGPATH})
-#        set(VOLK_CONFIGPATH "$ENV{VOLK_CONFIGPATH}/volk")
-#        message(STATUS "System profiling is enabled, using env path: $ENV{VOLK_CONFIGPATH}")
-#    else()
-#        message(STATUS "System profiling is enabled with default paths.")
-#        if(DEFINED ENV{HOME})
-#            set(VOLK_CONFIGPATH "$ENV{HOME}/.volk")
-#        elseif(DEFINED ENV{APPDATA})
-#            set(VOLK_CONFIGPATH "$ENV{APPDATA}/.volk")
-#        endif()
-#    endif()
-#else()
-#    message(STATUS "System profiling is disabled.")
-#endif()
-#message(STATUS "  Modify using: -DENABLE_PROFILING=ON/OFF")
+
 
 ########################################################################
 # Setup the library
 ########################################################################
-add_subdirectory(${PROJECT_SRC_DIR})
-if (BUILD_EXAMPLES)
-    add_subdirectory(${PROJECT_EXM_DIR})
+#预先宏定义
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BIN_DIR})
+set(LIBRARY_OUTPUT_PATH  ${PROJECT_LIB_DIR})
+
+if(BUILD_SHARED_LIBS)
+    add_definitions(-DDISCRETEEARTH_EXPORTS)            #按照输出库编译
+
+    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base" THIRDPARTY_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base/internal" THIRDPARTY_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/numeric" THIRDPARTY_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings" THIRDPARTY_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings/internal" THIRDPARTY_SRCS)
+
+    aux_source_directory("${PROJECT_SRC_DIR}/strings" STRINGS_SRCS)
+
+    aux_source_directory("${PROJECT_SRC_DIR}/util/bits" UTIL_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/util/coding" UTIL_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/util/math" UTIL_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/util/math/exactfloat" UTIL_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/util/unit" UTIL_SRCS)
+
+    aux_source_directory("${PROJECT_SRC_DIR}/base" BASE_SRCS)
+
+    aux_source_directory("${PROJECT_SRC_DIR}/s2" S2_SRCS)
+
+    aux_source_directory("${PROJECT_SRC_DIR}/core" CORE_SRCS)
+    aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
+
+    #aux_source_directory("${PROJECT_SRC_DIR}/shape" SHAPE_SRCS)
+    #aux_source_directory("${PROJECT_SRC_DIR}/object" OBJECT_SRCS)
+    #aux_source_directory("${PROJECT_SRC_DIR}/builder" BUILDER_SRCS)
+    #aux_source_directory("${PROJECT_SRC_DIR}/encode" ENCODE_SRCS)
+    #aux_source_directory("${PROJECT_SRC_DIR}/index" INDEX_SRCS)
+    #aux_source_directory("${PROJECT_SRC_DIR}/query" QUERY_SRCS)
+
+    #add_library(s2geometry ${THIRDPARTY_SRCS} ${STRINGS_SRCS}  ${UTIL_SRCS} ${BASE_SRCS} ${CORE_SRCS} ${SHAPE_SRCS} ${BUILDER_SRCS} ${INDEX_SRCS} ${OBJECT_SRCS} ${QUERY_SRCS} ${ENCODE_SRCS})
+    #build libs from third party
+    #add_library(third_party SHARED ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
+    #add_library(third_party ${THIRDPARTY_SRCS})
+    #add_library(strings ${STRINGS_SRCS})
+    #add_library(util ${UTIL_SRCS})
+    #add_library(base ${BASE_SRCS})
+    #add_library(s2 ${S2_SRCS})
+
+    #build libs of self
+    #add_library(core SHARED ${CORE_SRCS})
+
+    add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
+    aux_source_directory("${OPENSSL_LIBRARIES}" OPENSSL_LIBS)
+    message(STATUS ${OPENSSL_LIBS})
+#    target_link_libraries(
+#            gt
+#            ssl
+#    )
+    #add_library(shape  ${SHAPE_SRCS} )
+    #add_library(builder  ${BUILDER_SRCS} )
+    #add_library(index  ${INDEX_SRCS} )
+    #add_library(object ${OBJECT_SRCS})
+    #add_library(query ${QUERY_SRCS})
+    #add_library(encode ${ENCODE_SRCS})
 endif()
-if(BUILD_TEST)
-    add_subdirectory(${PROJECT_TEST_DIR})
+if(BUILD_EXAMPLES)
+    aux_source_directory("${PROJECT_SRC_DIR}/examples" EXAMPLES_SRCS)
+    foreach (example_cc ${EXAMPLES_SRCS})
+        get_filename_component(example ${example_cc} NAME_WE)
+        add_executable(${example} ${example_cc})
+        target_link_libraries(
+                ${example}
+                gt ${OPENSSL_LIBRARIES}
+        )
+    endforeach()
 endif()
 
 ########################################################################
