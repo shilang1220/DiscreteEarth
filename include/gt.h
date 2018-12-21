@@ -14,8 +14,12 @@
 #include "core/latlng_rect_bounder.h"
 
 //S2支撑类库（s2）
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/s2latlng.h"
 
 //GT基础类库（gt）
 #include "gt/gtcoords.h"
+#include "gt/gtcell_id.h"
 
 #endif //DISCRETEEARTH_GT_H

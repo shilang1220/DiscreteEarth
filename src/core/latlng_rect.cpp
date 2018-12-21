@@ -367,7 +367,7 @@ bool LatLngRect::IntersectsLngEdge(const S2Point& a, const S2Point& b,
 
     return true;
     
-//    S2::CrossingSign(
+//    s2::CrossingSign(
 //            a, b, S2LatLng::FromRadians(lat.lo(), lng).ToPoint(),
 //            S2LatLng::FromRadians(lat.hi(), lng).ToPoint()) > 0;
 }
@@ -523,10 +523,10 @@ S1Angle LatLngRect::GetDistance(const LatLngRect& other) const {
     S2Point b_lo = S2LatLng(b.lat_lo(), b_lng).ToPoint();
     S2Point b_hi = S2LatLng(b.lat_hi(), b_lng).ToPoint();
 
-//    return min(S2::GetDistance(a_lo, b_lo, b_hi),
-//               min(S2::GetDistance(a_hi, b_lo, b_hi),
-//                   min(S2::GetDistance(b_lo, a_lo, a_hi),
-//                       S2::GetDistance(b_hi, a_lo, a_hi))));
+//    return min(s2::GetDistance(a_lo, b_lo, b_hi),
+//               min(s2::GetDistance(a_hi, b_lo, b_hi),
+//                   min(s2::GetDistance(b_lo, a_lo, a_hi),
+//                       s2::GetDistance(b_hi, a_lo, a_hi))));
 
     return a_lng;
 }
@@ -557,7 +557,7 @@ S1Angle LatLngRect::GetDistance(const S2LatLng& p) const {
     S2Point hi = S2LatLng::FromRadians(a.lat().hi(), a_lng).ToPoint();
 
 
-//    return S2::GetDistance(p.ToPoint(), lo, hi);
+//    return s2::GetDistance(p.ToPoint(), lo, hi);
     S1Angle angle;
     return  angle;
 }
@@ -573,7 +573,7 @@ S1Angle LatLngRect::GetDirectedHausdorffDistance(
         return S1Angle::Radians(0);
     }
     if (other.is_empty()) {
-        return S1Angle::Radians(M_PI);  // maximum possible distance on S2
+        return S1Angle::Radians(M_PI);  // maximum possible distance on s2
     }
 
     double lng_distance = lng().GetDirectedHausdorffDistance(other.lng());

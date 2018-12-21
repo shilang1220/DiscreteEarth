@@ -309,7 +309,7 @@ bool OrderedCCW(const S2Point& a, const S2Point& b, const S2Point& c,
 }
 
 // Returns cos(XY), and sets "error" to the maximum error in the result.
-// REQUIRES: "x" and "y" satisfy S2::IsNormalized().
+// REQUIRES: "x" and "y" satisfy s2::IsNormalized().
 inline double GetCosDistance(const S2Point& x, const S2Point& y,
                              double* error) {
   double c = x.DotProd(y);
@@ -332,7 +332,7 @@ inline long double GetCosDistance(const Vector3_ld& x, const Vector3_ld& y,
 // Returns sin**2(XY), where XY is the angle between X and Y, and sets "error"
 // to the maximum error in the result.
 //
-// REQUIRES: "x" and "y" satisfy S2::IsNormalized().
+// REQUIRES: "x" and "y" satisfy s2::IsNormalized().
 inline double GetSin2Distance(const S2Point& x, const S2Point& y,
                               double* error) {
   // The (x-y).CrossProd(x+y) trick eliminates almost all of error due to "x"
@@ -588,7 +588,7 @@ int TriageCompareLineSin2Distance(const Vector3<T>& x, const Vector3<T>& a0,
   if (r2 >= 2.0) return -1;  // distance < limit
 
   // Otherwise we compute sin^2(distance to edge) to get the best accuracy
-  // when the distance limit is small (e.g., S2::kIntersectionError).
+  // when the distance limit is small (e.g., s2::kIntersectionError).
   T n2sin2_r = n2 * r2 * (1 - 0.25 * r2);
   T n2sin2_r_error = 6 * T_ERR * n2sin2_r;
   T ax2, xDn = (x - GetClosestVertex(x, a0, a1, &ax2)).DotProd(n);
@@ -1018,7 +1018,7 @@ int SymbolicEdgeCircumcenterSign(
   // paper, where all pedestal perturbations are defined to be much, much
   // larger than any axis-aligned perturbation.  Note that since pedestal
   // perturbations have no effect on Sign, we can use this model for *all*
-  // the S2 predicates, which ensures that all the various predicates are
+  // the s2 predicates, which ensures that all the various predicates are
   // fully consistent with each other.
   //
   // With this model, the strategy described above yields the correct result

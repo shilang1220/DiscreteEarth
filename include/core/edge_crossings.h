@@ -139,6 +139,6 @@ extern const S1Angle kIntersectionError;
 // opposite directions.
 extern const S1Angle kIntersectionMergeRadius;  // 2 * kIntersectionError
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2EDGE_CROSSINGS_H_

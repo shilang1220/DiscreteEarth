@@ -46,8 +46,8 @@
 
 #include <cstdlib> // For strtol* functions.
 #include <string>
-#include "base/integral_types.h"
-#include "base/port.h"
+#include "integral_types.h"
+#include "port.h"
 #include "third_party/absl/base/macros.h"
 
 // Adapter functions for handling overflow and errno.

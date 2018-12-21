@@ -76,6 +76,6 @@ namespace S2 {
 // and a negative value otherwise.
  double SignedArea(const S2Point& a, const S2Point& b, const S2Point& c);
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2MEASURES_H_

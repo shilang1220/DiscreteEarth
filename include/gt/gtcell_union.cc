@@ -25,7 +25,7 @@
 #include "util/coding/coder.h"
 
 #include "s2/s1angle.h"
-#include "s2/s2metrics.h"
+#include "../../src/tmp/s2metrics.h"
 
 #include "core/latlng_rect.h"
 #include "core/cap.h"

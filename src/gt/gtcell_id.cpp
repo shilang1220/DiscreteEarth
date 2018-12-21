@@ -3,9 +3,9 @@
 //
 #include <gt/gtcell_id.h>
 
+#include "util/bits/bits.h"
 #include "gt/gtcell_id.h"
 #include "gt/gtcoords.h"
-
 GTCellId::GTCellId(const S2Point p) {
     //默认为叶子网格
     uint32 I,J;
@@ -71,6 +71,8 @@ bool GTCellId::FromLatLng(S2LatLng latLng)  {
 bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level)  {
     uint32 I,J,mask;
 
+
+    
     S2_DCHECK_LE(level,31);
 
     GT::LLtoIJ(latLng.lng().degrees(),latLng.lat().degrees(),&I,&J);
@@ -83,41 +85,6 @@ bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level)  {
     GT::IJtoCellID(I,J,&id_);
 
     return true;
-}
-
-inline uint64 GTCellId::lsb() const {
-    return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
-}
-
-inline bool GTCellId::is_valid() const {
-    // 采用末尾补100..0方式表示层级时，至少有一个偶数位bit必须为1
-    return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
-}
-
-inline GTCellId GTCellId::range_min_cell() const {
-    return GTCellId(id_ - (lsb() - 1));
-}
-
-inline GTCellId GTCellId::range_max_cell() const {
-    return GTCellId(id_ + (lsb() - 1));
-}
-
-uint64 GTCellId::range_min() const {
-    return range_min_cell().id();
-}
-
-uint64 GTCellId::range_max() const {
-    return range_max_cell().id();
-}
-
-inline int GTCellId::level() const {
-    // We can't just S2_DCHECK(is_valid()) because we want level() to be
-    // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
-    // no good way to define S2CellId::None().level(), so we do prohibit that.
-    S2_DCHECK(id_ != 0);
-
-    // A special case for leaf cells is not worthwhile.
-    return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
 }
 
 int GTCellId::child_position() const {
@@ -265,6 +232,15 @@ uint64 GTCellId::pos() const {
 bool GTCellId::is_leaf() const {
     return false;
 }
+
+GTCellId::GTCellId () : CellId() {
+
+}
+
+uint64 GTCellId::id () const {
+    return CellId::id();
+}
+
 
 
 

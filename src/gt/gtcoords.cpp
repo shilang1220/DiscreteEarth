@@ -28,6 +28,8 @@
 
 #include "base/logging.h"
 #include "util/math/mathutil.h"
+#include "util/bits/bits.h"
+#include "util/bits/bit-interleave.h"
 #include "s2/s2latlng.h"
 
 ////////////////////////////////////////////////////////
@@ -187,16 +189,20 @@ bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
    uint64 cellID = 0X0;
    uint64 bitI,bitJ,mask;
 
-   for (int i = 0; i<32; i++)
-    {
-        mask = 1U << i;
-        bitI = ((uint64) I & mask) << 2*i;
-        bitJ = ((uint64) J & mask) << 2*i+1;
-        cellID = cellID | bitI | bitJ;
-    }
+    cellID = util_bits::InterleaveUint32(I,J);
+//
+//   for (int i = 0; i<32; i++)
+//    {
+//        mask = 1U << i;
+//        bitI = ((uint64) I & mask) << 2*i;
+//        bitJ = ((uint64) J & mask) << 2*i+1;
+//        cellID = cellID | bitI | bitJ;
+//    }
    //处理末尾2bit截止位
    cellID = cellID & 0XFFFFFFFFFFFFFFFE;
    cellID = cellID | 0X0000000000000002;
+
+   *pCellID = cellID;
 
    return true;
 }
@@ -204,6 +210,7 @@ bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
 bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ) {
     uint32 bitI,bitJ,tmpI=0,tmpJ=0;
     uint64 maskI,maskJ;
+
 
     for (int i=0; i<32; i++){
         maskI = 1U << 2*i;

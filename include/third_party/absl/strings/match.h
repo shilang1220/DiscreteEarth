@@ -35,7 +35,7 @@
 
 #include <cstring>
 
-#include "third_party/absl/strings/string_view.h"
+#include "string_view.h"
 
 namespace absl {
 

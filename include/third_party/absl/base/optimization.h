@@ -22,7 +22,7 @@
 #ifndef S2_THIRD_PARTY_ABSL_BASE_OPTIMIZATION_H_
 #define S2_THIRD_PARTY_ABSL_BASE_OPTIMIZATION_H_
 
-#include "third_party/absl/base/config.h"
+#include "config.h"
 
 // ABSL_BLOCK_TAIL_CALL_OPTIMIZATION
 //

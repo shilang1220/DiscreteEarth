@@ -65,7 +65,7 @@
 #include <TargetConditionals.h>
 #endif
 
-#include "third_party/absl/base/policy_checks.h"
+#include "policy_checks.h"
 
 // -----------------------------------------------------------------------------
 // Compiler Feature Checks

@@ -81,4 +81,4 @@ S2Point TrueCentroid(const S2Point& a, const S2Point& b) {
   return sqrt(sin2 / cos2) * vsum;  // Length == 2*sin(theta)
 }
 
-}  // namespace S2
+}  // namespace s2

@@ -74,7 +74,7 @@
 #include "third_party/absl/meta/type_traits.h"
 #include "third_party/absl/strings/string_view.h"
 #include "third_party/absl/utility/utility.h"
-#include "util/gtl/layout.h"
+#include "layout.h"
 
 namespace gtl {
 

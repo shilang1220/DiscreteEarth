@@ -30,8 +30,8 @@
 
 // 一些常用的常数和工具函数
 
-// S2 is a namespace for constants and simple utility functions that are used
-// throughout the S2 library.  The name "S2" is derived from the mathematical
+// s2 is a namespace for constants and simple utility functions that are used
+// throughout the s2 library.  The name "s2" is derived from the mathematical
 // symbol for the two-dimensional unit sphere (note that the "2" refers to the
 // dimension of the surface, not the space it is embedded in).
 namespace S2 {
@@ -54,7 +54,7 @@ namespace S2 {
 // Ortho(-a) = -Ortho(a) for all a.
 //
 // Note that Vector3_d also defines an "Ortho" method, but this one is
-// preferred for use in S2 code because it explicitly tries to avoid result
+// preferred for use in s2 code because it explicitly tries to avoid result
 // result coordinates that are zero.  (This is a performance optimization that
 // reduces the amount of time spent in functions which handle degeneracies.)
  S2Point Ortho(const S2Point& a);
@@ -136,6 +136,6 @@ inline S2Point Origin() {
 #endif
 }
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2POINTUTIL_H_

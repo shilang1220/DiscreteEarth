@@ -417,4 +417,4 @@ bool IsEdgeBNearEdgeA(const S2Point& a0, const S2Point& a1,
             s2pred::Sign(furthest_inv, b1, b_ortho) > 0));
 }
 
-}  // namespace S2
+}  // namespace s2

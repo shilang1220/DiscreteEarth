@@ -42,7 +42,7 @@ namespace S2 {
 // (approximately Pi/2 or greater).  The case A == B is handled correctly.
 //
 // If you want to compare a distance against a fixed threshold, e.g.
-//    if (S2::GetDistance(x, a, b) < limit)
+//    if (s2::GetDistance(x, a, b) < limit)
 // then it is significantly faster to use UpdateMinDistance() below.
     GT_API S1Angle GetDistance(const S2Point& x, const S2Point& a, const S2Point& b);
 
@@ -92,7 +92,7 @@ namespace S2 {
 //
 // TODO(ericv): Currently the error bound does not hold for edges whose
 // endpoints are antipodal to within about 1e-15 radians (less than 1 micron).
-// This could be fixed by extending S2::RobustCrossProd to use higher
+// This could be fixed by extending s2::RobustCrossProd to use higher
 // precision when necessary.
     GT_API double GetUpdateMinDistanceMaxError(S1ChordAngle dist);
 
@@ -119,7 +119,7 @@ namespace S2 {
 
 // A slightly more efficient version of Project() where the cross product of
 // the two endpoints has been precomputed.  The cross product does not need to
-// be normalized, but should be computed using S2::RobustCrossProd() for the
+// be normalized, but should be computed using s2::RobustCrossProd() for the
 // most accurate results.  Requires that x, a, and b have unit length.
     GT_API S2Point Project(const S2Point& x, const S2Point& a, const S2Point& b,
                 const Vector3_d& a_cross_b);
@@ -194,6 +194,6 @@ namespace S2 {
   return UpdateMinInteriorDistance(x, a, b, &limit);
 }
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2EDGE_DISTANCES_H_

@@ -54,6 +54,6 @@ enum class IntersectionMethod {
  const char* GetIntersectionMethodName(IntersectionMethod method);
 
 }  // namespace internal
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2EDGE_CROSSINGS_INTERNAL_H_

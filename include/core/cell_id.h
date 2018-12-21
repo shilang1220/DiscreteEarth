@@ -31,7 +31,7 @@ class S2LatLng;
 //CellId 是球面网格编码的抽象类，用户可定义自己的编码类
 
 // An CellId is a 64-bit unsigned integer that uniquely identifies a
-// cell in the S2 cell decomposition.  It has the following format:
+// cell in the s2 cell decomposition.  It has the following format:
 //
 //   id = [face][face_pos]
 //
@@ -101,7 +101,7 @@ public:
     /************************************
    *  网格ID属性访问函数
    ************************************/
-    // 返回面片ID
+    virtual // 返回面片ID
     // The 64-bit unique identifier for this cell.
     uint64 id() const { return id_; }
 

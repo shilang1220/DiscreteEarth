@@ -643,7 +643,8 @@ inline uint128& uint128::operator--() {
 
 
 #if defined(ABSL_HAVE_INTRINSIC_INT128)
-#include "third_party/absl/numeric/int128_have_intrinsic.inc"
+#include "int128_have_intrinsic.inc"
+
 #else  // ABSL_HAVE_INTRINSIC_INT128
 #include "third_party/absl/numeric/int128_no_intrinsic.inc"
 #endif  // ABSL_HAVE_INTRINSIC_INT128

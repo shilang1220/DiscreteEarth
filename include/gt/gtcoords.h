@@ -46,10 +46,10 @@
 namespace GT{
 // 网格最大层级
 // This is the number of levels needed to specify a leaf cell.  This
-// constant is defined here so that the S2::Metric class and the conversion
+// constant is defined here so that the s2::Metric class and the conversion
 // functions below can be implemented without including s2cell_id.h.  Please
 // see s2cell_id.h for other useful constants and conversion functions.
-    const int kMaxCellLevel = 31;
+    const unsigned int kMaxCellLevel = 31;
 
 // 叶子节点（I，J）索引值的最大值
 // The maximum index of a valid leaf cell plus one.  The range of valid leaf

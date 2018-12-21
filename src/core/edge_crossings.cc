@@ -295,8 +295,8 @@ static bool GetIntersectionStableSorted(
   T x_len2 = x.Norm2();
   if (x_len2 < std::numeric_limits<T>::min()) {
     // If x.Norm2() is less than the minimum normalized value of T, x_len might
-    // lose precision and the result might fail to satisfy S2::IsUnitLength().
-    // TODO(ericv): Implement S2::RobustNormalize().
+    // lose precision and the result might fail to satisfy s2::IsUnitLength().
+    // TODO(ericv): Implement s2::RobustNormalize().
     return false;
   }
   T x_len = sqrt(x_len2);
@@ -515,4 +515,4 @@ S2Point GetIntersection(const S2Point& a0, const S2Point& a1,
   return result;
 }
 
-}  // namespace S2
+}  // namespace s2

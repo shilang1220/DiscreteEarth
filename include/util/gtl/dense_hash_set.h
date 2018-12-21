@@ -125,8 +125,8 @@
 
 #include "base/port.h"
 #include "third_party/absl/base/macros.h"
-#include "util/gtl/densehashtable.h"  // IWYU pragma: export
-#include "util/gtl/libc_allocator_with_realloc.h"
+#include "densehashtable.h"  // IWYU pragma: export
+#include "libc_allocator_with_realloc.h"
 
 // Some files test for this symbol.
 #define S2__DENSE_HASH_SET_H_

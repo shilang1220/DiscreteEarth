@@ -50,7 +50,7 @@ void LatLngRectBounder::AddInternal(const S2Point& b,
     bound_.AddPoint(b_latlng);
   } else {
     // First compute the cross product N = A x B robustly.  This is the normal
-    // to the great circle through A and B.  We don't use S2::RobustCrossProd()
+    // to the great circle through A and B.  We don't use s2::RobustCrossProd()
     // since that method returns an arbitrary vector orthogonal to A if the two
     // vectors are proportional, and we want the zero vector in that case.
     Vector3_d n = (a_ - b).CrossProd(a_ + b);  // N = 2 * (A x B)

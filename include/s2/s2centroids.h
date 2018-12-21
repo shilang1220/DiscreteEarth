@@ -87,6 +87,6 @@ namespace S2 {
 // if the edge is degenerate (and that this is intended behavior).
  S2Point TrueCentroid(const S2Point& a, const S2Point& b);
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2CENTROIDS_H_

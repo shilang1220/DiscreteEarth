@@ -44,8 +44,8 @@
   //
   // Method            | Input                  | Output
   // ------------------|------------------------|-----------------------
-  // AppendProjected   | S2 geodesics           | Planar projected edges
-  // AppendUnprojected | Planar projected edges | S2 geodesics
+  // AppendProjected   | s2 geodesics           | Planar projected edges
+  // AppendUnprojected | Planar projected edges | s2 geodesics
   S2EdgeTessellator(const S2::Projection* projection, S1Angle tolerance);
 
   // Converts the spherical geodesic edge AB to a chain of planar edges in the

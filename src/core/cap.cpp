@@ -15,7 +15,7 @@
 #include "s2/s1interval.h"
 #include "s2/s2debug.h"
 #include "s2/s2latlng.h"
-#include "s2/s2metrics.h"
+
 #include "s2/s2pointutil.h"
 #include "util/math/vector.h"
 
@@ -117,7 +117,7 @@ Cap Cap::Union(const Cap& other) const {
     } else {
         S1Angle result_radius = 0.5 * (distance + this_radius + other_radius);
         S2Point result_center;
-//        S2Point result_center = S2::InterpolateAtDistance(
+//        S2Point result_center = s2::InterpolateAtDistance(
 //                0.5 * (distance - this_radius + other_radius),
 //                center(),
 //                other.center());

@@ -35,7 +35,7 @@
 
 namespace S2 {
 
-// For the purposes of the S2 library, a projection is a function that maps
+// For the purposes of the s2 library, a projection is a function that maps
 // between S2Points and R2Points.  It can also define the coordinate wrapping
 // behavior along each axis.
 class GT_API Projection {
@@ -72,7 +72,7 @@ class GT_API Projection {
   // of the Earth.  (Note that very few data sets define edges this way.)
   //
   // Also note that there is no reason to define a projection where edges are
-  // geodesics over the sphere, because this is the native S2 interpretation.
+  // geodesics over the sphere, because this is the native s2 interpretation.
   virtual R2Point Interpolate(double f, const R2Point& a, const R2Point& b)
       const;
 
@@ -155,7 +155,7 @@ class GT_API Projection {
   double from_radians_;  // Multiplier to convert coordinates from radians.
 };
 
-}  // namespace S2
+}  // namespace s2
 
 
 #endif  // S2_S2PROJECTIONS_H_

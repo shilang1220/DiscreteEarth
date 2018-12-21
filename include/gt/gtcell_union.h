@@ -24,7 +24,7 @@
 #include "_fp_contract_off.h"
 #include "exports.h"
 
-#include "base/commandlineflags.h"
+#include "../../src/tmp/commandlineflags.h"
 #include "base/integral_types.h"
 #include "base/logging.h"
 #include "third_party/absl/base/macros.h"
@@ -121,6 +121,7 @@ DECLARE_int32(s2cell_union_decode_max_num_cells);
 
   // Clears the contents of the cell union and minimizes memory usage.
   void Clear();
+
 
   // Gives ownership of the vector data to the client without copying, and
   // clears the content of the cell union.  The original data in cell_ids

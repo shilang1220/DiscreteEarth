@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 //
-// The S2 library defines extra validity checks throughout the code that can
+// The s2 library defines extra validity checks throughout the code that can
 // optionally be enabled or disabled.  By default, these validity checks are
 // enabled in debug-mode builds (including fastbuild) and disabled in
 // optimized builds.
@@ -52,12 +52,12 @@
 #ifndef S2_S2DEBUG_H_
 #define S2_S2DEBUG_H_
 
-#include "base/commandlineflags.h"
+#include "../../src/tmp/commandlineflags.h"
 #include "base/integral_types.h"
 
 //调试类
 
-// Command line flag that enables extra validity checking throughout the S2
+// Command line flag that enables extra validity checking throughout the s2
 // code.  It is turned on by default in debug-mode builds.
 DECLARE_bool(s2debug);
 
