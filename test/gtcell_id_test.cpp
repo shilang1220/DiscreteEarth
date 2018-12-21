@@ -12,24 +12,24 @@ static GTCellId GetCellId(double lat_degrees, double lng_degrees) {
 }
 
 
-TEST(GTCELLID_TEST, ID_Build) {
+TEST(GTCELLID_TEST, ID_CONSTRUCT) {
     GTCellId id;
 
     //经纬度到ID的转换测试
     id = GetCellId(0.0, 0.0);
-    ASSERT_EQ(0x2, id.id());
+    EXPECT_EQ(0x2, id.id());
 
     id = GetCellId(90.00,180.00);
-    ASSERT_EQ(0x2, id.id());
+    EXPECT_EQ(0x2, id.id());
 
     id = GetCellId(-90.00,180.00);
-    ASSERT_EQ(0x2, id.id());
+    EXPECT_EQ(0x2, id.id());
 
     id = GetCellId(-90.00,-180.00);
-    ASSERT_EQ(0x2, id.id());
+    EXPECT_EQ(0x2, id.id());
 
     id = GetCellId(+90.00,-180.00);
-    ASSERT_EQ(0x2, id.id());
+    EXPECT_EQ(0x2, id.id());
 
     S2Point pnt(1.0,1.0,1.0);
 
