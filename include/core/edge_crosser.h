@@ -18,12 +18,14 @@
 #ifndef S2_S2EDGE_CROSSER_H_
 #define S2_S2EDGE_CROSSER_H_
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
+#include "exports.h"
+
+#include "base/logging.h"
 #include "core/edge_crossings.h"
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
-#include "exports.h"
+
 
 class S2CopyingEdgeCrosser;  // Forward declaration
 
@@ -36,7 +38,7 @@ class S2CopyingEdgeCrosser;  // Forward declaration
 //   void CountIntersections(const S2Point& a, const S2Point& b,
 //                           const vector<pair<S2Point, S2Point>>& edges) {
 //     int count = 0;
-//     S2EdgeCrosser crosser(&a, &b);
+//     EdgeCrosser crosser(&a, &b);
 //     for (const auto& edge : edges) {
 //       if (crosser.CrossingSign(&edge.first, &edge.second) >= 0) {
 //         ++count;
@@ -49,23 +51,23 @@ class S2CopyingEdgeCrosser;  // Forward declaration
 // stored in memory, so that this class can refer to them with pointers and
 // does not need to make its own copies.  If this is not the case (e.g., you
 // want to pass temporary objects as vertices), see S2CopyingEdgeCrosser.
-DE_API class S2EdgeCrosser {
+class GT_API EdgeCrosser {
  public:
   // Default constructor; must be followed by a call to Init().
-  S2EdgeCrosser() {}
+  EdgeCrosser() {}
 
   // Convenience constructor that calls Init() with the given fixed edge AB.
   // The arguments "a" and "b" must point to values that persist for the
-  // lifetime of the S2EdgeCrosser object (or until the next Init() call).
-  S2EdgeCrosser(const S2Point* a, const S2Point* b);
+  // lifetime of the EdgeCrosser object (or until the next Init() call).
+  EdgeCrosser(const S2Point* a, const S2Point* b);
 
   // Accessors for the constructor arguments.
   const S2Point* a() { return a_; }
   const S2Point* b() { return b_; }
 
-  // Initialize the S2EdgeCrosser with the given fixed edge AB.  The arguments
+  // Initialize the EdgeCrosser with the given fixed edge AB.  The arguments
   // "a" and "b" must point to values that persist for the lifetime of the
-  // S2EdgeCrosser object (or until the next Init() call).
+  // EdgeCrosser object (or until the next Init() call).
   void Init(const S2Point* a, const S2Point* b);
 
   // This function determines whether the edge AB intersects the edge CD.
@@ -127,7 +129,7 @@ DE_API class S2EdgeCrosser {
   // first vertex of the vertex chain (equivalent to calling RestartAt(c)).
   //
   // The arguments must point to values that persist until the next call.
-  S2EdgeCrosser(const S2Point* a, const S2Point* b, const S2Point* c);
+  EdgeCrosser(const S2Point* a, const S2Point* b, const S2Point* c);
 
   // Call this method when your chain 'jumps' to a new place.
   // The argument must point to a value that persists until the next call.
@@ -182,17 +184,17 @@ DE_API class S2EdgeCrosser {
   // The field below is a temporary used by CrossingSignInternal().
   int bda_;                // The orientation of triangle BDA.
 
-  S2EdgeCrosser(const S2EdgeCrosser&) = delete;
-  void operator=(const S2EdgeCrosser&) = delete;
+  EdgeCrosser(const EdgeCrosser&) = delete;
+  void operator=(const EdgeCrosser&) = delete;
 };
 
-// S2CopyingEdgeCrosser is exactly like S2EdgeCrosser, except that it makes its
+// S2CopyingEdgeCrosser is exactly like EdgeCrosser, except that it makes its
 // own copy of all arguments so that they do not need to persist between
 // calls.  This is less efficient, but makes it possible to use points that
 // are generated on demand and cannot conveniently be stored by the client.
-DE_API class S2CopyingEdgeCrosser {
+ class S2CopyingEdgeCrosser {
  public:
-  // These methods are all exactly like S2EdgeCrosser, except that the
+  // These methods are all exactly like EdgeCrosser, except that the
   // arguments can be temporaries.
   S2CopyingEdgeCrosser() {}
   S2CopyingEdgeCrosser(const S2Point& a, const S2Point& b);
@@ -210,12 +212,134 @@ DE_API class S2CopyingEdgeCrosser {
  private:
   S2Point a_, b_, c_;
   // TODO(ericv): It would be more efficient to implement S2CopyingEdgeCrosser
-  // directly rather than as a wrapper around S2EdgeCrosser.
-  S2EdgeCrosser crosser_;
+  // directly rather than as a wrapper around EdgeCrosser.
+  EdgeCrosser crosser_;
 
   S2CopyingEdgeCrosser(const S2CopyingEdgeCrosser&) = delete;
   void operator=(const S2CopyingEdgeCrosser&) = delete;
 };
 
+//////////////////   Implementation details follow   ////////////////////
+
+
+inline EdgeCrosser::EdgeCrosser(const S2Point* a, const S2Point* b)
+        : a_(a), b_(b), a_cross_b_(a_->CrossProd(*b_)), have_tangents_(false),
+          c_(nullptr) {
+            S2_DCHECK(S2::IsUnitLength(*a));
+            S2_DCHECK(S2::IsUnitLength(*b));
+}
+
+inline void EdgeCrosser::Init(const S2Point* a, const S2Point* b) {
+    a_ = a;
+    b_ = b;
+    a_cross_b_ = a->CrossProd(*b_);
+    have_tangents_ = false;
+    c_ = nullptr;
+}
+
+inline int EdgeCrosser::CrossingSign(const S2Point* c, const S2Point* d) {
+    if (c != c_) RestartAt(c);
+    return CrossingSign(d);
+}
+
+inline bool EdgeCrosser::EdgeOrVertexCrossing(const S2Point* c,
+                                              const S2Point* d) {
+    if (c != c_) RestartAt(c);
+    return EdgeOrVertexCrossing(d);
+}
+
+inline EdgeCrosser::EdgeCrosser(
+        const S2Point* a, const S2Point* b, const S2Point* c)
+        : a_(a), b_(b), a_cross_b_(a_->CrossProd(*b_)), have_tangents_(false) {
+            S2_DCHECK(S2::IsUnitLength(*a));
+            S2_DCHECK(S2::IsUnitLength(*b));
+    RestartAt(c);
+}
+
+inline void EdgeCrosser::RestartAt(const S2Point* c) {
+            S2_DCHECK(S2::IsUnitLength(*c));
+    c_ = c;
+    acb_ = -s2pred::TriageSign(*a_, *b_, *c_, a_cross_b_);
+}
+
+inline int EdgeCrosser::CrossingSign(const S2Point* d) {
+            S2_DCHECK(S2::IsUnitLength(*d));
+    // For there to be an edge crossing, the triangles ACB, CBD, BDA, DAC must
+    // all be oriented the same way (CW or CCW).  We keep the orientation of ACB
+    // as part of our state.  When each new point D arrives, we compute the
+    // orientation of BDA and check whether it matches ACB.  This checks whether
+    // the points C and D are on opposite sides of the great circle through AB.
+
+    // Recall that TriageSign is invariant with respect to rotating its
+    // arguments, i.e. ABD has the same orientation as BDA.
+    int bda = s2pred::TriageSign(*a_, *b_, *d, a_cross_b_);
+    if (acb_ == -bda && bda != 0) {
+        // The most common case -- triangles have opposite orientations.  Save the
+        // current vertex D as the next vertex C, and also save the orientation of
+        // the new triangle ACB (which is opposite to the current triangle BDA).
+        c_ = d;
+        acb_ = -bda;
+        return -1;
+    }
+    bda_ = bda;
+    return CrossingSignInternal(d);
+}
+
+inline bool EdgeCrosser::EdgeOrVertexCrossing(const S2Point* d) {
+    // We need to copy c_ since it is clobbered by CrossingSign().
+    const S2Point* c = c_;
+    int crossing = CrossingSign(d);
+    if (crossing < 0) return false;
+    if (crossing > 0) return true;
+    return S2::VertexCrossing(*a_, *b_, *c, *d);
+}
+
+inline S2CopyingEdgeCrosser::S2CopyingEdgeCrosser(const S2Point& a,
+                                                  const S2Point& b)
+        : a_(a), b_(b), c_(S2Point()), crosser_(&a_, &b_) {
+}
+
+inline void S2CopyingEdgeCrosser::Init(const S2Point& a, const S2Point& b) {
+    a_ = a;
+    b_ = b;
+    c_ = S2Point();
+    crosser_.Init(&a_, &b_);
+}
+
+inline int S2CopyingEdgeCrosser::CrossingSign(const S2Point& c,
+                                              const S2Point& d) {
+    if (c != c_ || crosser_.c_ == nullptr) RestartAt(c);
+    return CrossingSign(d);
+}
+
+inline bool S2CopyingEdgeCrosser::EdgeOrVertexCrossing(
+        const S2Point& c, const S2Point& d) {
+    if (c != c_ || crosser_.c_ == nullptr) RestartAt(c);
+    return EdgeOrVertexCrossing(d);
+}
+
+inline S2CopyingEdgeCrosser::S2CopyingEdgeCrosser(
+        const S2Point& a, const S2Point& b, const S2Point& c)
+        : a_(a), b_(b), c_(c), crosser_(&a_, &b_, &c) {
+}
+
+inline void S2CopyingEdgeCrosser::RestartAt(const S2Point& c) {
+    c_ = c;
+    crosser_.RestartAt(&c_);
+}
+
+inline int S2CopyingEdgeCrosser::CrossingSign(const S2Point& d) {
+    int result = crosser_.CrossingSign(&d);
+    c_ = d;
+    crosser_.set_c(&c_);
+    return result;
+}
+
+inline bool S2CopyingEdgeCrosser::EdgeOrVertexCrossing(const S2Point& d) {
+    bool result = crosser_.EdgeOrVertexCrossing(&d);
+    c_ = d;
+    crosser_.set_c(&c_);
+    return result;
+}
 
 #endif  // S2_S2EDGE_CROSSER_H_

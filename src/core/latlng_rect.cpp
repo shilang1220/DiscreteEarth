@@ -24,58 +24,6 @@ using std::min;
 static const unsigned char kCurrentLosslessEncodingVersionNumber = 1;
 
 
-inline LatLngRect::LatLngRect(const S2LatLng& lo, const S2LatLng& hi)
-        : lat_(lo.lat().radians(), hi.lat().radians()),
-          lng_(lo.lng().radians(), hi.lng().radians()) {
-            S2_DLOG_IF(ERROR, !is_valid())
-            << "Invalid rect: " << lo << ", " << hi;
-}
-
-inline LatLngRect::LatLngRect(const R1Interval& lat, const S1Interval& lng)
-        : lat_(lat), lng_(lng) {
-            S2_DLOG_IF(ERROR, !is_valid())
-            << "Invalid rect: " << lat << ", " << lng;
-}
-
-inline LatLngRect::LatLngRect()
-        : lat_(R1Interval::Empty()), lng_(S1Interval::Empty()) {
-}
-
-inline LatLngRect LatLngRect::Empty() {
-    return LatLngRect();
-}
-
-inline LatLngRect LatLngRect::Full() {
-    return LatLngRect(FullLat(), FullLng());
-}
-
-inline bool LatLngRect::is_valid() const {
-    // The lat/lng ranges must either be both empty or both non-empty.
-    return (std::fabs(lat_.lo()) <= M_PI_2 &&
-            std::fabs(lat_.hi()) <= M_PI_2 &&
-            lng_.is_valid() &&
-            lat_.is_empty() == lng_.is_empty());
-}
-
-inline bool LatLngRect::is_empty() const {
-    return lat_.is_empty();
-}
-
-inline bool LatLngRect::is_full() const {
-    return lat_ == FullLat() && lng_.is_full();
-}
-
-inline bool LatLngRect::is_point() const {
-    return lat_.lo() == lat_.hi() && lng_.lo() == lng_.hi();
-}
-
-inline bool LatLngRect::operator==(const LatLngRect& other) const {
-    return lat() == other.lat() && lng() == other.lng();
-}
-
-inline bool LatLngRect::operator!=(const LatLngRect& other) const {
-    return !operator==(other);
-}
 
 LatLngRect LatLngRect::FromCenterSize(const S2LatLng& center,
                                           const S2LatLng& size) {
@@ -419,7 +367,7 @@ bool LatLngRect::IntersectsLngEdge(const S2Point& a, const S2Point& b,
 
     return true;
     
-//    S2::CrossingSign(
+//    s2::CrossingSign(
 //            a, b, S2LatLng::FromRadians(lat.lo(), lng).ToPoint(),
 //            S2LatLng::FromRadians(lat.hi(), lng).ToPoint()) > 0;
 }
@@ -575,10 +523,10 @@ S1Angle LatLngRect::GetDistance(const LatLngRect& other) const {
     S2Point b_lo = S2LatLng(b.lat_lo(), b_lng).ToPoint();
     S2Point b_hi = S2LatLng(b.lat_hi(), b_lng).ToPoint();
 
-//    return min(S2::GetDistance(a_lo, b_lo, b_hi),
-//               min(S2::GetDistance(a_hi, b_lo, b_hi),
-//                   min(S2::GetDistance(b_lo, a_lo, a_hi),
-//                       S2::GetDistance(b_hi, a_lo, a_hi))));
+//    return min(s2::GetDistance(a_lo, b_lo, b_hi),
+//               min(s2::GetDistance(a_hi, b_lo, b_hi),
+//                   min(s2::GetDistance(b_lo, a_lo, a_hi),
+//                       s2::GetDistance(b_hi, a_lo, a_hi))));
 
     return a_lng;
 }
@@ -609,7 +557,7 @@ S1Angle LatLngRect::GetDistance(const S2LatLng& p) const {
     S2Point hi = S2LatLng::FromRadians(a.lat().hi(), a_lng).ToPoint();
 
 
-//    return S2::GetDistance(p.ToPoint(), lo, hi);
+//    return s2::GetDistance(p.ToPoint(), lo, hi);
     S1Angle angle;
     return  angle;
 }
@@ -625,7 +573,7 @@ S1Angle LatLngRect::GetDirectedHausdorffDistance(
         return S1Angle::Radians(0);
     }
     if (other.is_empty()) {
-        return S1Angle::Radians(M_PI);  // maximum possible distance on S2
+        return S1Angle::Radians(M_PI);  // maximum possible distance on s2
     }
 
     double lng_distance = lng().GetDirectedHausdorffDistance(other.lng());

@@ -31,8 +31,8 @@
 #include <string>
 #include <utility>
 
-#include "util/gtl/btree.h"            // IWYU pragma: export
-#include "util/gtl/btree_container.h"  // IWYU pragma: export
+#include "btree.h"            // IWYU pragma: export
+#include "btree_container.h"  // IWYU pragma: export
 
 namespace gtl {
 

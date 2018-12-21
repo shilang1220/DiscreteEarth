@@ -47,8 +47,11 @@
 #ifndef S2_S2CENTROIDS_H_
 #define S2_S2CENTROIDS_H_
 
-#include "s2/s2point.h"
+#include "_fp_contract_off.h"
 #include "exports.h"
+
+#include "s2/s2point.h"
+
 //球面三角形或弧的质心计算类
 
 namespace S2 {
@@ -58,7 +61,7 @@ namespace S2 {
 // triangle, i.e. the intersection of the three medians.  However, note that
 // for large spherical triangles the surface centroid may be nowhere near the
 // intuitive "center" (see example above).
-DE_API S2Point PlanarCentroid(const S2Point& a, const S2Point& b, const S2Point& c);
+ S2Point PlanarCentroid(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Returns the true centroid of the spherical triangle ABC multiplied by the
 // signed area of spherical triangle ABC.  The reasons for multiplying by the
@@ -68,7 +71,7 @@ DE_API S2Point PlanarCentroid(const S2Point& a, const S2Point& b, const S2Point&
 //
 // Note that the result of this function is defined to be S2Point(0, 0, 0) if
 // the triangle is degenerate (and that this is intended behavior).
-DE_API S2Point TrueCentroid(const S2Point& a, const S2Point& b, const S2Point& c);
+ S2Point TrueCentroid(const S2Point& a, const S2Point& b, const S2Point& c);
 
 // Returns the true centroid of the spherical geodesic edge AB multiplied by
 // the length of the edge AB.  As with triangles, the true centroid of a
@@ -82,8 +85,8 @@ DE_API S2Point TrueCentroid(const S2Point& a, const S2Point& b, const S2Point& c
 //
 // Also note that the result of this function is defined to be S2Point(0, 0, 0)
 // if the edge is degenerate (and that this is intended behavior).
-DE_API S2Point TrueCentroid(const S2Point& a, const S2Point& b);
+ S2Point TrueCentroid(const S2Point& a, const S2Point& b);
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2CENTROIDS_H_

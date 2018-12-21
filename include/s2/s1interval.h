@@ -22,10 +22,11 @@
 #include <iosfwd>
 #include <iostream>
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
-#include "util/math/vector.h"  // IWYU pragma: export
 #include "exports.h"
+
+#include "base/logging.h"
+#include "util/math/vector.h"  // IWYU pragma: export
 // 单位圆上的间隔类
 
 // An S1Interval represents a closed interval on a unit circle (also known
@@ -47,7 +48,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S1Interval {
+ class  GT_API S1Interval {
  public:
   // Constructor.  Both endpoints must be in the range -Pi to Pi inclusive.
   // The value -Pi is converted internally to Pi except for the Full()

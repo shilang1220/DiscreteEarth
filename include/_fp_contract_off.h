@@ -18,14 +18,15 @@
 #ifndef S2__FP_CONTRACT_OFF_H_
 #define S2__FP_CONTRACT_OFF_H_
 
+//关闭fp-contract浮点数编译选项
 // Turn off the fused multiply-add optimization ("fp-contract").  With
 // fp-contract on, any expression of the form "a * b + c" has two possible
 // results, and the compiler is free to choose either of them.  Effectively
 // this makes it impossible to write deterministic functions that involve
 // floating-point math.
 //
-// S2 requires deterministic arithmetic for correctness.  We need to turn off
-// fp-contract for the entire compilation unit, because S2 has public inline
+// s2 requires deterministic arithmetic for correctness.  We need to turn off
+// fp-contract for the entire compilation unit, because s2 has public inline
 // functions, and the optimization is controlled by the setting in effect when
 // inline functions are instantiated (not when they are defined).
 //
@@ -36,7 +37,7 @@
 //
 // This file may be included with other files in any order, as long as it
 // appears before the first non-inline function definition.  It is
-// named with an underscore so that it is included first among the S2 headers.
+// named with an underscore so that it is included first among the s2 headers.
 
 // TODO(compiler-team): Figure out how to do this in a portable way.
 #if defined(HAVE_ARMEABI_V7A)

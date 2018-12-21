@@ -32,6 +32,10 @@
 #include "third_party/absl/base/casts.h"
 #include "third_party/absl/base/macros.h"
 
+// Google自定义的类型转换模板
+// 指针转换  和   enumeration与int的转换
+//    up_cast    --  将指向某个对象的指针转换为指向子对象的指针
+//    down_cast  --  将指向某个子对象的指针转换为指向父对象的指针
 // An "upcast", i.e. a conversion from a pointer to an object to a pointer to a
 // base subobject, always succeeds if the base is unambiguous and accessible,
 // and so it's fine to use implicit_cast.

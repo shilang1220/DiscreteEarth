@@ -32,7 +32,7 @@
 
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S2Error {
+ class S2Error {
  public:
   enum Code {
     OK = 0,                  // No error.

@@ -26,14 +26,16 @@
 #ifndef S2_S2EARTH_H_
 #define S2_S2EARTH_H_
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "s2/s1angle.h"
 #include "s2/s1chord_angle.h"
 #include "s2/s2latlng.h"
 #include "s2/s2point.h"
 #include "util/units/length-units.h"
-#include "exports.h"
 
-DE_API class S2Earth {
+class GT_API S2Earth {
  public:
   // These functions convert between distances on the unit sphere
   // (expressed as angles subtended from the sphere's center) and
@@ -63,7 +65,7 @@ DE_API class S2Earth {
   inline static double RadiansToMeters(double radians);
 
   // These functions convert between areas on the unit sphere
-  // (as returned by the S2 library) and areas on the Earth's surface.
+  // (as returned by the s2 library) and areas on the Earth's surface.
   // Note that the area of a region on the unit sphere is equal to the
   // solid angle it subtends from the sphere's center (measured in steradians).
   inline static double SquareKmToSteradians(double km2);

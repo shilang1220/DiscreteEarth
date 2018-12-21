@@ -23,12 +23,13 @@
 #include <ostream>
 #include <type_traits>
 
-#include "base/integral_types.h"
 #include "_fp_contract_off.h"
+#include "exports.h"
+
+#include "base/integral_types.h"
 #include "s2/s2point.h"
 #include "util/math/mathutil.h"
 #include "util/math/vector.h"
-#include "exports.h"
 
 class S2LatLng;
 
@@ -84,7 +85,7 @@ class S2LatLng;
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S1Angle {
+ class  GT_API S1Angle {
  public:
   // These methods construct S1Angle objects from their measure in radians
   // or degrees.

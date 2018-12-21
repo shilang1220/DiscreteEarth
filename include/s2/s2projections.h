@@ -26,17 +26,19 @@
 #ifndef S2_S2PROJECTIONS_H_
 #define S2_S2PROJECTIONS_H_
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "s2/r2.h"
 #include "s2/s2latlng.h"
 #include "s2/s2point.h"
-#include "exports.h"
 
 namespace S2 {
 
-// For the purposes of the S2 library, a projection is a function that maps
+// For the purposes of the s2 library, a projection is a function that maps
 // between S2Points and R2Points.  It can also define the coordinate wrapping
 // behavior along each axis.
-DE_API class Projection {
+class GT_API Projection {
  public:
   virtual ~Projection() {}
 
@@ -70,7 +72,7 @@ DE_API class Projection {
   // of the Earth.  (Note that very few data sets define edges this way.)
   //
   // Also note that there is no reason to define a projection where edges are
-  // geodesics over the sphere, because this is the native S2 interpretation.
+  // geodesics over the sphere, because this is the native s2 interpretation.
   virtual R2Point Interpolate(double f, const R2Point& a, const R2Point& b)
       const;
 
@@ -97,7 +99,7 @@ DE_API class Projection {
 // Note that (x, y) coordinates are backwards compared to the usual (latitude,
 // longitude) ordering, in order to match the usual convention for graphs in
 // which "x" is horizontal and "y" is vertical.
-DE_API class PlateCarreeProjection final : public Projection {
+ class PlateCarreeProjection final : public Projection {
  public:
   // Constructs the plate carree projection where the x coordinates
   // (longitude) span [-x_scale, x_scale] and the y coordinates (latitude)
@@ -134,7 +136,7 @@ DE_API class PlateCarreeProjection final : public Projection {
 // infinite "y" values.  (Note that this will cause problems if you tessellate
 // a Mercator edge where one endpoint is a pole.  If you need to do this, clip
 // the edge first so that the "y" coordinate is no more than about 5 * max_x.)
-DE_API class MercatorProjection final : public Projection {
+ class MercatorProjection final : public Projection {
  public:
   // Constructs a Mercator projection where "x" corresponds to longitude in
   // the range [-max_x, max_x] , and "y" corresponds to latitude and can be
@@ -153,7 +155,7 @@ DE_API class MercatorProjection final : public Projection {
   double from_radians_;  // Multiplier to convert coordinates from radians.
 };
 
-}  // namespace S2
+}  // namespace s2
 
 
 #endif  // S2_S2PROJECTIONS_H_

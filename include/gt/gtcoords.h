@@ -22,10 +22,12 @@
 #ifndef DISCRETEEARTH_GTCOORDS_H
 #define DISCRETEEARTH_GTCOORDS_H
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "base/integral_types.h"
 #include "s2/s2point.h"
 #include "gt/gtcoords.h"
-#include "exports.h"
 
 // GT网格系统涉及四个坐标系统
 // 经纬度          （LNG,LAT）       double
@@ -44,51 +46,51 @@
 namespace GT{
 // 网格最大层级
 // This is the number of levels needed to specify a leaf cell.  This
-// constant is defined here so that the S2::Metric class and the conversion
+// constant is defined here so that the s2::Metric class and the conversion
 // functions below can be implemented without including s2cell_id.h.  Please
 // see s2cell_id.h for other useful constants and conversion functions.
-    const int kMaxCellLevel = 31;
+    const unsigned int kMaxCellLevel = 31;
 
 // 叶子节点（I，J）索引值的最大值
 // The maximum index of a valid leaf cell plus one.  The range of valid leaf
 // cell indices is [0..kLimitIJ-1].
     const uint64 kLimitIJ = 1 << kMaxCellLevel;  // == S2CellId::kMaxSize
 
-    const double kMin2Degree =  1/(double)60.00;
-    const double kSec2Degree =  2048/(double) 3600.00;
+    const double kMin2Degree = 1/60.00;
+    const double kSec2Degree = 2048.00/3600;
 
     //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
-    DE_API bool XYZtoLL (const S2Point &p, double *pU, double *pV) ;
-    DE_API bool LLtoXYZ (const double U, const double V, S2Point *pPnt) ;
+    GT_API bool XYZtoLL (const S2Point &p, double *pU, double *pV) ;
+    GT_API bool LLtoXYZ (const double U, const double V, S2Point *pPnt) ;
 
 
     //扩展坐标系（U，V）与网格坐标系（I，J）之间的转换函数
-    DE_API bool IJtoUV(const uint32 I,const uint32 J, double* pU, double* pV);
-    DE_API bool UVtoIJ(const double U,const double V,uint32* pI,uint32* pJ);
+    GT_API bool IJtoUV(const uint32 I,const uint32 J, double* pU, double* pV);
+    GT_API bool UVtoIJ(const double U,const double V,uint32* pI,uint32* pJ);
 
     //经纬度坐标系（LNG，LAT）与网格坐标系（I，J）之间的转换函数
-    DE_API bool IJtoLL(const uint32 I, const uint32 J,double* pLng,double* pLat);  //当（I,J）不对应经纬度时，返回false
-    DE_API bool LLtoIJ(const double Lng,const double Lat,uint32* pI,uint32* pJ);        //当ll经纬度超届时，返回false
+    GT_API bool IJtoLL(const uint32 I, const uint32 J,double* pLng,double* pLat);  //当（I,J）不对应经纬度时，返回false
+    GT_API bool LLtoIJ(const double Lng,const double Lat,uint32* pI,uint32* pJ);        //当ll经纬度超届时，返回false
 
     //球面坐标系（X,Y,Z）与扩展坐标系（U,V）之间的转换函数
-    DE_API bool XYZtoUV(const S2Point& p, double* pU, double* pV);     //当（X,Y,Z）为非球面点时，返回false
-    DE_API bool UVtoXYZ(const double U,const double V, S2Point* pPnt);  //当（U,V）不对应实际空间时，返回false
+    GT_API bool XYZtoUV(const S2Point& p, double* pU, double* pV);     //当（X,Y,Z）为非球面点时，返回false
+    GT_API bool UVtoXYZ(const double U,const double V, S2Point* pPnt);  //当（U,V）不对应实际空间时，返回false
 
     //球面坐标系（X,Y,Z）与网格坐标系（I,J）之间的转换函数
-    DE_API bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);     //当（X,Y,Z）为非球面点时，返回false
-    DE_API bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);  //当（I,J）不对应实际空间时，返回false
+    GT_API bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);     //当（X,Y,Z）为非球面点时，返回false
+    GT_API bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);  //当（I,J）不对应实际空间时，返回false
 
     //Z序编码与网格坐标系（I,J）之间的转换函数
-    DE_API bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID);
-    DE_API bool CellIDtoIJ(const uint64 CellID, uint32* pI, uint32* pJ);
+     bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID);
+     bool CellIDtoIJ(const uint64 CellID, uint32* pI, uint32* pJ);
 
     //Z序编码与经纬度坐标系（Lng,Lat）之间的转换函数
-    DE_API bool LLtoCellID(const double Lng, const double Lat, uint64* pCellID);
-    DE_API bool CellIDtoLL(const uint64 CellID, double* pLng, double* pLat);
+    GT_API  bool LLtoCellID(const double Lng, const double Lat, uint64* pCellID);
+    GT_API bool CellIDtoLL(const uint64 CellID, double* pLng, double* pLat);
 
     //Z序编码与球面坐标系（X,Y,Z）之间的转换函数
-    DE_API bool XYZtoCellID(const S2Point pnt, uint64* pCellID);
-    DE_API bool CellIDtoXYZ(const uint64 CellID, S2Point* pPnt);
+    GT_API bool XYZtoCellID(const S2Point pnt, uint64* pCellID);
+    GT_API bool CellIDtoXYZ(const uint64 CellID, S2Point* pPnt);
 
 }
 

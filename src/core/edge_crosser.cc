@@ -21,130 +21,9 @@
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
 
-//////////////////   Implementation details follow   ////////////////////
 
 
-inline S2EdgeCrosser::S2EdgeCrosser(const S2Point* a, const S2Point* b)
-        : a_(a), b_(b), a_cross_b_(a_->CrossProd(*b_)), have_tangents_(false),
-          c_(nullptr) {
-          S2_DCHECK(S2::IsUnitLength(*a));
-          S2_DCHECK(S2::IsUnitLength(*b));
-}
-
-inline void S2EdgeCrosser::Init(const S2Point* a, const S2Point* b) {
-  a_ = a;
-  b_ = b;
-  a_cross_b_ = a->CrossProd(*b_);
-  have_tangents_ = false;
-  c_ = nullptr;
-}
-
-inline int S2EdgeCrosser::CrossingSign(const S2Point* c, const S2Point* d) {
-  if (c != c_) RestartAt(c);
-  return CrossingSign(d);
-}
-
-inline bool S2EdgeCrosser::EdgeOrVertexCrossing(const S2Point* c,
-                                                const S2Point* d) {
-  if (c != c_) RestartAt(c);
-  return EdgeOrVertexCrossing(d);
-}
-
-inline S2EdgeCrosser::S2EdgeCrosser(
-        const S2Point* a, const S2Point* b, const S2Point* c)
-        : a_(a), b_(b), a_cross_b_(a_->CrossProd(*b_)), have_tangents_(false) {
-          S2_DCHECK(S2::IsUnitLength(*a));
-          S2_DCHECK(S2::IsUnitLength(*b));
-  RestartAt(c);
-}
-
-inline void S2EdgeCrosser::RestartAt(const S2Point* c) {
-          S2_DCHECK(S2::IsUnitLength(*c));
-  c_ = c;
-  acb_ = -s2pred::TriageSign(*a_, *b_, *c_, a_cross_b_);
-}
-
-inline int S2EdgeCrosser::CrossingSign(const S2Point* d) {
-          S2_DCHECK(S2::IsUnitLength(*d));
-  // For there to be an edge crossing, the triangles ACB, CBD, BDA, DAC must
-  // all be oriented the same way (CW or CCW).  We keep the orientation of ACB
-  // as part of our state.  When each new point D arrives, we compute the
-  // orientation of BDA and check whether it matches ACB.  This checks whether
-  // the points C and D are on opposite sides of the great circle through AB.
-
-  // Recall that TriageSign is invariant with respect to rotating its
-  // arguments, i.e. ABD has the same orientation as BDA.
-  int bda = s2pred::TriageSign(*a_, *b_, *d, a_cross_b_);
-  if (acb_ == -bda && bda != 0) {
-    // The most common case -- triangles have opposite orientations.  Save the
-    // current vertex D as the next vertex C, and also save the orientation of
-    // the new triangle ACB (which is opposite to the current triangle BDA).
-    c_ = d;
-    acb_ = -bda;
-    return -1;
-  }
-  bda_ = bda;
-  return CrossingSignInternal(d);
-}
-
-inline bool S2EdgeCrosser::EdgeOrVertexCrossing(const S2Point* d) {
-  // We need to copy c_ since it is clobbered by CrossingSign().
-  const S2Point* c = c_;
-  int crossing = CrossingSign(d);
-  if (crossing < 0) return false;
-  if (crossing > 0) return true;
-  return S2::VertexCrossing(*a_, *b_, *c, *d);
-}
-
-inline S2CopyingEdgeCrosser::S2CopyingEdgeCrosser(const S2Point& a,
-                                                  const S2Point& b)
-        : a_(a), b_(b), c_(S2Point()), crosser_(&a_, &b_) {
-}
-
-inline void S2CopyingEdgeCrosser::Init(const S2Point& a, const S2Point& b) {
-  a_ = a;
-  b_ = b;
-  c_ = S2Point();
-  crosser_.Init(&a_, &b_);
-}
-
-inline int S2CopyingEdgeCrosser::CrossingSign(const S2Point& c,
-                                              const S2Point& d) {
-  if (c != c_ || crosser_.c_ == nullptr) RestartAt(c);
-  return CrossingSign(d);
-}
-
-inline bool S2CopyingEdgeCrosser::EdgeOrVertexCrossing(
-        const S2Point& c, const S2Point& d) {
-  if (c != c_ || crosser_.c_ == nullptr) RestartAt(c);
-  return EdgeOrVertexCrossing(d);
-}
-
-inline S2CopyingEdgeCrosser::S2CopyingEdgeCrosser(
-        const S2Point& a, const S2Point& b, const S2Point& c)
-        : a_(a), b_(b), c_(c), crosser_(&a_, &b_, &c) {
-}
-
-inline void S2CopyingEdgeCrosser::RestartAt(const S2Point& c) {
-  c_ = c;
-  crosser_.RestartAt(&c_);
-}
-
-inline int S2CopyingEdgeCrosser::CrossingSign(const S2Point& d) {
-  int result = crosser_.CrossingSign(&d);
-  c_ = d;
-  crosser_.set_c(&c_);
-  return result;
-}
-
-inline bool S2CopyingEdgeCrosser::EdgeOrVertexCrossing(const S2Point& d) {
-  bool result = crosser_.EdgeOrVertexCrossing(&d);
-  c_ = d;
-  crosser_.set_c(&c_);
-  return result;
-}
-
-int S2EdgeCrosser::CrossingSignInternal(const S2Point* d) {
+int EdgeCrosser::CrossingSignInternal(const S2Point* d) {
   // Compute the actual result, and then save the current vertex D as the next
   // vertex C, and save the orientation of the next triangle ACB (which is
   // opposite to the current triangle BDA).
@@ -154,7 +33,7 @@ int S2EdgeCrosser::CrossingSignInternal(const S2Point* d) {
   return result;
 }
 
-inline int S2EdgeCrosser::CrossingSignInternal2(const S2Point& d) {
+inline int EdgeCrosser::CrossingSignInternal2(const S2Point& d) {
   // At this point, a very common situation is that A,B,C,D are four points on
   // a line such that AB does not overlap CD.  (For example, this happens when
   // a line or curve is sampled finely, or when geometry is constructed by

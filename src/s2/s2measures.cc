@@ -125,4 +125,4 @@ double SignedArea(const S2Point& a, const S2Point& b, const S2Point& c) {
   return s2pred::Sign(a, b, c) * Area(a, b, c);
 }
 
-}  // namespace S2
+}  // namespace s2

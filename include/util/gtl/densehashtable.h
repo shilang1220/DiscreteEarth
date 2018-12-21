@@ -119,8 +119,8 @@
 #include <vector>
 #include <type_traits>
 
-#include "util/gtl/hashtable_common.h"
-#include "util/gtl/libc_allocator_with_realloc.h"
+#include "hashtable_common.h"
+#include "libc_allocator_with_realloc.h"
 #include "base/port.h"
 #include <stdexcept>                 // For length_error
 

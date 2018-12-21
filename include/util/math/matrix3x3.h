@@ -36,8 +36,8 @@
 #include <type_traits>
 
 #include "base/logging.h"
-#include "util/math/mathutil.h"
-#include "util/math/vector.h"
+#include "mathutil.h"
+#include "vector.h"
 
 template <class VType>
 class Matrix3x3 {

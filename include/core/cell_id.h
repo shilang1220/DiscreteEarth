@@ -11,23 +11,27 @@
 #include <string>
 #include <vector>
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "base/integral_types.h"
 #include "base/logging.h"
 #include "base/port.h"
-#include "_fp_contract_off.h"
+
 #include "s2/r2.h"
 #include "s2/r2rect.h"
 #include "s2/s1angle.h"
 #include "third_party/absl/strings/string_view.h"
 #include "util/bits/bits.h"
 #include "util/coding/coder.h"
-#include "exports.h"
+
+
 class S2LatLng;
 
 //CellId 是球面网格编码的抽象类，用户可定义自己的编码类
 
 // An CellId is a 64-bit unsigned integer that uniquely identifies a
-// cell in the S2 cell decomposition.  It has the following format:
+// cell in the s2 cell decomposition.  It has the following format:
 //
 //   id = [face][face_pos]
 //
@@ -57,7 +61,7 @@ class S2LatLng;
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class CellId {
+ class GT_API CellId {
 public:
     // The extra position bit (61 rather than 60) let us encode each cell as its
     // Hilbert curve position at the cell center (which is halfway along the
@@ -97,7 +101,7 @@ public:
     /************************************
    *  网格ID属性访问函数
    ************************************/
-    // 返回面片ID
+    virtual // 返回面片ID
     // The 64-bit unique identifier for this cell.
     uint64 id() const { return id_; }
 

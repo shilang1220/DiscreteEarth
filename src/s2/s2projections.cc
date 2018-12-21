@@ -91,4 +91,4 @@ R2Point MercatorProjection::wrap_distance() const {
   return R2Point(x_wrap_, 0);
 }
 
-}  // namespace S2
+}  // namespace s2

@@ -4,22 +4,83 @@
 ########################################################################
 cmake_minimum_required(VERSION 3.1)
 
-set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type: None Debug Release RelWithDebInfo MinSizeRel")
+include(CMakeDependentOption)           #添加选项依赖关系的支持
+include(CheckCXXCompilerFlag)           #添加编译器是否支持某些FLAG的判断支持
+#include(FeatureSummary)                 #添加特征总结的支持
+include(FindPackageHandleStandardArgs)  #添加FindPackage支持
 
 project(DiscreteEarth)
-include(CMakeDependentOption)
-include(CheckCXXCompilerFlag)
-include(FeatureSummary)
-include(FindPackageHandleStandardArgs)
 
-set(CMAKE_CXX_STANDARD 11)
+#编译选项宏定义
+if (WIN32)  #MSVC编译选项
+    message(STATUS "Building on windows.")
+    # 使用无符号字符
+    add_definitions(-J)
+    # 使用cmath头文件中的M_PI、DBL_EPISLON等宏定义
+    add_definitions(-D_USE_MATH_DEFINES)
+    # 不使用<windef.h>中的min、max，避免和标准库冲突
+    add_definitions(-DNOMINMAX)
+    # 警告等级设置为3级，W1) : 显示严重的警告消息；W2显示等级1警告以及某些不太严重的警告；W3显示等级2警告以及某些不太严重的警告；W4显示所有等级 3 警告以及信息性警告。
+    add_definitions(-W0)                                #暂时取消警告提醒
+else ()      #GCC编译选项
+    message(STATUS "Building on linux.....")
+    #-w禁止所有警告；-Wall开启所有警告；
+    add_definitions(-w)#Wno-attributes)
+    add_definitions(-Wno-deprecated-declarations)
+endif ()
+
 set(VERSION_INFO_MAJOR_VERSION 1)
 set(VERSION_INFO_MINOR_VERSION 3)
 set(VERSION_INFO_MAINT_VERSION 0git)
 
-enable_language(CXX)
-enable_language(C)
-enable_testing()
+#语言支持
+enable_language(C)                      #添加C语言编译支持
+enable_language(CXX)                    #添加C++语言编译支持
+#编译选项
+set(CMAKE_CXX_STANDARD 11)              #采用c++<std 11>标准
+set(CMAKE_CXX_STANDARD_REQUIRED ON)     #强制执行std11标准
+set(CMAKE_CXX_EXTENSIONS OFF)           #禁用编译器自身对标准的扩展
+
+
+# 编译范围选项设置
+option(BUILD_GT_LIBS "Build GT libraries." ON)                              #编译GT库
+if (BUILD_GT_LIBS)
+    message(STATUS "Build GT libraries...")
+endif ()
+option(BUILD_AS_SHARED_LIBS "Build shared libraries instead of static." ON)    #将GT库编译为共享库
+if (BUILD_AS_SHARED_LIBS)
+    message(STATUS "Build libraries as dynamic link libraries instead of static...")
+endif ()
+option(BUILD_EXAMPLES "Build GT examples." OFF)                #编译EXAMPLES
+if (BUILD_EXAMPLES)
+    message(STATUS "Building examples...")
+endif ()
+option(BUILD_TEST "Build GT tests." ON)                     #编译TEST
+if (BUILD_TEST)
+    message(STATUS "Turn QA test on...")
+endif ()
+########################################################################
+# 第三方依赖设置 Dependencies setup
+########################################################################
+
+#第三方头文件和库文件目录,OpenSSL和GoogleTest是必须项，否则编译会出现错误
+if (WIN32)       #MSVC下的第三方库的头文件和链接库文件目录
+    set(OPENSSL_INCLUDE "C:/OpenSSL-Win64/include")
+    set(OPENSSL_LIBRARIES "C:/OpenSSL-Win64/lib")
+    set(GTEST_INCLUDE "C:/gtest/include")
+    set(GTEST_LIBRARIES "C:/gtest/lib")
+else ()          #GCC的第三方库头文件目录
+    set(OPENSSL_INCLUDE "/usr/local/include")
+    set(OPENSSL_LIBRARIES "/usr/lib/openssl")
+    set(GTEST_INCLUDE "/usr/local/include")
+    set(GTEST_LIBRARIES "/usr/lib/gtest")
+endif ()
+message(STATUS "Link openssl libs in directory ${OPENSSL_LIBRARIES}.")
+message(STATUS "Link googletest libs in directory ${GTEST_LIBRARIES}.")
+include_directories("${OPENSSL_INCLUDE}")     #openssl头文件目录
+include_directories("${GTEST_INCLUDE}")              #googletest头文件目录
+link_directories("${OPENSSL_LIBRARIES}")
+link_directories("${GTEST_LIBRARIES}")
 
 ##########################################################################################
 #  以下禁止修改
@@ -41,23 +102,105 @@ set(PROJECT_TEST_DIR "${PROJECT_SOURCE_DIR}/test")
 
 include_directories(${PROJECT_INC_DIR})
 
+########################################################################
+# Building the library
+########################################################################
+#预先宏定义
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BIN_DIR})
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BIN_DIR})
+
+#获取编译文件列表
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base/internal" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/numeric" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings/internal" THIRDPARTY_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/strings" STRINGS_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/bits" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/coding" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/math" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/math/exactfloat" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/util/unit" UTIL_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/base" BASE_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/s2" S2_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/core" CORE_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
+
+#aux_source_directory("${PROJECT_SRC_DIR}/shape" SHAPE_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/object" OBJECT_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/builder" BUILDER_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/encode" ENCODE_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/index" INDEX_SRCS)
+#aux_source_directory("${PROJECT_SRC_DIR}/query" QUERY_SRCS)
+if (BUILD_GT_LIBS)
+    if (BUILD_AS_SHARED_LIBS)   #编译为动态库
+        add_definitions(-DGT_CREATE_SHARED_LIBRARY)             #添加共享库编译预定义宏
+        add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
+        target_link_libraries(
+                gt
+                openssl libcrypto libssl
+        )
+    else ()  #编译为静态库
+        add_library(gt STATIC ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
+        target_link_libraries(
+                gt
+                openssl libcrypto libssl
+        )
+    endif ()
+endif ()
+
+if (BUILD_EXAMPLES)
+    aux_source_directory("${PROJECT_SRC_DIR}/examples" EXAMPLES_SRCS)
+    link_directories("${PROJECT_BIN_DIR}")
+    foreach (example_cc ${EXAMPLES_SRCS})
+        get_filename_component(example ${example_cc} NAME_WE)
+        add_executable(${example} ${example_cc})
+        target_link_libraries(
+                ${example}
+                gt openssl libcrypto libssl
+        )
+    endforeach ()
+endif ()
+########################################################################
+# QA testing
+########################################################################
+if (BUILD_TEST)
+    aux_source_directory("${PROJECT_TEST_DIR}" TESTFILES)
+    link_directories("${PROJECT_BIN_DIR}")
+    enable_testing()
+    foreach (test_cc ${TESTFILES})
+        get_filename_component(test ${test_cc} NAME_WE)
+        add_executable(${test} ${test_cc})
+        target_link_libraries(
+                ${test}
+                gt libgtest_maind libgtestd)
+        add_test(${test} ${test})
+    endforeach ()
+else ()
+    message(STATUS "QA Testing is disabled.")
+endif ()
 
 ########################################################################
-# Setup doxygen
+# Option to enable post-build profiling using volk_profile, off by default
 ########################################################################
-#find_package(Doxygen)
-#if(DOXYGEN_FOUND)
-#    configure_file(
-#            ${PROJECT_DOC_DIR}/Doxyfile.in
-#            ${PROJECT_BIN_DIR}/Doxyfile
-#            @ONLY)
-#
-#    add_custom_target(DiscreateEarth_doc
-#            ${DOXYGEN_EXECUTABLE} ${PROJECT_BIN_DIR}/Doxyfile
-#            WORKING_DIRECTORY ${PROJECT_BIN_DIR}
-#            COMMENT "Generating documentation with Doxygen" VERBATIM
-#            )
-#endif(DOXYGEN_FOUND)
+
+
+########################################################################
+# Building doxygen documents.
+########################################################################
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    #    configure_file(
+    #            ${PROJECT_DOC_DIR}/Doxyfile.in
+    #            ${PROJECT_BIN_DIR}/Doxyfile
+    #            @ONLY)
+    #
+    #    add_custom_target(DiscreateEarth_doc
+    #            ${DOXYGEN_EXECUTABLE} ${PROJECT_BIN_DIR}/Doxyfile
+    #            WORKING_DIRECTORY ${PROJECT_BIN_DIR}
+    #            COMMENT "Generating documentation with Doxygen" VERBATIM
+    #            )
+endif (DOXYGEN_FOUND)
 
 ########################################################################
 # Setup the package config file
@@ -133,104 +276,6 @@ include_directories(${PROJECT_INC_DIR})
 #        COMPONENT "volk_devel"
 #)
 
-########################################################################
-# QA testing
-########################################################################
-if(BUILD_TEST)
-    aux_source_directory("${PROJECT_TEST_DIR}" TESTFILES)
-    enable_testing()
-   foreach (test_cc ${TESTFILES})
-        get_filename_component(test ${test_cc} NAME_WE)
-        add_executable(${test} ${test_cc})
-        target_link_libraries(
-                    ${test}
-                    s2testing gt gtest_main)
-        add_test(${test} ${test})
-    endforeach()
-else()
-    message(STATUS "QA Testing is disabled.")
-endif()
-
-########################################################################
-# Option to enable post-build profiling using volk_profile, off by default
-########################################################################
-
-
-########################################################################
-# Setup the library
-########################################################################
-#预先宏定义
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BIN_DIR})
-set(LIBRARY_OUTPUT_PATH  ${PROJECT_LIB_DIR})
-
-if(BUILD_SHARED_LIBS)
-    add_definitions(-DDISCRETEEARTH_EXPORTS)            #按照输出库编译
-
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/base/internal" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/numeric" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings" THIRDPARTY_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/third_party/absl/strings/internal" THIRDPARTY_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/strings" STRINGS_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/util/bits" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/coding" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/math" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/math/exactfloat" UTIL_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/util/unit" UTIL_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/base" BASE_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/s2" S2_SRCS)
-
-    aux_source_directory("${PROJECT_SRC_DIR}/core" CORE_SRCS)
-    aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
-
-    #aux_source_directory("${PROJECT_SRC_DIR}/shape" SHAPE_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/object" OBJECT_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/builder" BUILDER_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/encode" ENCODE_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/index" INDEX_SRCS)
-    #aux_source_directory("${PROJECT_SRC_DIR}/query" QUERY_SRCS)
-
-    #add_library(s2geometry ${THIRDPARTY_SRCS} ${STRINGS_SRCS}  ${UTIL_SRCS} ${BASE_SRCS} ${CORE_SRCS} ${SHAPE_SRCS} ${BUILDER_SRCS} ${INDEX_SRCS} ${OBJECT_SRCS} ${QUERY_SRCS} ${ENCODE_SRCS})
-    #build libs from third party
-    #add_library(third_party SHARED ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
-    #add_library(third_party ${THIRDPARTY_SRCS})
-    #add_library(strings ${STRINGS_SRCS})
-    #add_library(util ${UTIL_SRCS})
-    #add_library(base ${BASE_SRCS})
-    #add_library(s2 ${S2_SRCS})
-
-    #build libs of self
-    #add_library(core SHARED ${CORE_SRCS})
-
-    add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS} )
-    aux_source_directory("${OPENSSL_LIBRARIES}" OPENSSL_LIBS)
-    message(STATUS ${OPENSSL_LIBS})
-#    target_link_libraries(
-#            gt
-#            ssl
-#    )
-    #add_library(shape  ${SHAPE_SRCS} )
-    #add_library(builder  ${BUILDER_SRCS} )
-    #add_library(index  ${INDEX_SRCS} )
-    #add_library(object ${OBJECT_SRCS})
-    #add_library(query ${QUERY_SRCS})
-    #add_library(encode ${ENCODE_SRCS})
-endif()
-if(BUILD_EXAMPLES)
-    aux_source_directory("${PROJECT_SRC_DIR}/examples" EXAMPLES_SRCS)
-    foreach (example_cc ${EXAMPLES_SRCS})
-        get_filename_component(example ${example_cc} NAME_WE)
-        add_executable(${example} ${example_cc})
-        target_link_libraries(
-                ${example}
-                gt ${OPENSSL_LIBRARIES}
-        )
-    endforeach()
-endif()
 
 ########################################################################
 # Print summary

@@ -5,14 +5,15 @@
 #ifndef DISCRETEEARTH_GTCELL_H
 #define DISCRETEEARTH_GTCELL_H
 
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "core/cell.h"
 #include "core/cap.h"
 #include "core/latlng_rect.h"
 
-#include "exports.h"
 
-
-DE_API class GTCell final : Cell{
+ class GT_API GTCell final : Cell{
     /***************************************
      * 构造函数
      *************************************/

@@ -28,7 +28,7 @@
 // S2_TAN_PROJECTION allows cell metrics to be bounded in terms of (u,v)
 // coordinate changes when they are measured as distances on the unit sphere.
 
-#include "s2/s2metrics.h"
+#include "gt/s2metrics.h"
 
 namespace S2 {
 //
@@ -119,4 +119,4 @@ namespace S2 {
 const double kMaxDiagAspect = sqrt(3);                             // 1.732
 // This is true for all projections.
 
-}  // namespace S2
+}  // namespace s2

@@ -5,21 +5,26 @@
 #ifndef DISCRETEEARTH_GTCELLID_H
 #define DISCRETEEARTH_GTCELLID_H
 
+#define DEF cdi
+
+#include <ostream>
+#include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "core/cell_id.h"
 #include "s2/s2latlng.h"
 #include "gt/gtcoords.h"
 
-#include "exports.h"
 
-DE_API class GTCellId final : public CellId{
+class GT_API GTCellId final : public CellId{
 
 public:
     ///////////////////////////////////////////////
     // 基本参数定义
     //////////////////////////////////////////////
-    static const int kMaxLevel = GT::kMaxCellLevel;     // 有效层数    31层   Valid levels: 0..kMaxLevel
-    static const int kPosBits = 2 * kMaxLevel;          // 有效bit数   62位   最末尾两个bit只用于区分层级（以'10'结尾表示第31层网格编码）
-    static const int kMaxSize = 1 << kMaxLevel;         // X/Y方向最大尺寸    2**31次方
+    static const unsigned int kMaxLevel = GT::kMaxCellLevel;     // 有效层数    31层   Valid levels: 0..kMaxLevel
+    static const unsigned int kPosBits = 2 * kMaxLevel;          // 有效bit数   62位   最末尾两个bit只用于区分层级（以'10'结尾表示第31层网格编码）
+    static const unsigned int kMaxSize = 1 << kMaxLevel;         // X/Y方向最大尺寸    2**31次方
 
     //////////////////////////////////////////////
     // 编码示例： 下面两个字节能够表示7级网格
@@ -217,6 +222,8 @@ public:
     // 在当前层级中，本网格ID距曲线起点的步长
     // Returns the number of steps that this cell is from Begin(level()). The
     // return value is always non-negative.
+    /// @brief
+    /// @return
     int64 distance_from_begin() const override ;
 
 //    // Like next() and prev(), but these methods wrap around from the last face
@@ -286,9 +293,14 @@ public:
     // cells X and Y are neighbors if their boundaries intersect but their
     // interiors do not.  In particular, two cells that intersect at a single
     // point are neighbors.
-
     // REQUIRES: nbr_level >= this->level().
     void AppendAllNeighbors(int nbr_level, std::vector<CellId>* output) const override ;
+
+    GTCellId ();
+
+    uint64 id () const override;
+
+    friend std::ostream &operator<< (std::ostream &os, const GTCellId &id);
 
 
     /************************************
@@ -315,6 +327,11 @@ public:
     ************************************/
     // Use encoder to generate a serialized representation of this cell id.
     // Can also encode an invalid cell.
+    /**
+     * @brief
+     * @param encoder
+     */
+
     void Encode(Encoder* const encoder) const override ;
 
     // Decodes an CellId encoded by Encode(). Returns true on success.
@@ -336,28 +353,66 @@ public:
 };
 
 //重载逻辑表达运算的全局函数
-DE_API inline bool operator==(GTCellId x, GTCellId y) {
+ inline bool operator==(GTCellId x, GTCellId y) {
     return x.id() == y.id();
 }
 
-DE_API inline bool operator!=(GTCellId x, GTCellId y) {
+ inline bool operator!=(GTCellId x, GTCellId y) {
     return x.id() != y.id();
 }
 
-DE_API inline bool operator<(GTCellId x, GTCellId y) {
+ inline bool operator<(GTCellId x, GTCellId y) {
     return x.id() < y.id();
 }
 
-DE_API inline bool operator>(GTCellId x, GTCellId y) {
+ inline bool operator>(GTCellId x, GTCellId y) {
     return x.id() > y.id();
 }
 
-DE_API inline bool operator<=(GTCellId x, GTCellId y) {
+ inline bool operator<=(GTCellId x, GTCellId y) {
     return x.id() <= y.id();
 }
 
-DE_API inline bool operator>=(GTCellId x, GTCellId y) {
+ inline bool operator>=(GTCellId x, GTCellId y) {
     return x.id() >= y.id();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+
+inline uint64 GTCellId::lsb() const {
+    return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
+}
+
+inline bool GTCellId::is_valid() const {
+    // 采用末尾补100..0方式表示层级时，至少有一个偶数位bit必须为1
+    return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
+}
+
+inline GTCellId GTCellId::range_min_cell() const {
+    return GTCellId(id_ - (lsb() - 1));
+}
+
+inline GTCellId GTCellId::range_max_cell() const {
+    return GTCellId(id_ + (lsb() - 1));
+}
+
+inline uint64 GTCellId::range_min() const {
+    return range_min_cell().id();
+}
+
+inline uint64 GTCellId::range_max() const {
+    return range_max_cell().id();
+}
+
+inline int GTCellId::level() const {
+    // We can't just S2_DCHECK(is_valid()) because we want level() to be
+    // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
+    // no good way to define S2CellId::None().level(), so we do prohibit that.
+            S2_DCHECK(id_ != 0);
+
+    // A special case for leaf cells is not worthwhile.
+    return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
 }
 
 #endif //DISCRETEEARTH_GTCELLID_H

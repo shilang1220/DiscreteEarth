@@ -22,7 +22,7 @@
 
 #include <array>
 
-#include "third_party/absl/base/attributes.h"
+#include "attributes.h"
 
 namespace absl {
 

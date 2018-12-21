@@ -21,9 +21,12 @@
 
 //平面二维点类
 
+
 #include "_fp_contract_off.h"
-#include "util/math/vector.h"  // IWYU pragma: export
 #include "exports.h"
+
+#include "util/math/vector.h"  // IWYU pragma: export
+
 
 using R2Point = Vector2_d;
 

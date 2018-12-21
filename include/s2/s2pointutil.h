@@ -21,15 +21,17 @@
 #ifndef S2_S2POINTUTIL_H_
 #define S2_S2POINTUTIL_H_
 
+
 #include "_fp_contract_off.h"
+
 #include "s2/s1angle.h"
 #include "s2/s2point.h"
 #include "util/math/matrix3x3.h"
-#include "exports.h"
+
 // 一些常用的常数和工具函数
 
-// S2 is a namespace for constants and simple utility functions that are used
-// throughout the S2 library.  The name "S2" is derived from the mathematical
+// s2 is a namespace for constants and simple utility functions that are used
+// throughout the s2 library.  The name "s2" is derived from the mathematical
 // symbol for the two-dimensional unit sphere (note that the "2" refers to the
 // dimension of the surface, not the space it is embedded in).
 namespace S2 {
@@ -37,25 +39,25 @@ namespace S2 {
 // Return a unique "origin" on the sphere for operations that need a fixed
 // reference point.  In particular, this is the "point at infinity" used for
 // point-in-polygon testing (by counting the number of edge crossings).
-DE_API inline S2Point Origin();
+ inline S2Point Origin();
 
 // Return true if the given point is approximately unit length
 // (this is mainly useful for assertions).
-DE_API bool IsUnitLength(const S2Point& p);
+ bool IsUnitLength(const S2Point& p);
 
 // Return true if two points are within the given distance of each other
 // (this is mainly useful for testing).
-DE_API bool ApproxEquals(const S2Point& a, const S2Point& b,
+ bool ApproxEquals(const S2Point& a, const S2Point& b,
                   S1Angle max_error = S1Angle::Radians(1e-15));
 
 // Return a unit-length vector that is orthogonal to "a".  Satisfies
 // Ortho(-a) = -Ortho(a) for all a.
 //
 // Note that Vector3_d also defines an "Ortho" method, but this one is
-// preferred for use in S2 code because it explicitly tries to avoid result
+// preferred for use in s2 code because it explicitly tries to avoid result
 // result coordinates that are zero.  (This is a performance optimization that
 // reduces the amount of time spent in functions which handle degeneracies.)
-DE_API S2Point Ortho(const S2Point& a);
+ S2Point Ortho(const S2Point& a);
 
 // Return a vector "c" that is orthogonal to the given unit-length vectors
 // "a" and "b".  This function is similar to a.CrossProd(b) except that it
@@ -70,30 +72,30 @@ DE_API S2Point Ortho(const S2Point& a);
 //   (4) RCP(a,-b) == -RCP(a,b) unless a == b or a == -b
 //
 // The result is not guaranteed to be unit length.
-DE_API S2Point RobustCrossProd(const S2Point& a, const S2Point& b);
+ S2Point RobustCrossProd(const S2Point& a, const S2Point& b);
 
 // Rotate the given point about the given axis by the given angle.  "p" and
 // "axis" must be unit length; "angle" has no restrictions (e.g., it can be
 // positive, negative, greater than 360 degrees, etc).
-DE_API S2Point Rotate(const S2Point& p, const S2Point& axis, S1Angle angle);
+ S2Point Rotate(const S2Point& p, const S2Point& axis, S1Angle angle);
 
 // Extend the given point "z" on the unit sphere into a right-handed
 // coordinate frame of unit-length column vectors m = (x,y,z).  Note that the
 // vectors (x,y) are an orthonormal frame for the tangent space at "z", while
 // "z" itself is an orthonormal frame for the normal space at "z".
-DE_API Matrix3x3_d GetFrame(const S2Point& z);
-DE_API void GetFrame(const S2Point& z, Matrix3x3_d* m);
+ Matrix3x3_d GetFrame(const S2Point& z);
+ void GetFrame(const S2Point& z, Matrix3x3_d* m);
 
 // Given an orthonormal basis "m" of column vectors and a point "p", return
 // the coordinates of "p" with respect to the basis "m".  The resulting
 // point "q" satisfies the identity (m * q == p).
-DE_API S2Point ToFrame(const Matrix3x3_d& m, const S2Point& p);
+ S2Point ToFrame(const Matrix3x3_d& m, const S2Point& p);
 
 // Given an orthonormal basis "m" of column vectors and a point "q" with
 // respect to that basis, return the equivalent point "p" with respect to
 // the standard axis-aligned basis.  The result satisfies (p == m * q).
-DE_API Matrix3x3_d GetFrame(const S2Point& z);
-DE_API S2Point FromFrame(const Matrix3x3_d& m, const S2Point& q);
+ Matrix3x3_d GetFrame(const S2Point& z);
+ S2Point FromFrame(const Matrix3x3_d& m, const S2Point& q);
 
 // Return true if the points A, B, C are strictly counterclockwise.  Return
 // false if the points are clockwise or collinear (i.e. if they are all
@@ -105,7 +107,7 @@ DE_API S2Point FromFrame(const Matrix3x3_d& m, const S2Point& q);
 //
 //   If SimpleCCW(a,b,c), then !SimpleCCW(c,b,a) for all a,b,c.
 ABSL_DEPRECATED("Use s2pred::Sign instead.")
-DE_API bool SimpleCCW(const S2Point& a, const S2Point& b, const S2Point& c);
+ bool SimpleCCW(const S2Point& a, const S2Point& b, const S2Point& c);
 
 
 //////////////////   Implementation details follow   ////////////////////
@@ -134,6 +136,6 @@ inline S2Point Origin() {
 #endif
 }
 
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2POINTUTIL_H_

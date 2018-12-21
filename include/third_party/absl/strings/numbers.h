@@ -35,7 +35,7 @@
 #include "third_party/absl/base/macros.h"
 #include "third_party/absl/base/port.h"
 #include "third_party/absl/numeric/int128.h"
-#include "third_party/absl/strings/string_view.h"
+#include "string_view.h"
 
 namespace absl {
 

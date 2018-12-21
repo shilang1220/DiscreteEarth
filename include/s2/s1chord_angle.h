@@ -24,9 +24,11 @@
 #include <type_traits>
 
 #include "_fp_contract_off.h"
+#include "exports.h"
+
 #include "s2/s1angle.h"
 #include "s2/s2pointutil.h"
-#include "exports.h"
+
 //单位圆上的弦长类
 
 // S1ChordAngle represents the angle subtended by a chord (i.e., the straight
@@ -45,7 +47,7 @@
 //
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator.
-DE_API class S1ChordAngle {
+ class  GT_API S1ChordAngle {
  public:
   // The default constructor yields a zero angle.  This is useful for STL
   // containers and class methods with output arguments.

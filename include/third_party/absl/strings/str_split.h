@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "third_party/absl/strings/string_view.h"
-#include "third_party/absl/strings/strip.h"
+#include "string_view.h"
+#include "strip.h"
 
 namespace absl {
 

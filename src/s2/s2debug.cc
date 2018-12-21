@@ -20,4 +20,4 @@
 #include "base/logging.h"
 
 DEFINE_bool(s2debug, !!google::DEBUG_MODE,
-            "Enable automatic validity checking in S2 code");
+            "Enable automatic validity checking in s2 code");

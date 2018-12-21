@@ -29,7 +29,7 @@ namespace internal {
 
 // Returns the intersection point of two edges computed using exact arithmetic
 // and rounded to the nearest representable S2Point.
-DE_API S2Point GetIntersectionExact(const S2Point& a0, const S2Point& a1,
+ S2Point GetIntersectionExact(const S2Point& a0, const S2Point& a1,
                              const S2Point& b0, const S2Point& b1);
 
 // The maximum error in the method above.
@@ -51,9 +51,9 @@ enum class IntersectionMethod {
   EXACT,
   NUM_METHODS
 };
-DE_API const char* GetIntersectionMethodName(IntersectionMethod method);
+ const char* GetIntersectionMethodName(IntersectionMethod method);
 
 }  // namespace internal
-}  // namespace S2
+}  // namespace s2
 
 #endif  // S2_S2EDGE_CROSSINGS_INTERNAL_H_

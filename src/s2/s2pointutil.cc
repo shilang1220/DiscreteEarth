@@ -126,4 +126,4 @@ bool SimpleCCW(const S2Point& a, const S2Point& b, const S2Point& c) {
   return c.CrossProd(a).DotProd(b) > 0;
 }
 
-}  // namespace S2
+}  // namespace s2

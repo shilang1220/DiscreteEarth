@@ -9,8 +9,10 @@
 #include <memory>
 #include <vector>
 
-#include "base/logging.h"
 #include "_fp_contract_off.h"
+#include "exports.h"
+
+#include "base/logging.h"
 #include "s2/s1angle.h"
 #include "s2/s2point.h"
 #include "s2/s2debug.h"
@@ -18,13 +20,13 @@
 #include "core/latlng_rect.h"
 #include "core/region.h"
 #include "core/cap.h"
-#include "exports.h"
+
 
 class Encoder;
 class Decoder;
 
 
-DE_API class GTPolyline final : Region {
+ class GT_API GTPolyline final : Region {
 
     GTPolyline();
 

@@ -35,7 +35,7 @@
 #include <cassert>
 #include <cstddef>
 
-#include "third_party/absl/base/port.h"
+#include "port.h"
 
 // ABSL_ARRAYSIZE()
 //

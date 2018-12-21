@@ -37,7 +37,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "base/integral_types.h"
+#include "integral_types.h"
 #include "third_party/absl/base/config.h"
 #include "third_party/absl/base/port.h"  // IWYU pragma: export
 

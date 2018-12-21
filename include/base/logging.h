@@ -16,42 +16,9 @@
 #ifndef S2_BASE_LOGGING_H_
 #define S2_BASE_LOGGING_H_
 
-#ifdef S2_USE_GLOG
-
-#include <glog/logging.h>
-
-// The names CHECK, etc. are too common and may conflict with other
-// packages.  We use S2_CHECK to make it easier to switch to
-// something other than GLOG for logging.
-
-#define S2_LOG LOG
-#define S2_LOG_IF LOG_IF
-#define S2_DLOG_IF DLOG_IF
-
-#define S2_CHECK CHECK
-#define S2_CHECK_EQ CHECK_EQ
-#define S2_CHECK_NE CHECK_NE
-#define S2_CHECK_LT CHECK_LT
-#define S2_CHECK_LE CHECK_LE
-#define S2_CHECK_GT CHECK_GT
-#define S2_CHECK_GE CHECK_GE
-
-#define S2_DCHECK DCHECK
-#define S2_DCHECK_EQ DCHECK_EQ
-#define S2_DCHECK_NE DCHECK_NE
-#define S2_DCHECK_LT DCHECK_LT
-#define S2_DCHECK_LE DCHECK_LE
-#define S2_DCHECK_GT DCHECK_GT
-#define S2_DCHECK_GE DCHECK_GE
-
-#define S2_VLOG VLOG
-#define S2_VLOG_IS_ON VLOG_IS_ON
-
-#else  // !defined(S2_USE_GLOG)
-
 #include <iostream>
 
-#include "base/log_severity.h"
+#include "tmp/log_severity.h"
 #include "third_party/absl/base/attributes.h"
 #include "third_party/absl/base/log_severity.h"
 
@@ -167,7 +134,5 @@ struct S2LogMessageVoidify {
 // We don't support VLOG.
 #define S2_VLOG(verbose_level) S2NullStream()
 #define S2_VLOG_IS_ON(verbose_level) (false)
-
-#endif  // !defined(S2_USE_GLOG)
 
 #endif  // S2_BASE_LOGGING_H_

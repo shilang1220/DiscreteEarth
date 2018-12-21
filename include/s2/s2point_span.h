@@ -42,7 +42,7 @@ using S2PointSpan = absl::Span<const S2Point>;
 //
 // This property is useful for implementing algorithms where the elements of
 // the span represent the vertices of a loop.
-DE_API class S2PointLoopSpan : public S2PointSpan {
+EdgeCrosser class S2PointLoopSpan : public S2PointSpan {
  public:
   // Inherit all constructors.
   using absl::Span<const S2Point>::Span;
