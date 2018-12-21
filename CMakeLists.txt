@@ -55,10 +55,10 @@ option(BUILD_TEST "Build GT tests." ON)                     #编译TEST
 
 #第三方头文件和库文件目录,OpenSSL和GoogleTest是必须项，否则编译会出现错误
 if (WIN32)       #MSVC下的第三方库的头文件和链接库文件目录
-    set(OPENSSL_INCLUDE "C:/OpenSSL-Win64/include")
-    set(OPENSSL_LIBRARIES "C:/OpenSSL-Win64/lib")
-    set(GTEST_INCLUDE "C:/gtest/include")
-    set(GTEST_LIBRARIES "C:/gtest/lib")
+    set(OPENSSL_INCLUDE "${PROJECT_SOURCE_DIR}/include/third_party")
+    set(OPENSSL_LIBRARIES "${PROJECT_SOURCE_DIR}/lib")
+    set(GTEST_INCLUDE "${PROJECT_SOURCE_DIR}/include/third_party")
+    set(GTEST_LIBRARIES "${PROJECT_SOURCE_DIR}/lib")
 else ()          #GCC的第三方库头文件目录
     set(OPENSSL_INCLUDE "/usr/local/include")
     set(OPENSSL_LIBRARIES "/usr/lib/openssl")
