@@ -44,21 +44,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)           #禁用编译器自身对标准的扩展
 
 # 编译范围选项设置
 option(BUILD_GT_LIBS "Build GT libraries." ON)                              #编译GT库
-if (BUILD_GT_LIBS)
-    message(STATUS "Build GT libraries...")
-endif ()
 option(BUILD_AS_SHARED_LIBS "Build shared libraries instead of static." ON)    #将GT库编译为共享库
-if (BUILD_AS_SHARED_LIBS)
-    message(STATUS "Build libraries as dynamic link libraries instead of static...")
-endif ()
 option(BUILD_EXAMPLES "Build GT examples." OFF)                #编译EXAMPLES
-if (BUILD_EXAMPLES)
-    message(STATUS "Building examples...")
-endif ()
 option(BUILD_TEST "Build GT tests." ON)                     #编译TEST
-if (BUILD_TEST)
-    message(STATUS "Turn QA test on...")
-endif ()
+
+
 ########################################################################
 # 第三方依赖设置 Dependencies setup
 ########################################################################
@@ -134,6 +124,7 @@ aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
 #aux_source_directory("${PROJECT_SRC_DIR}/query" QUERY_SRCS)
 if (BUILD_GT_LIBS)
     if (BUILD_AS_SHARED_LIBS)   #编译为动态库
+        message(STATUS "Building libraries as shared(.DLL or .so)...")
         add_definitions(-DGT_CREATE_SHARED_LIBRARY)             #添加共享库编译预定义宏
         add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
         target_link_libraries(
@@ -141,13 +132,17 @@ if (BUILD_GT_LIBS)
                 openssl libcrypto libssl
         )
     else ()  #编译为静态库
+        message(STATUS "Building libraries as static(.lib or .a)...")
         add_library(gt STATIC ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
         target_link_libraries(
                 gt
                 openssl libcrypto libssl
         )
     endif ()
+else()
+    message(STATUS "GTLib's building is disabled.")
 endif ()
+
 
 if (BUILD_EXAMPLES)
     aux_source_directory("${PROJECT_SRC_DIR}/examples" EXAMPLES_SRCS)
@@ -160,11 +155,14 @@ if (BUILD_EXAMPLES)
                 gt openssl libcrypto libssl
         )
     endforeach ()
+else()
+    message(STATUS "Examples building is disabled.")
 endif ()
 ########################################################################
 # QA testing
 ########################################################################
 if (BUILD_TEST)
+    message(STATUS "QA Testing is enabled.")
     aux_source_directory("${PROJECT_TEST_DIR}" TESTFILES)
     link_directories("${PROJECT_BIN_DIR}")
     enable_testing()
