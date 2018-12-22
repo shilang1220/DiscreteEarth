@@ -23,7 +23,7 @@
 
 #include "s2/s2point.h"
 #include "s2/s2latlng.h"
-#include "gt_latlng_rect.h"
+#include "core/gt_latlng_rect.h"
 
 // 用于外包矩形计算器类
 

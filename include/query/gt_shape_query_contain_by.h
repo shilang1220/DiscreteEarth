@@ -1,0 +1,12 @@
+//
+// Created by Administrator on 2018/12/22 0022.
+//
+
+#ifndef DISCRETEEARTH_GT_SHAPE_QUERY_CONTAIN_BY_H
+#define DISCRETEEARTH_GT_SHAPE_QUERY_CONTAIN_BY_H
+
+class GTShapeQueryContainBy {
+
+};
+
+#endif //DISCRETEEARTH_GT_SHAPE_QUERY_CONTAIN_BY_H

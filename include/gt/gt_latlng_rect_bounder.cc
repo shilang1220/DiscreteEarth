@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "core/gt_latlng_rect_bounder.h"
+#include "gt/gt_latlng_rect_bounder.h"
 
 #include <cfloat>
 #include <cmath>
