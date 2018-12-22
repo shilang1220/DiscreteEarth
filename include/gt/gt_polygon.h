@@ -31,8 +31,8 @@
     explicit GTPolygon(const std::vector<S2Point>& vertices);
     explicit GTPolygon(const std::vector<S2LatLng>& vertices);
   public:
-   GTPolygon(const Shape &) :
-   <unnamed>(<unnamed>){}
+//   GTPolygon(const Shape &) :
+//   <unnamed>(<unnamed>){}
   private:
 
    // Initialize a polyline that connects the given vertices. Empty polylines are

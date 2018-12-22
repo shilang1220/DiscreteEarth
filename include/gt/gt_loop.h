@@ -19,7 +19,7 @@
 #include "core/gt_latlng_rect.h"
 #include "core/region.h"
 #include "core/gt_cap.h"
-#include "exports.h"
+#include "core/gt_shape.h"
 
  class GT_API  GTLoop final : Region {
     
