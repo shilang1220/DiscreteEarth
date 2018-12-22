@@ -37,7 +37,7 @@
 #include "_fp_contract_off.h"
 
 #include "s2/s1chord_angle.h"
-#include "s2/s2debug.h"
+#include "tools/s2debug.h"
 #include "s2/s2pointutil.h"
 
 

@@ -115,6 +115,7 @@ aux_source_directory("${PROJECT_SRC_DIR}/base" BASE_SRCS)
 aux_source_directory("${PROJECT_SRC_DIR}/s2" S2_SRCS)
 aux_source_directory("${PROJECT_SRC_DIR}/core" CORE_SRCS)
 aux_source_directory("${PROJECT_SRC_DIR}/gt" GT_SRCS)
+aux_source_directory("${PROJECT_SRC_DIR}/tools" TOOLS_SRCS)
 
 #aux_source_directory("${PROJECT_SRC_DIR}/shape" SHAPE_SRCS)
 #aux_source_directory("${PROJECT_SRC_DIR}/object" OBJECT_SRCS)
@@ -126,14 +127,14 @@ if (BUILD_GT_LIBS)
     if (BUILD_AS_SHARED_LIBS)   #编译为动态库
         message(STATUS "Building libraries as shared(.DLL or .so)... Be sure that openssl/libcrypto/libssl's dll are in link-searching directories. ")
         add_definitions(-DGT_CREATE_SHARED_LIBRARY)             #添加共享库编译预定义宏
-        add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
+        add_library(gt SHARED ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${TOOLS_SRC} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
         target_link_libraries(
                 gt
                 openssl libcrypto libssl
         )
     else ()  #编译为静态库
         message(STATUS "Building libraries as static(.lib or .a)...Be sure that openssl/libcrypto/libssl's static libs are in link-searching directories.")
-        add_library(gt STATIC ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
+        add_library(gt STATIC ${S2_SRCS} ${CORE_SRCS} ${GT_SRCS} ${TOOLS_SRC} ${THIRDPARTY_SRCS} ${STRINGS_SRCS} ${UTIL_SRCS} ${BASE_SRCS})
         target_link_libraries(
                 gt
                 openssl libcrypto libssl

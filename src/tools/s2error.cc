@@ -1,4 +1,3 @@
-// Copyright 2005 Google Inc. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +14,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "s2/s2debug.h"
+#include "tools/s2error.h"
 
-#include "base/logging.h"
+#include "base/stringprintf.h"
 
-DEFINE_bool(s2debug, !!google::DEBUG_MODE,
-            "Enable automatic validity checking in s2 code");
+void S2Error::Init(Code code, const char* format, ...) {
+  code_ = code;
+  text_.clear();
+  va_list ap;
+  va_start(ap, format);
+  StringAppendV(&text_, format, ap);
+  va_end(ap);
+}

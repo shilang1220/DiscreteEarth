@@ -14,7 +14,7 @@
 #include "core/cap.h"
 #include "core/cell.h"
 #include "s2/edge_distances.h"
-#include "s2/s2debug.h"
+#include "tools/s2debug.h"
 #include "s2/s2pointutil.h"
 
 using std::fabs;

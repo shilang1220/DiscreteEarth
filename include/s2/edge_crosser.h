@@ -22,11 +22,9 @@
 #include "exports.h"
 
 #include "base/logging.h"
-
+#include "s2/edge_crossings.h"
 #include "s2/s2pointutil.h"
 #include "s2/s2predicates.h"
-
-#include "edge_crossings.h"
 
 class S2CopyingEdgeCrosser;  // Forward declaration
 
