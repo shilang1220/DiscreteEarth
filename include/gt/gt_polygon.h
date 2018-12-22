@@ -2,9 +2,8 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#ifndef DISCRETEEARTH_GTPOLYLINE_H
-#define DISCRETEEARTH_GTPOLYLINE_H
-
+#ifndef DISCRETEEARTH_GTPolygon_H
+#define DISCRETEEARTH_GTPolygon_H
 
 #include <memory>
 #include <vector>
@@ -17,24 +16,19 @@
 #include "s2/s2point.h"
 #include "tools/s2debug.h"
 #include "tools/s2error.h"
-#include "core/latlng_rect.h"
+#include "core/gt_latlng_rect.h"
 #include "core/region.h"
-#include "core/cap.h"
+#include "core/gt_cap.h"
 
+ class GT_API GTPolygon final : Region{
 
-class Encoder;
-class Decoder;
-
-
- class GT_API GTPolyline final : Region {
-
-    GTPolyline();
+    GTPolygon();
 
     // An S2Cell always corresponds to a particular S2CellId.  The other
     // constructors are just convenience methods.
     // Convenience constructors that call Init() with the given vertices.
-    explicit GTPolyline(const std::vector<S2Point>& vertices);
-    explicit GTPolyline(const std::vector<S2LatLng>& vertices);
+    explicit GTPolygon(const std::vector<S2Point>& vertices);
+    explicit GTPolygon(const std::vector<S2LatLng>& vertices);
 
     // Initialize a polyline that connects the given vertices. Empty polylines are
     // allowed.  Adjacent vertices should not be identical or antipodal.  All
@@ -45,7 +39,7 @@ class Decoder;
     // coordinates rather than S2Points.
     void Init(const std::vector<S2LatLng>& vertices);
 
-    ~GTPolyline();
+    ~GTPolygon();
 
     //////////////////////////////////////////////
     ///  线要素基本操作
@@ -137,7 +131,7 @@ class Decoder;
     // The running time is quadratic in the number of vertices.  (To intersect
     // polylines more efficiently, or compute the actual intersection geometry,
     // use S2BooleanOperation.)
-    bool Intersects(const GTPolyline* line) const;
+    bool Intersects(const GTPolygon* line) const;
 
     // Reverse the order of the polyline vertices.
     void Reverse();
@@ -164,7 +158,7 @@ class Decoder;
     //    (to within the given tolerance).  This is different than the
     //    Douglas-Peucker algorithm, which only guarantees geometric equivalence.
     //
-    // See also GTPolylineSimplifier, which uses the same algorithm but is more
+    // See also GTPolygonSimplifier, which uses the same algorithm but is more
     // efficient and supports more features, and also S2Builder, which can
     // simplify polylines and polygons, supports snapping (e.g. to E7 lat/lng
     // coordinates or S2CellId centers), and can split polylines at intersection
@@ -172,12 +166,12 @@ class Decoder;
     void SubsampleVertices(S1Angle tolerance, std::vector<int>* indices) const;
 
     // Return true if two polylines are exactly the same.
-    bool Equals(const GTPolyline* b) const;
+    bool Equals(const GTPolygon* b) const;
 
     // Return true if two polylines have the same number of vertices, and
     // corresponding vertex pairs are separated by no more than "max_error".
     // (For testing purposes.)
-    bool ApproxEquals(const GTPolyline& b,
+    bool ApproxEquals(const GTPolygon& b,
                       S1Angle max_error = S1Angle::Radians(1e-15)) const;
 
     // Return true if "covered" is within "max_error" of a contiguous subpath of
@@ -194,7 +188,7 @@ class Decoder;
     // This function is well-defined for empty polylines:
     //    anything.covers(empty) = true
     //    empty.covers(nonempty) = false
-    bool NearlyCovers(const GTPolyline& covered, S1Angle max_error) const;
+    bool NearlyCovers(const GTPolygon& covered, S1Angle max_error) const;
 
     // Returns the total number of bytes used by the polyline.
     size_t SpaceUsed() const;
@@ -205,7 +199,7 @@ class Decoder;
     ///  Region interface realization
     /////////////////////////////////////////////
 
-    GTPolyline* Clone() const override;
+    GTPolygon* Clone() const override;
     Cap GetCapBound() const override;
     LatLngRect GetRectBound() const override;
     bool Contains(const Cell& cell) const override;
@@ -216,19 +210,19 @@ class Decoder;
     ///  串行化函数
     /////////////////////////////////////////////////////////
 
-    // Appends a serialized representation of the GTPolyline to "encoder".
+    // Appends a serialized representation of the GTPolygon to "encoder".
     //
     // REQUIRES: "encoder" uses the default constructor, so that its buffer
     //           can be enlarged as necessary by calling Ensure(int).
     void Encode(Encoder* const encoder) const;
 
-    // Decodes an GTPolyline encoded with Encode().  Returns true on success.
+    // Decodes an GTPolygon encoded with Encode().  Returns true on success.
     bool Decode(Decoder* const decoder);
 
     ///////////////////////////////////////////////////////////
     ///   成员变量
     ////////////////////////////////////////////////////////////
-    
+
 private:
     // We store the vertices in an array rather than a vector because we don't
     // need any STL methods, and computing the number of vertices using size()
@@ -237,4 +231,5 @@ private:
     std::unique_ptr<S2Point[]> vertices_;
 };
 
-#endif //DISCRETEEARTH_GTPOLYLINE_H
+
+#endif //DISCRETEEARTH_GTPolygon_H

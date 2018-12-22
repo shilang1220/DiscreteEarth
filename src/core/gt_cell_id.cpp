@@ -1,11 +1,11 @@
 //
 // Created by 濮国梁 on 2018/12/13.
 //
-#include <core/gtcell_id.h>
+#include <core/gt_cell_id.h>
 
 #include "util/bits/bits.h"
-#include "core/gtcell_id.h"
-#include "core/gtcoords.h"
+#include "core/gt_cell_id.h"
+#include "core/gt_coords.h"
 GTCellId::GTCellId(const S2Point p) {
     //默认为叶子网格
     uint32 I,J;

@@ -30,7 +30,7 @@
 #include "third_party/absl/base/casts.h"
 #include "s2/s1angle.h"
 
-#include "core/cap.h"
+#include "core/gt_cap.h"
 #include "core/cell_union.h"
 #include "core/region.h"
 

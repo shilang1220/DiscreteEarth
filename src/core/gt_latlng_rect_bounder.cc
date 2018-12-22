@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "core/latlng_rect_bounder.h"
+#include "core/gt_latlng_rect_bounder.h"
 
 #include <cfloat>
 #include <cmath>
@@ -25,7 +25,7 @@
 #include "s2/s1chord_angle.h"
 #include "s2/s1interval.h"
 #include "s2/s2pointutil.h"
-#include "core/latlng_rect.h"
+#include "core/gt_latlng_rect.h"
 
 using std::fabs;
 using std::max;

@@ -2,7 +2,7 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#include "core/latlng_rect.h"
+#include "core/gt_latlng_rect.h"
 
 #include <algorithm>
 #include <cmath>
@@ -11,7 +11,7 @@
 
 #include "base/logging.h"
 #include "util/coding/coder.h"
-#include "core/cap.h"
+#include "core/gt_cap.h"
 #include "core/cell.h"
 #include "s2/edge_distances.h"
 #include "tools/s2debug.h"

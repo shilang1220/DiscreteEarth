@@ -29,7 +29,7 @@
 #include "base/logging.h"
 #include "third_party/absl/base/macros.h"
 #include "core/region.h"
-#include "core/gtcell_id.h"
+#include "core/gt_cell_id.h"
 
 
 class Decoder;

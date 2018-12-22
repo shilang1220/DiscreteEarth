@@ -2,16 +2,16 @@
 // Created by Administrator on 2018/12/22 0022.
 //
 
-#include "gt/gtpoint.h"
+#include "gt/gt_point.h"
 
 
 #include "base/logging.h"
 #include "util/coding/coder.h"
 #include "s2/s2latlng.h"
 #include "s2/s2pointutil.h"
-#include "core/cap.h"
+#include "core/gt_cap.h"
 #include "core/cell.h"
-#include "core/latlng_rect.h"
+#include "core/gt_latlng_rect.h"
 
 GTPoint::~GTPoint() {
 }

@@ -12,7 +12,7 @@
 
 #include "core/cell_id.h"
 #include "s2/s2latlng.h"
-#include "gtcoords.h"
+#include "gt_coords.h"
 
 
 class GT_API GTCellId final : public CellId{

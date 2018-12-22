@@ -2,8 +2,8 @@
 // Created by Administrator on 2018/12/22 0022.
 //
 
-#ifndef DISCRETEEARTH_GTPOINTREGION_H
-#define DISCRETEEARTH_GTPOINTREGION_H
+#ifndef DISCRETEEARTH_GTPoint_H
+#define DISCRETEEARTH_GTPoint_H
 
 #include "base/logging.h"
 #include "_fp_contract_off.h"
@@ -20,6 +20,8 @@ class Cap;
 class Cell;
 class LatLngRect;
 
+/// Class of spatial feature --point. However, point has no region attribution,
+/// we assign it here to fit normal habit and need.
 
 class GT_API GTPoint final: public Region {
  public:
@@ -58,4 +60,4 @@ inline GTPoint::GTPoint(const S2Point& point) : point_(point) {
   S2_DCHECK(S2::IsUnitLength(point));
 }
 
-#endif //DISCRETEEARTH_GTPOINTREGION_H
+#endif //DISCRETEEARTH_GTPoint_H

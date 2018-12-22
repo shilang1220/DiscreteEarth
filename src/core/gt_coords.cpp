@@ -19,11 +19,11 @@
 //
 // Author: pgl@pku.edu.cn (PU Guoliang)
 
-#include "core/gtcoords.h"
+#include "core/gt_coords.h"
 
 #include <cmath>
 #include <cfloat>
-#include <core/gtcoords.h>
+#include <core/gt_coords.h>
 
 
 #include "base/logging.h"

@@ -18,7 +18,8 @@
 #include "util/math/vector.h"
 
 
-//Cell是四边形球面网格的抽象类，用户可根据自己需要定制自己的网格类
+/// Cell剖分网格单元的抽象类，为方便以后扩展新的剖分方案
+/// Cell和CellId两个类应根据自定义的剖分和编码方案同步派生出新的类
 //
 //An Cell is abstract class for grid cell,it derived from Region.
 //Unlike CellIds, it's main purpose is to realize efficient

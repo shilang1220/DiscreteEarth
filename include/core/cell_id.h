@@ -27,7 +27,7 @@
 
 class S2LatLng;
 
-//CellId 是球面网格编码的抽象类，用户可定义自己的编码类
+//CellId 球面网格编码抽象类，为方便以后扩展新的剖分网格和编码方案
 
 // An CellId is a 64-bit unsigned integer that uniquely identifies a
 // cell in the s2 cell decomposition.  It has the following format:

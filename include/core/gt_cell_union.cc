@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "gtcell_union.h"
+#include "gt_cell_union.h"
 
 #include <algorithm>
 #include <vector>
@@ -27,11 +27,11 @@
 #include "s2/s1angle.h"
 #include "../../src/tmp/s2metrics.h"
 
-#include "core/latlng_rect.h"
-#include "core/cap.h"
+#include "core/gt_latlng_rect.h"
+#include "core/gt_cap.h"
 
-#include "core/gtcell.h"
-#include "core/gtcell_id.h"
+#include "core/gt_cell.h"
+#include "core/gt_cell_id.h"
 
 
 using std::is_sorted;

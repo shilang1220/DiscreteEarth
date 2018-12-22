@@ -2,7 +2,7 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
-#include "core/cap.h"
+#include "core/gt_cap.h"
 
 #include <cfloat>
 #include <cmath>
@@ -20,7 +20,7 @@
 #include "util/math/vector.h"
 
 #include "core/cell.h"
-#include "core/latlng_rect.h"
+#include "core/gt_latlng_rect.h"
 //#include "s2/s2edge_distances.h"
 
 using std::fabs;

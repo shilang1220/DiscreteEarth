@@ -9,8 +9,8 @@
 #include "exports.h"
 
 #include "core/cell.h"
-#include "core/cap.h"
-#include "latlng_rect.h"
+#include "core/gt_cap.h"
+#include "gt_latlng_rect.h"
 
 
  class GT_API GTCell final : Cell{
