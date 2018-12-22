@@ -21,19 +21,19 @@ class Cell;
 class LatLngRect;
 
 
-class GT_API GTPointRegion final: public Region {
+class GT_API GTPoint final: public Region {
  public:
   // Create a region containing the given point, which must be unit length.
-  explicit GTPointRegion(const S2Point& point);
+  explicit GTPoint(const S2Point& point);
 
-  ~GTPointRegion() override;
+  ~GTPoint() override;
 
   const S2Point& point() const { return point_; }
 
   ////////////////////////////////////////////////////////////////////////
   // S2Region interface (see s2region.h for details):
 
-  GTPointRegion* Clone() const override;
+  GTPoint* Clone() const override;
   Cap GetCapBound() const override;
   LatLngRect GetRectBound() const override;
   bool Contains(const Cell& cell) const override { return false; }
@@ -54,7 +54,7 @@ class GT_API GTPointRegion final: public Region {
   S2Point point_;
 };
 
-inline GTPointRegion::GTPointRegion(const S2Point& point) : point_(point) {
+inline GTPoint::GTPoint(const S2Point& point) : point_(point) {
   S2_DCHECK(S2::IsUnitLength(point));
 }
 
