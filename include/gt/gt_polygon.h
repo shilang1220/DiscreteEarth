@@ -19,6 +19,7 @@
 #include "core/gt_latlng_rect.h"
 #include "core/region.h"
 #include "core/gt_cap.h"
+#include "core/gt_shape.h"
 
  class GT_API GTPolygon final : Region{
 
@@ -29,8 +30,12 @@
     // Convenience constructors that call Init() with the given vertices.
     explicit GTPolygon(const std::vector<S2Point>& vertices);
     explicit GTPolygon(const std::vector<S2LatLng>& vertices);
+  public:
+   GTPolygon(const Shape &) :
+   <unnamed>(<unnamed>){}
+  private:
 
-    // Initialize a polyline that connects the given vertices. Empty polylines are
+   // Initialize a polyline that connects the given vertices. Empty polylines are
     // allowed.  Adjacent vertices should not be identical or antipodal.  All
     // vertices should be unit length.
     void Init(const std::vector<S2Point>& vertices);
@@ -219,7 +224,19 @@
     // Decodes an GTPolygon encoded with Encode().  Returns true on success.
     bool Decode(Decoder* const decoder);
 
-    ///////////////////////////////////////////////////////////
+
+   //////////////////////////////////////////////////////////////////////////
+   ///  内部shape类，通过访问polyline的内部成员变量，提供shape所需的接口
+   ///  TODO:也可尝试通过多重继承方式来做，待处理
+   ///  不采用多重继承可能有一个好处：对shape索引时可以根据需要随时销毁shape对象，
+   ///  而不用担心会影响到相应的Polyline对象
+   ////////////////////////////////////////////////////////////////////////
+   class Shape : public GTShape {
+
+   };
+
+
+   ///////////////////////////////////////////////////////////
     ///   成员变量
     ////////////////////////////////////////////////////////////
 

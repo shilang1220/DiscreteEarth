@@ -9,6 +9,7 @@
 #include "core/region.h"                    //区域类，各种球面区域类的抽象类，封装了球面区域的共性抽象接口
 #include "core/cell_id.h"                   //网格单元编码类，球面网格单元编码的抽象类，封装了球面网格单元编码的共性抽象接口
 #include "core/cell.h"                      //网格单元类，球面网格单元的抽象类，封装了球面网格单元的共性抽象接口
+#include "core/gt_shape.h"                  //Shape类，点、线、环、面等shape的抽象类，封装了访问shape的共性抽象接口
 #include "core/gt_cap.h"                    //球冠类，用地心坐标系表达球面坐标范围
 #include "core/gt_latlng_rect.h"            //经纬度矩形类，用经纬度坐标系表达球面范围
 #include "core/gt_coords.h"                 //GT剖分方案中，各种坐标系之间的转换函数API
@@ -33,6 +34,7 @@
 #include "gt/gt_loop.h"                   //Loop要素类，定义了由传统的环坐标串模型向剖分网格模型转换的方法
 #include "gt/gt_polygon.h"                //Polygon要素类，定义了由传统的面坐标串模型向剖分网格模型转换的方法
 #include "gt/gt_latlng_rect_bounder.h"    //点、线、环、面、球冠等区域类对象的外包矩形计算器，用于计算给定点集合的外包矩形经纬度范围
+
 //#include "gt/gt_region_coverer.h"       //点、线、环、面、球冠等区域类对象的剖分网格集合计算器，输入区域类对象和剖分参数，生成对应的剖分网格集合（ID集合）
 
 //GT索引类库（index）
