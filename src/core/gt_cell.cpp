@@ -4,9 +4,6 @@
 
 #include "core/gt_cell.h"
 
-R2Rect GTCell::GetBoundPlanar () {
-    return Cell::GetBoundPlanar();
-}
 
 bool GTCell::is_leaf () const {
     return false;

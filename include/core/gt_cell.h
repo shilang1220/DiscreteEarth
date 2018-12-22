@@ -27,7 +27,6 @@
      * 面片属性访问函数
      *
      * *************************************/
-    R2Rect GetBoundPlanar() override;
     bool is_leaf() const override ;
     S2Point GetVertex(int k) const override;
     S2Point GetEdge(int k) const override;

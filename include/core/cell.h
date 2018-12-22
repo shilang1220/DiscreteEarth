@@ -40,11 +40,6 @@ public:
     // The default constructor is required in order to use freelists.
     // Cells should otherwise always be constructed explicitly.
     Cell() {};
-
-    // An Cell always corresponds to a particular CellId.  The other
-    // constructors are just convenience methods.
-    explicit Cell(uint64 id):id_(id){ };
-
     ~Cell(){};
 
     /***************************************
@@ -53,17 +48,13 @@ public:
      * *************************************/
     //面片属性获取函数
     //面片ID
-    uint64 id() const { return id_; }
+    virtual uint64 id() const =0;
     //面片层级
-    int level() const { return level_; }
+    virtual int level() const=0;
     //面片方位
-    int orientation() const { return orientation_; }
+    virtual int orientation() const =0;
 
-    //返回面片在投影平面上的坐标范围
-    // Returns the bounds of this cell in (u,v)-space.
-    virtual R2Rect GetBoundPlanar() {return uv_;}
-
-    //是否叶子节点
+       //是否叶子节点
     virtual bool is_leaf() const = 0 ;
 
     // 返回面片第k个格点的球面坐标
@@ -179,11 +170,7 @@ public:
     // S2Region interface (see s2region.h for details):
 
 private:
-    // This structure occupies 44 bytes plus one pointer for the vtable.
-    int8 level_;
-    uint64 id_;
-    int8 orientation_;
-    R2Rect uv_;
+
 };
 
 #endif //DISCRETEEARTH_CELL_H

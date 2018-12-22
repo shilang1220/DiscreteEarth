@@ -67,7 +67,6 @@ public:
     // portion of the Hilbert curve that fills that cell).
 
     CellId(){}
-    explicit CellId(uint64 id) : id_(id) {}
 
        /************************************
      *  网格ID与球面坐标之间的转换函数
@@ -100,9 +99,9 @@ public:
     /************************************
    *  网格ID属性访问函数
    ************************************/
-    virtual // 返回面片ID
+     // 返回面片ID
     // The 64-bit unique identifier for this cell.
-    uint64 id() const { return id_; }
+     virtual uint64 id() const =0;
 
     // Return true if id() represents a valid cell.
     //
@@ -179,8 +178,6 @@ public:
     // 判断本网格是否和某个网格相交
     // Return true if the given cell intersects this one.
     virtual bool intersects(const uint64 other) const = 0 ;
-
-
 
     /************************************
     *  祖先节点或子孙节点访问函数
@@ -341,7 +338,7 @@ public:
     typedef std::true_type goog_btree_prefer_linear_node_search;
 
 protected:
-   uint64 id_;
+
 };
 
 #endif //DISCRETEEARTH_CELLID_H

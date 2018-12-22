@@ -6,6 +6,8 @@
 #include "util/bits/bits.h"
 #include "core/gt_cell_id.h"
 #include "core/gt_coords.h"
+#include "s2/r2rect.h"
+
 GTCellId::GTCellId(const S2Point p) {
     //默认为叶子网格
     uint32 I,J;
@@ -238,7 +240,7 @@ GTCellId::GTCellId () : CellId() {
 }
 
 uint64 GTCellId::id () const {
-    return CellId::id();
+    return id_;
 }
 
 

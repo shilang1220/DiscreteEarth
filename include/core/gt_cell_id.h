@@ -12,6 +12,7 @@
 
 #include "core/cell_id.h"
 #include "s2/s2latlng.h"
+#include "s2/r2rect.h"
 #include "gt_coords.h"
 
 
@@ -347,7 +348,11 @@ public:
     string ToString() const override ;
 
 
-public:
+private:
+  // This structure occupies 44 bytes plus one pointer for the vtable.
+  int8 level_;
+  uint64 id_;
+  int8 orientation_;
 
 };
 
