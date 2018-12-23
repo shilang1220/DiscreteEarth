@@ -34,7 +34,6 @@
 #include "gt/gt_loop.h"                   //Loop要素类，定义了由传统的环坐标串模型向剖分网格模型转换的方法
 #include "gt/gt_polygon.h"                //Polygon要素类，定义了由传统的面坐标串模型向剖分网格模型转换的方法
 #include "gt/gt_latlng_rect_bounder.h"    //点、线、环、面、球冠等区域类对象的外包矩形计算器，用于计算给定点集合的外包矩形经纬度范围
-
 //#include "gt/gt_region_coverer.h"       //点、线、环、面、球冠等区域类对象的剖分网格集合计算器，输入区域类对象和剖分参数，生成对应的剖分网格集合（ID集合）
 
 //GT索引类库（index）
