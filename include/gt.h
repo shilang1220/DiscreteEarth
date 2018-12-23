@@ -5,6 +5,11 @@
 #ifndef DISCRETEEARTH_GT_H
 #define DISCRETEEARTH_GT_H
 
+//S2支撑类库（s2）
+#include "s2/s1angle.h"
+#include "s2/s2point.h"
+#include "s2/s2latlng.h"
+
 //核心类库（core）
 #include "core/region.h"                    //区域类，各种球面区域类的抽象类，封装了球面区域的共性抽象接口
 #include "core/cell_id.h"                   //网格单元编码类，球面网格单元编码的抽象类，封装了球面网格单元编码的共性抽象接口
@@ -22,10 +27,6 @@
 
 
 
-//S2支撑类库（s2）
-#include "s2/s1angle.h"
-#include "s2/s2point.h"
-#include "s2/s2latlng.h"
 
 //GT基础类库（gt）
 #include "gt/gt_point.h"                  //Point要素类，定义了由传统的点坐标模型向剖分网格模型转换的方法
@@ -43,5 +44,5 @@
 #include "index/gt_region_term_generator.h"   //空间要素的地理标签生成类，用于为全文检索系统提供地理标签，采用“全文检索”+“文本地理标签”的方式实现信息的空间检索能力
 
 //GT查询检索类库（query）
-#include
+//#include
 #endif //DISCRETEEARTH_GT_H

@@ -10,15 +10,11 @@
 
 GTCellId::GTCellId(const S2Point p) {
     //默认为叶子网格
-    uint32 I,J;
-    GT::XYZtoIJ(p,&I,&J);
-    GT::IJtoCellID(I,J,&id_);
+    FromPoint(p);
 }
 GTCellId::GTCellId(const S2LatLng ll) {
     //默认为叶子网格
-    uint32 I,J;
-    GT::LLtoIJ(ll.lng().degrees(),ll.lat().degrees(),&I,&J);
-    GT::IJtoCellID(I,J,&id_);
+    FromLatLng(ll);
 }
 
 S2Point GTCellId::ToPoint() const {
@@ -35,6 +31,7 @@ bool GTCellId::FromPoint(S2Point point) {
 
     GT::XYZtoCellID(point,&id);
     id_ = id;
+    level_= kMaxLevel;
 
     return true;
 }
@@ -52,6 +49,7 @@ bool GTCellId::FromPoint(S2Point point, unsigned int level)  {
     J = J & mask;
 
     GT::IJtoCellID(I,J,&id_);
+    level_ = level;
 
     return true;
 }

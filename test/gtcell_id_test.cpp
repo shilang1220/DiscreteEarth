@@ -16,21 +16,34 @@ TEST(GTCELLID_TEST, ID_CONSTRUCT) {
     GTCellId id;
 
     //经纬度到ID的转换测试
+    S2LatLng ll;
     id = GetCellId(0.0, 0.0);
-    EXPECT_EQ(0x2, id.id());
+    ll = id.ToLatLng();
+    EXPECT_EQ(S1Angle(0.0),ll.lat());
+    EXPECT_EQ(0.0,ll.lng());
 
     id = GetCellId(90.00,180.00);
-    EXPECT_EQ(0x2, id.id());
+    ll = id.ToLatLng();
+    EXPECT_EQ(90.00,ll.lat());
+    EXPECT_EQ(180.00,ll.lng());
 
     id = GetCellId(-90.00,180.00);
-    EXPECT_EQ(0x2, id.id());
+    ll = id.ToLatLng();
+    EXPECT_EQ(-90.00,ll.lat());
+    EXPECT_EQ(180.00,ll.lng());
 
     id = GetCellId(-90.00,-180.00);
-    EXPECT_EQ(0x2, id.id());
+    ll = id.ToLatLng();
+    EXPECT_EQ(-90.00,ll.lat());
+    EXPECT_EQ(-180.00,ll.lng());
 
     id = GetCellId(+90.00,-180.00);
-    EXPECT_EQ(0x2, id.id());
+    ll = id.ToLatLng();
+    EXPECT_EQ(90.00,ll.lat());
+    EXPECT_EQ(-180.00,ll.lng());
 
+
+    //地心坐标系到ID的转换测试
     S2Point pnt(1.0,1.0,1.0);
 
     id.FromPoint(pnt);

@@ -350,8 +350,8 @@ public:
 
 private:
   // This structure occupies 44 bytes plus one pointer for the vtable.
-  int8 level_;
   uint64 id_;
+  int8 level_;
   int8 orientation_;
 
 };
