@@ -2,6 +2,8 @@
 // Created by 濮国梁 on 2018/12/13.
 //
 
+#include <core/gt_cell.h>
+
 #include "core/gt_cell.h"
 
 
@@ -57,39 +59,39 @@ S1ChordAngle GTCell::GetMaxDistance (const S2Point &a, const S2Point &b) const {
     return S1ChordAngle();
 }
 
-S1ChordAngle GTCell::GetDistance (const Cell &target) const {
+S1ChordAngle GTCell::GetDistance (const GTCell &target) const {
     return S1ChordAngle();
 }
 
-S1ChordAngle GTCell::GetMaxDistance (const Cell &target) const {
+S1ChordAngle GTCell::GetMaxDistance (const GTCell &target) const {
     return S1ChordAngle();
 }
 
-bool GTCell::Subdivide (Cell *pChildren) const {
+bool GTCell::Subdivide (GTCell *pChildren) const {
     return false;
 }
 
-Cell *GTCell::Clone () const {
+GTCell *GTCell::Clone () const {
     return nullptr;
 }
 
-Cap GTCell::GetCapBound () const {
-    Cap cap;
+GTCap GTCell::GetCapBound () const {
+    GTCap cap;
 
     return cap;
 }
 
-LatLngRect GTCell::GetRectBound () const {
-    LatLngRect rect;
+GTLatLngRect GTCell::GetRectBound () const {
+    GTLatLngRect rect;
 
     return rect;
 }
 
-bool GTCell::Contains (const Cell &cell) const {
+bool GTCell::Contains (const GTCell &cell) const {
     return false;
 }
 
-bool GTCell::MayIntersect (const Cell &cell) const {
+bool GTCell::MayIntersect (const GTCell &cell) const {
     return false;
 }
 
@@ -100,3 +102,9 @@ void GTCell::Encode (Encoder *const encoder) const {
 bool GTCell::Decode (Decoder *const decoder) {
     return false;
 }
+
+bool GTCell::Contains(const S2Point &p) const {
+    return false;
+}
+
+

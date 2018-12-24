@@ -27,7 +27,7 @@
 
 #include "base/logging.h"
 #include "util/math/vector.h"  // IWYU pragma: export
-// 单位圆上的间隔类
+// 单位圆上的区间类
 
 // An S1Interval represents a closed interval on a unit circle (also known
 // as a 1-dimensional sphere).  It is capable of representing the empty

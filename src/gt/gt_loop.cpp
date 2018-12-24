@@ -98,19 +98,19 @@ GTLoop *GTLoop::Clone() const {
     return nullptr;
 }
 
-Cap GTLoop::GetCapBound() const {
-    return Cap();
+GTCap GTLoop::GetCapBound() const {
+    return GTCap();
 }
 
-LatLngRect GTLoop::GetRectBound() const {
-    return LatLngRect();
+GTLatLngRect GTLoop::GetRectBound() const {
+    return GTLatLngRect();
 }
 
-bool GTLoop::Contains(const Cell &cell) const {
+bool GTLoop::Contains(const GTCell &cell) const {
     return false;
 }
 
-bool GTLoop::MayIntersect(const Cell &cell) const {
+bool GTLoop::MayIntersect(const GTCell &cell) const {
     return false;
 }
 

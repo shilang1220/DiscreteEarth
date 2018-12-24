@@ -7,6 +7,7 @@
 #include "core/gt_cell_id.h"
 #include "core/gt_coords.h"
 #include "s2/r2rect.h"
+#include "s2/s2latlng.h"
 
 GTCellId::GTCellId(const S2Point p) {
     //默认为叶子网格
@@ -95,25 +96,13 @@ int GTCellId::child_position(int level) const {
     return 0;
 }
 
-bool GTCellId::contains(const uint64 other) const {
-    return false;
-}
-
 bool GTCellId::contains(const GTCellId other) const {
     S2_DCHECK(is_valid());
     S2_DCHECK(other.is_valid());
-    return other >= range_min_cell() && other <= range_max_cell();
-}
-
-bool GTCellId::isChildOf(const uint64 other) const {
-    return false;
+    return other >= range_min() && other <= range_max();
 }
 
 bool GTCellId::isChildOf(const GTCellId other) const {
-    return false;
-}
-
-bool GTCellId::intersects(const uint64 other) const {
     return false;
 }
 
@@ -121,79 +110,79 @@ bool GTCellId::intersects(const GTCellId other) const {
     return false;
 }
 
-uint64 GTCellId::parentID() const {
-    return 0;
+GTCellId GTCellId::parent() const {
+    return GTCellId();
 }
 
-uint64 GTCellId::parentID(int level) const {
-    return 0;
+GTCellId GTCellId::parent(int level) const {
+    return GTCellId();
 }
 
-uint64 GTCellId::child(int position) const {
-    return 0;
+GTCellId GTCellId::child(int position) const {
+    return GTCellId();
 }
 
-uint64 GTCellId::child_begin() const {
-    return 0;
+GTCellId GTCellId::child_begin() const {
+    return GTCellId();
 }
 
-uint64 GTCellId::child_end() const {
-    return 0;
+GTCellId GTCellId::child_end() const {
+    return GTCellId();
 }
 
-uint64 GTCellId::child_begin(int level) const {
-    return 0;
+GTCellId GTCellId::child_begin(int level) const {
+    return GTCellId();
 }
 
-uint64 GTCellId::child_end(int level) const {
-    return 0;
+GTCellId GTCellId::child_end(int level) const {
+    return GTCellId();
 }
 
-uint64 GTCellId::next() const {
-    return 0;
+GTCellId GTCellId::next() const {
+    return GTCellId();
 }
 
-uint64 GTCellId::prev() const {
-    return 0;
+GTCellId GTCellId::prev() const {
+    return GTCellId();
 }
 
-uint64 GTCellId::advance(int64 steps) const {
-    return 0;
+GTCellId GTCellId::advance(int64 steps) const {
+    return GTCellId();
 }
 
 int64 GTCellId::distance_from_begin() const {
     return 0;
 }
 
-uint64 GTCellId::maximum_tile(uint64 limit) const {
+GTCellId GTCellId::maximum_tile(GTCellId limit) const {
+    return GTCellId();
+}
+
+int GTCellId::GetCommonAncestorLevel(GTCellId other) const {
     return 0;
 }
 
-int GTCellId::GetCommonAncestorLevel(uint64 other) const {
-    return 0;
+GTCellId GTCellId::Begin(int level) {
+    return GTCellId();
 }
 
-uint64 GTCellId::Begin(int level) {
-    return 0;
+GTCellId GTCellId::End(int level) {
+    return GTCellId();
 }
 
-uint64 GTCellId::End(int level) {
-    return 0;
-}
-
-void GTCellId::GetFourNeighbors(uint64 *neighbors) const {
+void GTCellId::GetFourNeighbors(GTCellId *neighbors) const {
 
 }
 
-void GTCellId::GetEightNeighbors(uint64 *neighbors) const {
+void GTCellId::GetEightNeighbors(GTCellId *neighbors) const {
 
 }
 
-void GTCellId::AppendVertexNeighbors(int level, std::vector<uint64> *output) const {
+void GTCellId::AppendVertexNeighbors(int level, std::vector<GTCellId> *output) const {
 
 }
 
-void GTCellId::AppendAllNeighbors(int nbr_level, std::vector<CellId> *output) const {
+void GTCellId::AppendAllNeighbors(int nbr_level, std::vector<GTCellId> *output) const {
 
 }
 
@@ -201,12 +190,12 @@ string GTCellId::ToToken() const {
     return std::__cxx11::string();
 }
 
-uint64 GTCellId::FromToken(const char *token, size_t length) {
-    return 0;
+GTCellId GTCellId::FromToken(const char *token, size_t length) {
+    return GTCellId();
 }
 
-uint64 GTCellId::FromToken(const string &token) {
-    return 0;
+GTCellId GTCellId::FromToken(const string &token) {
+    return GTCellId();
 }
 
 void GTCellId::Encode(Encoder *const encoder) const {
@@ -221,10 +210,6 @@ string GTCellId::ToString() const {
     return std::string();
 }
 
-int GTCellId::GetCommonAncestorLevel(GTCellId other) const {
-    return 0;
-}
-
 uint64 GTCellId::pos() const {
     return 0;
 }
@@ -233,13 +218,11 @@ bool GTCellId::is_leaf() const {
     return false;
 }
 
-GTCellId::GTCellId () : CellId() {
-
-}
 
 uint64 GTCellId::id () const {
     return id_;
 }
+
 
 
 

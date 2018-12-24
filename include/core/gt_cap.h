@@ -23,11 +23,11 @@
 
 class Decoder;
 class Encoder;
-class Cell;
+class GTCell;
 class LatLngRect;
 
 // 球冠类
-// Cap represents a disc-shaped region defined by a center and radius.
+// GTCap represents a disc-shaped region defined by a center and radius.
 // Technically this shape is called a "spherical cap" (rather than disc)
 // because it is not planar; the cap represents a portion of the sphere that
 // has been cut off by a plane.  The boundary of the cap is the circle defined
@@ -48,42 +48,42 @@ class LatLngRect;
 // This class is intended to be copied by value as desired.  It uses the
 // default copy constructor and assignment operator, however it is not a
 // "plain old datatype" (POD) because it has virtual functions.
- class GT_API Cap final : public Region {
+ class GT_API GTCap final : public Region {
 public:
-    // The default constructor returns an empty Cap.
-    Cap() : center_(1, 0, 0), radius_(S1ChordAngle::Negative()) {}
+    // The default constructor returns an empty GTCap.
+    GTCap() : center_(1, 0, 0), radius_(S1ChordAngle::Negative()) {}
 
     // Constructs a cap with the given center and radius.  A negative radius
     // yields an empty cap; a radius of 180 degrees or more yields a full cap
     // (containing the entire sphere).  "center" should be unit length.
-    Cap(const S2Point& center, S1Angle radius);
+    GTCap(const S2Point& center, S1Angle radius);
 
     // Constructs a cap where the angle is expressed as an S1ChordAngle.  This
     // constructor is more efficient than the one above.
-    Cap(const S2Point& center, S1ChordAngle radius);
+    GTCap(const S2Point& center, S1ChordAngle radius);
 
     // Convenience function that creates a cap containing a single point.  This
-    // method is more efficient that the Cap(center, radius) constructor.
-    static Cap FromPoint(const S2Point& center);
+    // method is more efficient that the GTCap(center, radius) constructor.
+    static GTCap FromPoint(const S2Point& center);
 
     // Returns a cap with the given center and height (see comments above).  A
     // negative height yields an empty cap; a height of 2 or more yields a full
     // cap.  "center" should be unit length.
-    static Cap FromCenterHeight(const S2Point& center, double height);
+    static GTCap FromCenterHeight(const S2Point& center, double height);
 
     // Return a cap with the given center and surface area.  Note that the area
     // can also be interpreted as the solid angle subtended by the cap (because
     // the sphere has unit radius).  A negative area yields an empty cap; an
     // area of 4*Pi or more yields a full cap.  "center" should be unit length.
-    static Cap FromCenterArea(const S2Point& center, double area);
+    static GTCap FromCenterArea(const S2Point& center, double area);
 
     // Return an empty cap, i.e. a cap that contains no points.
-    static Cap Empty();
+    static GTCap Empty();
 
     // Return a full cap, i.e. a cap that contains all points.
-    static Cap Full();
+    static GTCap Full();
 
-    ~Cap() override {}
+    ~GTCap() override {}
 
     // Accessor methods.
     const S2Point& center() const { return center_; }
@@ -132,20 +132,20 @@ public:
     // The complement operator is not a bijection because the complement of a
     // singleton cap (containing a single point) is the same as the complement
     // of an empty cap.
-    Cap Complement() const;
+    GTCap Complement() const;
 
     // Return true if and only if this cap contains the given other cap
     // (in a set containment sense, e.g. every cap contains the empty cap).
-    bool Contains(const Cap& other) const;
+    bool Contains(const GTCap& other) const;
 
     // Return true if and only if this cap intersects the given other cap,
     // i.e. whether they have any points in common.
-    bool Intersects(const Cap& other) const;
+    bool Intersects(const GTCap& other) const;
 
     // Return true if and only if the interior of this cap intersects the
     // given other cap.  (This relationship is not symmetric, since only
     // the interior of this cap is used.)
-    bool InteriorIntersects(const Cap& other) const;
+    bool InteriorIntersects(const GTCap& other) const;
 
     // Return true if and only if the given point is contained in the interior
     // of the cap (i.e. the cap excluding its boundary).  "p" should be be a
@@ -159,35 +159,35 @@ public:
 
     // Increase the cap height if necessary to include "other".  If the current
     // cap is empty it is set to the given other cap.
-    void AddCap(const Cap& other);
+    void AddCap(const GTCap& other);
 
     // Return a cap that contains all points within a given distance of this
     // cap.  Note that any expansion of the empty cap is still empty.
-    Cap Expanded(S1Angle distance) const;
+    GTCap Expanded(S1Angle distance) const;
 
     // Return the smallest cap which encloses this cap and "other".
-    Cap Union(const Cap& other) const;
+    GTCap Union(const GTCap& other) const;
 
     ////////////////////////////////////////////////////////////////////////
     // S2Region interface (see s2region.h for details):
 
-    Cap* Clone() const override;
-    Cap GetCapBound() const override;
-    LatLngRect GetRectBound() const override;
-//    void GetCellUnionBound(std::vector<CellId> *cell_ids) const override;
-    bool Contains(const Cell& cell) const override;
-    bool MayIntersect(const Cell& cell) const override;
+    GTCap* Clone() const override;
+    GTCap GetCapBound() const override;
+    GTLatLngRect GetRectBound() const override;
+//    void GetGTCellUnionBound(std::vector<GTCellId> *cell_ids) const override;
+    bool Contains(const GTCell& cell) const override;
+    bool MayIntersect(const GTCell& cell) const override;
 
     // The point "p" should be a unit-length vector.
     bool Contains(const S2Point& p) const override;
 
-    // Appends a serialized representation of the Cap to "encoder".
+    // Appends a serialized representation of the GTCap to "encoder".
     //
     // REQUIRES: "encoder" uses the default constructor, so that its buffer
     //           can be enlarged as necessary by calling Ensure(int).
     void Encode(Encoder* const encoder) const;
 
-    // Decodes an Cap encoded with Encode().  Returns true on success.
+    // Decodes an GTCap encoded with Encode().  Returns true on success.
     bool Decode(Decoder* const decoder);
 
     ///////////////////////////////////////////////////////////////////////
@@ -195,11 +195,11 @@ public:
     // and testing purposes only.
 
     // Return true if two caps are identical.
-    bool operator==(const Cap& other) const;
+    bool operator==(const GTCap& other) const;
 
     // Return true if the cap center and height differ by at most "max_error"
     // from the given cap "other".
-    bool ApproxEquals(const Cap& other,
+    bool ApproxEquals(const GTCap& other,
                       S1Angle max_error = S1Angle::Radians(1e-14)) const;
 
 private:
@@ -214,65 +214,65 @@ private:
 
     // Return true if the cap intersects "cell", given that the cap does contain
     // any of the cell vertices (supplied in "vertices", an array of length 4).
-    bool Intersects(const Cell& cell, const S2Point* vertices) const;
+    bool Intersects(const GTCell& cell, const S2Point* vertices) const;
 
     S2Point center_;
     S1ChordAngle radius_;
 };
 
 //全局函数<<重载
-std::ostream& operator<<(std::ostream& os, const Cap& cap);
+std::ostream& operator<<(std::ostream& os, const GTCap& cap);
 
 
 //////////////////   Implementation details follow   ////////////////////
 
 
-inline Cap::Cap(const S2Point& center, S1Angle radius)
+inline GTCap::GTCap(const S2Point& center, S1Angle radius)
         : center_(center), radius_(std::min(radius, S1Angle::Radians(M_PI))) {
    // The "min" calculation above is necessary to handle S1Angle::Infinity().
            S2_DCHECK(is_valid());
 }
 
-inline Cap::Cap(const S2Point& center, S1ChordAngle radius)
+inline GTCap::GTCap(const S2Point& center, S1ChordAngle radius)
         : center_(center), radius_(radius) {
            S2_DCHECK(is_valid());
 }
 
-inline Cap Cap::FromPoint(const S2Point& center) {
-   return Cap(center, S1ChordAngle::Zero());
+inline GTCap GTCap::FromPoint(const S2Point& center) {
+   return GTCap(center, S1ChordAngle::Zero());
 }
 
-inline Cap Cap::FromCenterHeight(const S2Point& center, double height) {
-   return Cap(center, S1ChordAngle::FromLength2(2 * height));
+inline GTCap GTCap::FromCenterHeight(const S2Point& center, double height) {
+   return GTCap(center, S1ChordAngle::FromLength2(2 * height));
 }
 
-inline Cap Cap::FromCenterArea(const S2Point& center, double area) {
-   return Cap(center, S1ChordAngle::FromLength2(area / M_PI));
+inline GTCap GTCap::FromCenterArea(const S2Point& center, double area) {
+   return GTCap(center, S1ChordAngle::FromLength2(area / M_PI));
 }
 
-inline Cap Cap::Empty() { return Cap(); }
+inline GTCap GTCap::Empty() { return GTCap(); }
 
-inline Cap Cap::Full() {
-   return Cap(S2Point(1, 0, 0), S1ChordAngle::Straight());
+inline GTCap GTCap::Full() {
+   return GTCap(S2Point(1, 0, 0), S1ChordAngle::Straight());
 }
 
-inline double Cap::height() const {
+inline double GTCap::height() const {
    return 0.5 * radius_.length2();
 }
 
-inline S1Angle Cap::GetRadius() const {
+inline S1Angle GTCap::GetRadius() const {
    return radius_.ToAngle();
 }
 
-inline bool Cap::is_valid() const {
+inline bool GTCap::is_valid() const {
    return S2::IsUnitLength(center_) && radius_.length2() <= 4;
 }
 
-inline bool Cap::is_empty() const {
+inline bool GTCap::is_empty() const {
    return radius_.is_negative();
 }
 
-inline bool Cap::is_full() const {
+inline bool GTCap::is_full() const {
    return radius_.length2() == 4;
 }
 

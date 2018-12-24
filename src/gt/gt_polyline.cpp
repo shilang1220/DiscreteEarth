@@ -95,19 +95,19 @@ GTPolyline *GTPolyline::Clone () const {
     return nullptr;
 }
 
-Cap GTPolyline::GetCapBound () const {
-    return Cap();
+GTCap GTPolyline::GetCapBound () const {
+    return GTCap();
 }
 
-LatLngRect GTPolyline::GetRectBound () const {
-    return LatLngRect();
+GTLatLngRect GTPolyline::GetRectBound () const {
+    return GTLatLngRect();
 }
 
-bool GTPolyline::Contains (const Cell &cell) const {
+bool GTPolyline::Contains (const GTCell &cell) const {
     return false;
 }
 
-bool GTPolyline::MayIntersect (const Cell &cell) const {
+bool GTPolyline::MayIntersect (const GTCell &cell) const {
     return false;
 }
 

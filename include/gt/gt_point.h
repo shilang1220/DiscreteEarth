@@ -17,7 +17,7 @@
 class Decoder;
 class Encoder;
 class Cap;
-class Cell;
+class GTCell;
 class LatLngRect;
 
 /// Class of spatial feature --point. However, point has no region attribution,
@@ -36,10 +36,10 @@ class GT_API GTPoint final: public Region {
   // S2Region interface (see s2region.h for details):
 
   GTPoint* Clone() const override;
-  Cap GetCapBound() const override;
-  LatLngRect GetRectBound() const override;
-  bool Contains(const Cell& cell) const override { return false; }
-  bool MayIntersect(const Cell& cell) const override;
+  GTCap GetCapBound() const override;
+  GTLatLngRect GetRectBound() const override;
+  bool Contains(const GTCell& cell) const override { return false; }
+  bool MayIntersect(const GTCell& cell) const override;
   bool Contains(const S2Point& p) const override { return (point_ == p); }
 
   // Appends a serialized representation of the S2Point to "encoder".

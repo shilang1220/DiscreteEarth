@@ -5,18 +5,31 @@
 #ifndef DISCRETEEARTH_GTCELLID_H
 #define DISCRETEEARTH_GTCELLID_H
 
-#include <ostream>
+#include <cstddef>
+#include <functional>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #include "_fp_contract_off.h"
 #include "exports.h"
 
-#include "core/cell_id.h"
-#include "s2/s2latlng.h"
+#include "base/integral_types.h"
+#include "base/logging.h"
+#include "base/port.h"
+#include "third_party/absl/strings/string_view.h"
+#include "util/bits/bits.h"
+#include "util/coding/coder.h"
+#include "core/gt_coords.h"
+
+#include "s2/r2.h"
 #include "s2/r2rect.h"
-#include "gt_coords.h"
+#include "s2/s1angle.h"
 
+class Encoder;
+class Decoder;
 
-class GT_API GTCellId final : public CellId{
+class GT_API GTCellId {
 
 public:
     ///////////////////////////////////////////////
@@ -49,7 +62,9 @@ public:
     // 构造函数
     //////////////////////////////////////////////
 
-    explicit GTCellId(const uint64 id){id_ = id;}
+    GTCellId() { id_ = 0; }
+
+    explicit GTCellId(const uint64 id) { id_ = id; }
 
     // Construct a leaf cell containing the given point "p".
     explicit GTCellId(const S2Point p);
@@ -69,56 +84,62 @@ public:
     // The maximum directional error in ToPoint() (compared to the exact
     // mathematical result) is 1.5 * DBL_EPSILON radians, and the maximum length
     // error is 2 * DBL_EPSILON (the same as Normalize).
-    S2Point  ToPoint() const override;
+    S2Point ToPoint() const;
+
     // 根据球面坐标创建对应的网格ID, point为地心矢量，ID对应其与球面的交点
-    bool  FromPoint(S2Point point)  override;
-    bool  FromPoint(S2Point point, unsigned int level)  override;
+    bool FromPoint(S2Point point);
+
+    bool FromPoint(S2Point point, unsigned int level);
 
     /************************************
       *  GEOSOT网格ID与经纬度之间的转换函数
       ************************************/
     // 返回网格中心点对应的经纬度
     // Return the S2LatLng corresponding to the center of the given cell.
-    S2LatLng ToLatLng() const override;
+    S2LatLng ToLatLng() const;
+
     //  根据经纬度，生成对应的网格ID
-    bool FromLatLng(S2LatLng latLng)  override;
-    bool FromLatLng(S2LatLng latLng, unsigned int level)  override;
+    bool FromLatLng(S2LatLng latLng);
+
+    bool FromLatLng(S2LatLng latLng, unsigned int level);
 
     /************************************
  *  网格ID属性访问函数
  ************************************/
     // Return true if id() represents a valid cell.
-    bool is_valid() const override;
+    bool is_valid() const;
 
     // 网格ID所在的曲线位置
-    uint64 pos() const override;
+    uint64 pos() const;
 
     // 网格ID所在的层级
-    int level() const override ;
+    int level() const;
 
     // 网格ID是否对应叶子节点
     // Return true if this is a leaf cell (more efficient than checking
     // whether level() == kMaxLevel).
-    bool is_leaf() const override;
+    bool is_leaf() const;
 
     // 返回该网格编码的最低有效位
     // Return the lowest-numbered bit that is on for this cell id, which is
     // equal to (uint64{1} << (2 * (kMaxLevel - level))).  So for example,
     // a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
     // first test is more efficient.
-    uint64 lsb() const ;
+    uint64 lsb() const;
+
+    static uint64 lsb_for_level(int level) ;
 
     // 网格ID在其父节点中的位置（0..3）
     // Return the child position (0..3) of this cell within its parent.
     // REQUIRES: level() >= 1.
-    int child_position() const override;
+    int child_position() const;
 
     // 网格ID的某个层级祖先节点在其父节点中的位置
     // Return the child position (0..3) of this cell's ancestor at the given
     // level within its parent.  For example, child_position(1) returns the
     // position of this cell's level-1 ancestor within its top-level face cell.
     // REQUIRES: 1 <= level <= this->level().
-    int child_position(int level) const override;
+    int child_position(int level) const;
 
     // These methods return the range of cell ids that are contained within this
     // cell (including itself).  The range is *inclusive* (i.e. test using >=
@@ -150,43 +171,41 @@ public:
     // 但是最大值和最小值之间的值并非都是子网格，因此遍历子网格不能依赖此值域
 
     // 本网格包含的子网格中ID的最小值，根据编码的定义，最小值出现在叶子结点
-    uint64 range_min() const override ;
-    GTCellId range_min_cell() const ;
+    GTCellId range_min() const;
 
     // 本网格包含的子网格中ID的最大值，根据编码的定义，最大值出现在叶子结点
-    uint64 range_max() const override ;
-    GTCellId range_max_cell() const ;
+    GTCellId range_max() const;
 
     /************************************
     *  网格空间关系计算函数
     ************************************/
     // 判断本网格是否包含某个网格
     // Return true if the given cell is contained within this one.
-    bool contains(const uint64 other) const override ;
-    bool contains(const GTCellId other) const ;
+    bool contains(const GTCellId other) const;
 
     //判断本网格是否某个网格other的子孙网格
-    bool isChildOf(const uint64 other) const override ;
-    bool isChildOf(const GTCellId other) const ;
+    bool isChildOf(const GTCellId other) const;
 
     // 判断本网格是否和某个网格相交
     // Return true if the given cell intersects this one.
-    bool intersects(const uint64 other) const override ;
-    bool intersects(const GTCellId other) const ;
+    bool intersects(const GTCellId other) const;
 
 
     /************************************
     *  祖先节点或子孙节点访问函数
     ************************************/
     // 返回祖先网格的ID
-    uint64 parentID() const override ;
+    GTCellId parent() const;
+
+
     // 返回某个层级祖先网格的ID
-    uint64 parentID(int level) const override;
+    GTCellId parent(int level) const;
+
 
     // 返回某个子网格的ID（0..3）
     // Return the immediate child of this cell at the given traversal order
     // position (in the range 0 to 3).  This cell must not be a leaf cell.
-    uint64 child(int position) const override ;
+    GTCellId child(int position) const;
 
     // Iterator-style methods for traversing the immediate children of a cell or
     // all of the children at a given level (greater than or equal to the current
@@ -200,31 +219,34 @@ public:
     // The convention for advancing the iterator is "c = c.next()" rather
     // than "++c" to avoid possible confusion with incrementing the
     // underlying 64-bit cell id.
-    uint64 child_begin() const override ;
-    uint64 child_end() const override ;
+    GTCellId child_begin() const;
 
-    uint64 child_begin(int level) const override ;
-    uint64 child_end(int level) const override ;
+    GTCellId child_end() const;
+
+    GTCellId child_begin(int level) const;
+
+    GTCellId child_end(int level) const;
 
     // 指定层级子孙中，沿曲线的下一个子节点或上一个子节点ID
     // Return the next/previous cell at the same level along the Hilbert curve.
     // Works correctly when advancing from one face to the next, but
     // does *not* wrap around from the last face to the first or vice versa.
-    uint64 next() const override ;
-    uint64 prev() const override ;
+    GTCellId next() const;
+
+    GTCellId prev() const;
 
     // 在当前层级中，沿着曲线向前跳steps部的网格ID
     // This method advances or retreats the indicated number of steps along the
     // Hilbert curve at the current level, and returns the new position.  The
     // position is never advanced past End() or before Begin().
-    uint64 advance(int64 steps) const override ;
+    GTCellId advance(int64 steps) const;
 
     // 在当前层级中，本网格ID距曲线起点的步长
     // Returns the number of steps that this cell is from Begin(level()). The
     // return value is always non-negative.
     /// @brief
     /// @return
-    int64 distance_from_begin() const override ;
+    int64 distance_from_begin() const;
 
 //    // Like next() and prev(), but these methods wrap around from the last face
 //    // to the first and vice versa.  They should *not* be used for iteration in
@@ -251,21 +273,21 @@ public:
     // Note that in general the cells in the tiling will be of different sizes;
     // they gradually get larger (near the middle of the range) and then
     // gradually get smaller (as "limit" is approached).
-    uint64 maximum_tile(uint64 limit) const override;
+    GTCellId maximum_tile(GTCellId limit) const;
 
     // Returns the level of the lowest common ancestor of this cell and "other",
     // that is, the maximum level such that parent(level) == other.parent(level).
     // Returns -1 if the two cells do not have any common ancestor (i.e., they
     // are from different faces).
-    int GetCommonAncestorLevel(uint64 other) const override ;
-    int GetCommonAncestorLevel(GTCellId other ) const;
+    int GetCommonAncestorLevel(GTCellId other) const;
 
     // Iterator-style methods for traversing all the cells along the Hilbert
     // curve at a given level (across all 6 faces of the cube).  Note that the
     // end value is exclusive (just like standard STL iterators), and is not a
     // valid cell id.
-    uint64 Begin(int level) override;
-    uint64 End(int level) override;
+    GTCellId Begin(int level);
+
+    GTCellId End(int level);
 
     /************************************
   *  邻居节点访问函数
@@ -275,8 +297,9 @@ public:
     // Return the four cells that are adjacent across the cell's four edges.
     // Neighbors are returned in the order defined by S2Cell::GetEdge.  All
     // neighbors are guaranteed to be distinct.
-    void GetFourNeighbors(uint64 neighbors[4]) const override ;
-    void GetEightNeighbors(uint64 neighbors[8]) const override;
+    void GetFourNeighbors(GTCellId neighbors[4]) const;
+
+    void GetEightNeighbors(GTCellId neighbors[8]) const;
 
     // 在指定的某个父层级中，与距离本网格最近的格点相邻的所有网格
     // Return the neighbors of closest vertex to this cell at the given level,
@@ -286,7 +309,7 @@ public:
     //
     // Requires: level < this->level(), so that we can determine which vertex is
     // closest (in particular, level == kMaxLevel is not allowed).
-    void AppendVertexNeighbors(int level, std::vector<uint64>* output) const override ;
+    void AppendVertexNeighbors(int level, std::vector<GTCellId> *output) const;
 
     // 在指定的某个子层级中，与本网格相邻的所有网格
     // Append all neighbors of this cell at the given level to "output".  Two
@@ -294,13 +317,11 @@ public:
     // interiors do not.  In particular, two cells that intersect at a single
     // point are neighbors.
     // REQUIRES: nbr_level >= this->level().
-    void AppendAllNeighbors(int nbr_level, std::vector<CellId>* output) const override ;
+    void AppendAllNeighbors(int nbr_level, std::vector<GTCellId> *output) const;
 
-    GTCellId ();
+    uint64 id() const;
 
-    uint64 id () const override;
-
-    friend std::ostream &operator<< (std::ostream &os, const GTCellId &id);
+    friend std::ostream &operator<<(std::ostream &os, const GTCellId &id);
 
 
     /************************************
@@ -318,9 +339,11 @@ public:
     // These methods guarantee that FromToken(ToToken(x)) == x even when
     // "x" is an invalid cell id.  All tokens are alphanumeric strings.
     // FromToken() returns CellId::None() for malformed inputs.
-    string ToToken() const  override ;
-    uint64 FromToken(const char* token, size_t length) override ;
-    uint64 FromToken(const string& token) override;
+    string ToToken() const;
+
+    GTCellId FromToken(const char *token, size_t length);
+
+    GTCellId FromToken(const string &token);
 
     /************************************
     *  编码串行化输入输出函数
@@ -332,10 +355,10 @@ public:
      * @param encoder
      */
 
-    void Encode(Encoder* const encoder) const override ;
+    void Encode(Encoder *const encoder) const;
 
     // Decodes an CellId encoded by Encode(). Returns true on success.
-    bool Decode(Decoder* const decoder) override;
+    bool Decode(Decoder *const decoder);
 
     // Creates a human readable debug string.  Used for << and available for
     // direct usage as well.  The format is "f/dd..d" where "f" is a digit in
@@ -345,39 +368,39 @@ public:
     //
     // For example "4/" represents CellId::FromFace(4), and "3/02" represents
     // CellId::FromFace(3).child(0).child(2).
-    string ToString() const override ;
+    string ToString() const;
 
 
 private:
-  // This structure occupies 44 bytes plus one pointer for the vtable.
-  uint64 id_;
-  int8 level_;
-  int8 orientation_;
+    // This structure occupies 44 bytes plus one pointer for the vtable.
+    uint64 id_;
+    int8 level_;
+    int8 orientation_;
 
 };
 
 //重载逻辑表达运算的全局函数
- inline bool operator==(GTCellId x, GTCellId y) {
+inline bool operator==(GTCellId x, GTCellId y) {
     return x.id() == y.id();
 }
 
- inline bool operator!=(GTCellId x, GTCellId y) {
+inline bool operator!=(GTCellId x, GTCellId y) {
     return x.id() != y.id();
 }
 
- inline bool operator<(GTCellId x, GTCellId y) {
+inline bool operator<(GTCellId x, GTCellId y) {
     return x.id() < y.id();
 }
 
- inline bool operator>(GTCellId x, GTCellId y) {
+inline bool operator>(GTCellId x, GTCellId y) {
     return x.id() > y.id();
 }
 
- inline bool operator<=(GTCellId x, GTCellId y) {
+inline bool operator<=(GTCellId x, GTCellId y) {
     return x.id() <= y.id();
 }
 
- inline bool operator>=(GTCellId x, GTCellId y) {
+inline bool operator>=(GTCellId x, GTCellId y) {
     return x.id() >= y.id();
 }
 
@@ -388,25 +411,21 @@ inline uint64 GTCellId::lsb() const {
     return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
 }
 
+inline  uint64 GTCellId::lsb_for_level(int level)  {
+    return 0;
+};
+
 inline bool GTCellId::is_valid() const {
     // 采用末尾补100..0方式表示层级时，至少有一个偶数位bit必须为1
     return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
 }
 
-inline GTCellId GTCellId::range_min_cell() const {
+inline GTCellId GTCellId::range_min() const {
     return GTCellId(id_ - (lsb() - 1));
 }
 
-inline GTCellId GTCellId::range_max_cell() const {
+inline GTCellId GTCellId::range_max() const {
     return GTCellId(id_ + (lsb() - 1));
-}
-
-inline uint64 GTCellId::range_min() const {
-    return range_min_cell().id();
-}
-
-inline uint64 GTCellId::range_max() const {
-    return range_max_cell().id();
 }
 
 inline int GTCellId::level() const {

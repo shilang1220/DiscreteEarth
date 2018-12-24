@@ -10,7 +10,7 @@
 #include "s2/s2latlng.h"
 #include "s2/s2pointutil.h"
 #include "core/gt_cap.h"
-#include "core/cell.h"
+#include "core/gt_cell.h"
 #include "core/gt_latlng_rect.h"
 
 GTPoint::~GTPoint() {
@@ -20,16 +20,16 @@ GTPoint* GTPoint::Clone() const {
   return new GTPoint(point_);
 }
 
-Cap GTPoint::GetCapBound() const {
-  return Cap::FromPoint(point_);
+GTCap GTPoint::GetCapBound() const {
+  return GTCap::FromPoint(point_);
 }
 
-LatLngRect GTPoint::GetRectBound() const {
+GTLatLngRect GTPoint::GetRectBound() const {
   S2LatLng ll(point_);
-  return LatLngRect(ll, ll);
+  return GTLatLngRect(ll, ll);
 }
 
-bool GTPoint::MayIntersect(const Cell& cell) const {
+bool GTPoint::MayIntersect(const GTCell& cell) const {
   return cell.Contains(point_);
 }
 

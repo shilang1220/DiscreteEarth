@@ -25,7 +25,7 @@
     
     GTLoop();
 
-    // An S2Cell always corresponds to a particular S2CellId.  The other
+    // An S2GTCell always corresponds to a particular S2GTCellId.  The other
     // constructors are just convenience methods.
     // Convenience constructors that call Init() with the given vertices.
     explicit GTLoop(const std::vector<S2Point>& vertices);
@@ -162,7 +162,7 @@
     // See also GTLoopSimplifier, which uses the same algorithm but is more
     // efficient and supports more features, and also S2Builder, which can
     // simplify polylines and polygons, supports snapping (e.g. to E7 lat/lng
-    // coordinates or S2CellId centers), and can split polylines at intersection
+    // coordinates or S2GTCellId centers), and can split polylines at intersection
     // points.
     void SubsampleVertices(S1Angle tolerance, std::vector<int>* indices) const;
 
@@ -201,10 +201,10 @@
     /////////////////////////////////////////////
 
     GTLoop* Clone() const override;
-    Cap GetCapBound() const override;
-    LatLngRect GetRectBound() const override;
-    bool Contains(const Cell& cell) const override;
-    bool MayIntersect(const Cell& cell) const override;
+    GTCap GetCapBound() const override;
+    GTLatLngRect GetRectBound() const override;
+    bool Contains(const GTCell& cell) const override;
+    bool MayIntersect(const GTCell& cell) const override;
     bool Contains(const S2Point& p) const override;
 
     //////////////////////////////////////////////////////////

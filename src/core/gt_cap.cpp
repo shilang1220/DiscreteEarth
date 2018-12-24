@@ -19,7 +19,7 @@
 #include "s2/s2pointutil.h"
 #include "util/math/vector.h"
 
-#include "core/cell.h"
+#include "core/gt_cell.h"
 #include "core/gt_latlng_rect.h"
 //#include "s2/s2edge_distances.h"
 
@@ -29,11 +29,11 @@ using std::min;
 using std::vector;
 
 
-double Cap::GetArea() const {
+double GTCap::GetArea() const {
     return 2 * M_PI * max(0.0, height());
 }
 
-S2Point Cap::GetCentroid() const {
+S2Point GTCap::GetCentroid() const {
     // From symmetry, the centroid of the cap must be somewhere on the line
     // from the origin to the center of the cap on the surface of the sphere.
     // When a sphere is divided into slices of constant thickness by a set of
@@ -46,31 +46,31 @@ S2Point Cap::GetCentroid() const {
     return r * GetArea() * center_;
 }
 
-Cap Cap::Complement() const {
+GTCap GTCap::Complement() const {
     // The complement of a full cap is an empty cap, not a singleton.
     // Also make sure that the complement of an empty cap is full.
     if (is_full()) return Empty();
     if (is_empty()) return Full();
-    return Cap(-center_, S1ChordAngle::FromLength2(4 - radius_.length2()));
+    return GTCap(-center_, S1ChordAngle::FromLength2(4 - radius_.length2()));
 }
 
-bool Cap::Contains(const Cap& other) const {
+bool GTCap::Contains(const GTCap& other) const {
     if (is_full() || other.is_empty()) return true;
     return radius_ >= S1ChordAngle(center_, other.center_) + other.radius_;
 }
 
-bool Cap::Intersects(const Cap& other) const {
+bool GTCap::Intersects(const GTCap& other) const {
     if (is_empty() || other.is_empty()) return false;
     return radius_ + other.radius_ >= S1ChordAngle(center_, other.center_);
 }
 
-bool Cap::InteriorIntersects(const Cap& other) const {
+bool GTCap::InteriorIntersects(const GTCap& other) const {
     // Make sure this cap has an interior and the other cap is non-empty.
     if (radius_.length2() <= 0 || other.is_empty()) return false;
     return radius_ + other.radius_ > S1ChordAngle(center_, other.center_);
 }
 
-void Cap::AddPoint(const S2Point& p) {
+void GTCap::AddPoint(const S2Point& p) {
     // Compute the squared chord length, then convert it into a height.
             S2_DCHECK(S2::IsUnitLength(p));
     if (is_empty()) {
@@ -84,7 +84,7 @@ void Cap::AddPoint(const S2Point& p) {
     }
 }
 
-void Cap::AddCap(const Cap& other) {
+void GTCap::AddCap(const GTCap& other) {
     if (is_empty()) {
         *this = other;
     } else {
@@ -95,13 +95,13 @@ void Cap::AddCap(const Cap& other) {
     }
 }
 
-Cap Cap::Expanded(S1Angle distance) const {
+GTCap GTCap::Expanded(S1Angle distance) const {
     S2_DCHECK_GE(distance.radians(), 0);
     if (is_empty()) return Empty();
-    return Cap(center_, radius_ + S1ChordAngle(distance));
+    return GTCap(center_, radius_ + S1ChordAngle(distance));
 }
 
-Cap Cap::Union(const Cap& other) const {
+GTCap GTCap::Union(const GTCap& other) const {
     if (radius_ < other.radius_) {
         return other.Union(*this);
     }
@@ -121,20 +121,20 @@ Cap Cap::Union(const Cap& other) const {
 //                0.5 * (distance - this_radius + other_radius),
 //                center(),
 //                other.center());
-        return Cap(result_center, result_radius);
+        return GTCap(result_center, result_radius);
     }
 }
 
-Cap* Cap::Clone() const {
-    return new Cap(*this);
+GTCap* GTCap::Clone() const {
+    return new GTCap(*this);
 }
 
-Cap Cap::GetCapBound() const {
+GTCap GTCap::GetCapBound() const {
     return *this;
 }
 
-LatLngRect Cap::GetRectBound() const {
-    if (is_empty()) return LatLngRect::Empty();
+GTLatLngRect GTCap::GetRectBound() const {
+    if (is_empty()) return GTLatLngRect::Empty();
 
     // Convert the center to a (lat,lng) pair, and compute the cap angle.
     S2LatLng center_ll(center_);
@@ -177,12 +177,12 @@ LatLngRect Cap::GetRectBound() const {
             lng[1] = remainder(center_ll.lng().radians() + angle_A, 2 * M_PI);
         }
     }
-    return LatLngRect(R1Interval(lat[0], lat[1]),
+    return GTLatLngRect(R1Interval(lat[0], lat[1]),
                         S1Interval(lng[0], lng[1]));
 }
 
 
-bool Cap::Intersects(const Cell& cell, const S2Point* vertices) const {
+bool GTCap::Intersects(const GTCell& cell, const S2Point* vertices) const {
     // Return true if this cap intersects any point of 'cell' excluding its
     // vertices (which are assumed to already have been checked).
 
@@ -227,7 +227,7 @@ bool Cap::Intersects(const Cell& cell, const S2Point* vertices) const {
     return false;
 }
 
-bool Cap::Contains(const Cell& cell) const {
+bool GTCap::Contains(const GTCell& cell) const {
     // If the cap does not contain all cell vertices, return false.
     // We check the vertices before taking the Complement() because we can't
     // accurately represent the complement of a very small cap (a height
@@ -243,7 +243,7 @@ bool Cap::Contains(const Cell& cell) const {
     return !Complement().Intersects(cell, vertices);
 }
 
-bool Cap::MayIntersect(const Cell& cell) const {
+bool GTCap::MayIntersect(const GTCell& cell) const {
     // If the cap contains any cell vertex, return true.
     S2Point vertices[4];
     for (int k = 0; k < 4; ++k) {
@@ -253,23 +253,23 @@ bool Cap::MayIntersect(const Cell& cell) const {
     return Intersects(cell, vertices);
 }
 
-bool Cap::Contains(const S2Point& p) const {
+bool GTCap::Contains(const S2Point& p) const {
             S2_DCHECK(S2::IsUnitLength(p));
     return S1ChordAngle(center_, p) <= radius_;
 }
 
-bool Cap::InteriorContains(const S2Point& p) const {
+bool GTCap::InteriorContains(const S2Point& p) const {
             S2_DCHECK(S2::IsUnitLength(p));
     return is_full() || S1ChordAngle(center_, p) < radius_;
 }
 
-bool Cap::operator==(const Cap& other) const {
+bool GTCap::operator==(const GTCap& other) const {
     return (center_ == other.center_ && radius_ == other.radius_) ||
            (is_empty() && other.is_empty()) ||
            (is_full() && other.is_full());
 }
 
-bool Cap::ApproxEquals(const Cap& other, S1Angle max_error_angle) const {
+bool GTCap::ApproxEquals(const GTCap& other, S1Angle max_error_angle) const {
     const double max_error = max_error_angle.radians();
     const double r2 = radius_.length2();
     const double other_r2 = other.radius_.length2();
@@ -281,12 +281,12 @@ bool Cap::ApproxEquals(const Cap& other, S1Angle max_error_angle) const {
            (other.is_full() && r2 >= 2 - max_error);
 }
 
-std::ostream& operator<<(std::ostream& os, const Cap& cap) {
+std::ostream& operator<<(std::ostream& os, const GTCap& cap) {
     return os << "[Center=" << cap.center()
               << ", Radius=" << cap.GetRadius() << "]";
 }
 
-void Cap::Encode(Encoder* encoder) const {
+void GTCap::Encode(Encoder* encoder) const {
     encoder->Ensure(4 * sizeof(double));
 
     encoder->putdouble(center_.x());
@@ -297,7 +297,7 @@ void Cap::Encode(Encoder* encoder) const {
     S2_DCHECK_GE(encoder->avail(), 0);
 }
 
-bool Cap::Decode(Decoder* decoder) {
+bool GTCap::Decode(Decoder* decoder) {
     if (decoder->avail() < 4 * sizeof(double)) return false;
 
     double x = decoder->getdouble();
@@ -307,7 +307,7 @@ bool Cap::Decode(Decoder* decoder) {
     radius_ = S1ChordAngle::FromLength2(decoder->getdouble());
 
     if (FLAGS_s2debug) {
-        S2_CHECK(is_valid()) << "Invalid Cap: " << *this;
+        S2_CHECK(is_valid()) << "Invalid GTCap: " << *this;
     }
     return true;
 }

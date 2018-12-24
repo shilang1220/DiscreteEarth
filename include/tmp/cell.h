@@ -13,7 +13,7 @@
 
 #include "s2/r2rect.h"
 #include "s2/s1chord_angle.h"
-#include "core/cell_id.h"
+#include "cell_id.h"
 #include "core/region.h"
 #include "util/math/vector.h"
 

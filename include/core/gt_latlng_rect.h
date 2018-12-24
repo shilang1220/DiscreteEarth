@@ -23,19 +23,19 @@
 class Decoder;
 class Encoder;
 class Cap;
-class Cell;
+class GTCell;
 
 //表示封闭的经纬度矩形
-// An LatLngRect represents a closed latitude-longitude rectangle.  It is
+// An GTLatLngRect represents a closed latitude-longitude rectangle.  It is
 // capable of representing the empty and full rectangles as well as single
 // points.  Note that the latitude-longitude space is considered to have a
 // *cylindrical* topology rather than a spherical one, i.e. the poles have
-// multiple lat/lng representations.  An LatLngRect may be defined so that
+// multiple lat/lng representations.  An GTLatLngRect may be defined so that
 // includes some representations of a pole but not others.  Use the
 // PolarClosure() method if you want to expand a rectangle so that it contains
 // all possible representations of any contained poles.
 //
-// Because LatLngRect uses S1Interval to store the longitude range,
+// Because GTLatLngRect uses S1Interval to store the longitude range,
 // longitudes of -180 degrees are treated specially.  Except for empty
 // and full longitude spans, -180 degree longitudes will turn into +180
 // degrees.  This sign flip causes lng_lo() to be greater than lng_hi(),
@@ -48,23 +48,23 @@ class Cell;
 // This class is intended to be copied by value as desired.  It uses
 // the default copy constructor and assignment operator, however it is
 // not a "plain old datatype" (POD) because it has virtual functions.
-class GT_API  LatLngRect final : public Region {
+class GT_API  GTLatLngRect final : public Region {
 public:
     // Construct a rectangle from minimum and maximum latitudes and longitudes.
     // If lo.lng() > hi.lng(), the rectangle spans the 180 degree longitude
     // line. Both points must be normalized, with lo.lat() <= hi.lat().
     // The rectangle contains all the points p such that 'lo' <= p <= 'hi',
     // where '<=' is defined in the obvious way.
-    LatLngRect(const S2LatLng& lo, const S2LatLng& hi);
+    GTLatLngRect(const S2LatLng& lo, const S2LatLng& hi);
 
     // Construct a rectangle from latitude and longitude intervals.  The two
     // intervals must either be both empty or both non-empty, and the latitude
     // interval must not extend outside [-90, +90] degrees.
     // Note that both intervals (and hence the rectangle) are closed.
-    LatLngRect(const R1Interval& lat, const S1Interval& lng);
+    GTLatLngRect(const R1Interval& lat, const S1Interval& lng);
 
-    // The default constructor creates an empty LatLngRect.
-    LatLngRect();
+    // The default constructor creates an empty GTLatLngRect.
+    GTLatLngRect();
 
     // Construct a rectangle of the given size centered around the given point.
     // "center" needs to be normalized, but "size" does not.  The latitude
@@ -75,18 +75,18 @@ public:
     //   center=(80,170),  size=(40,60)   -> lat=[60,90],   lng=[140,-160]
     //   center=(10,40),   size=(210,400) -> lat=[-90,90],  lng=[-180,180]
     //   center=(-90,180), size=(20,50)   -> lat=[-90,-80], lng=[155,-155]
-    static LatLngRect FromCenterSize(const S2LatLng& center,
+    static GTLatLngRect FromCenterSize(const S2LatLng& center,
                                        const S2LatLng& size);
 
     // Construct a rectangle containing a single (normalized) point.
-    static LatLngRect FromPoint(const S2LatLng& p);
+    static GTLatLngRect FromPoint(const S2LatLng& p);
 
     // Construct the minimal bounding rectangle containing the two given
     // normalized points.  This is equivalent to starting with an empty
     // rectangle and calling AddPoint() twice.  Note that it is different than
-    // the LatLngRect(lo, hi) constructor, where the first point is always
+    // the GTLatLngRect(lo, hi) constructor, where the first point is always
     // used as the lower-left corner of the resulting rectangle.
-    static LatLngRect FromPointPair(const S2LatLng& p1, const S2LatLng& p2);
+    static GTLatLngRect FromPointPair(const S2LatLng& p1, const S2LatLng& p2);
 
     // Accessor methods.
     S1Angle lat_lo() const { return S1Angle::Radians(lat_.lo()); }
@@ -103,9 +103,9 @@ public:
     // The canonical empty and full rectangles, as derived from the Empty
     // and Full R1 and S1 Intervals.
     // Empty: lat_lo=1, lat_hi=0, lng_lo=Pi, lng_hi=-Pi (radians)
-    static LatLngRect Empty();
+    static GTLatLngRect Empty();
     // Full: lat_lo=-Pi/2, lat_hi=Pi/2, lng_lo=-Pi, lng_hi=Pi (radians)
-    static LatLngRect Full();
+    static GTLatLngRect Full();
 
     // The full allowable range of latitudes and longitudes.
     static R1Interval FullLat() { return R1Interval(-M_PI_2, M_PI_2); }
@@ -175,23 +175,23 @@ public:
 
     // Returns true if and only if the rectangle contains the given other
     // rectangle.
-    bool Contains(const LatLngRect& other) const;
+    bool Contains(const GTLatLngRect& other) const;
 
     // Returns true if and only if the interior of this rectangle contains all
     // points of the given other rectangle (including its boundary).
-    bool InteriorContains(const LatLngRect& other) const;
+    bool InteriorContains(const GTLatLngRect& other) const;
 
     // Returns true if this rectangle and the given other rectangle have any
     // points in common.
-    bool Intersects(const LatLngRect& other) const;
+    bool Intersects(const GTLatLngRect& other) const;
 
     // Returns true if this rectangle intersects the given cell.  (This is an
     // exact test and may be fairly expensive, see also MayIntersect below.)
-    bool Intersects(const Cell& cell) const;
+    bool Intersects(const GTCell& cell) const;
 
     // Returns true if and only if the interior of this rectangle intersects
     // any point (including the boundary) of the given other rectangle.
-    bool InteriorIntersects(const LatLngRect& other) const;
+    bool InteriorIntersects(const GTLatLngRect& other) const;
 
     // Returns true if the boundary of this rectangle intersects the given
     // geodesic edge (v0, v1).
@@ -225,22 +225,22 @@ public:
     //
     // If you are trying to grow a rectangle by a certain *distance* on the
     // sphere (e.g. 5km), use the ExpandedByDistance() method instead.
-    LatLngRect Expanded(const S2LatLng& margin) const;
+    GTLatLngRect Expanded(const S2LatLng& margin) const;
 
     // If the rectangle does not include either pole, returns it unmodified.
     // Otherwise expands the longitude range to Full() so that the rectangle
     // contains all possible representations of the contained pole(s).
-    LatLngRect PolarClosure() const;
+    GTLatLngRect PolarClosure() const;
 
     // Returns the smallest rectangle containing the union of this rectangle and
     // the given rectangle.
-    LatLngRect Union(const LatLngRect& other) const;
+    GTLatLngRect Union(const GTLatLngRect& other) const;
 
     // Returns the smallest rectangle containing the intersection of this
     // rectangle and the given rectangle.  Note that the region of intersection
     // may consist of two disjoint rectangles, in which case a single rectangle
     // spanning both of them is returned.
-    LatLngRect Intersection(const LatLngRect& other) const;
+    GTLatLngRect Intersection(const GTLatLngRect& other) const;
 
     // Expands this rectangle so that it contains all points within the given
     // distance of the boundary, and return the smallest such rectangle.  If the
@@ -278,11 +278,11 @@ public:
     // (approximately), so long as the first operation does not cause a
     // rectangle boundary to disappear (i.e., the longitude range newly becomes
     // full or empty, or the latitude range expands to include a pole).
-    LatLngRect ExpandedByDistance(S1Angle distance) const;
+    GTLatLngRect ExpandedByDistance(S1Angle distance) const;
 
     // Returns the minimum distance (measured along the surface of the sphere) to
-    // the given LatLngRect. Both LatLngRects must be non-empty.
-    S1Angle GetDistance(const LatLngRect& other) const;
+    // the given GTLatLngRect. Both GTLatLngRects must be non-empty.
+    S1Angle GetDistance(const GTLatLngRect& other) const;
 
     // Returns the minimum distance (measured along the surface of the sphere)
     // from a given point to the rectangle (both its boundary and its interior).
@@ -290,54 +290,54 @@ public:
     S1Angle GetDistance(const S2LatLng& p) const;
 
     // Returns the (directed or undirected) Hausdorff distance (measured along the
-    // surface of the sphere) to the given LatLngRect. The directed Hausdorff
+    // surface of the sphere) to the given GTLatLngRect. The directed Hausdorff
     // distance from rectangle A to rectangle B is given by
     //     h(A, B) = max_{p in A} min_{q in B} d(p, q).
     // The Hausdorff distance between rectangle A and rectangle B is given by
     //     H(A, B) = max{h(A, B), h(B, A)}.
-    S1Angle GetDirectedHausdorffDistance(const LatLngRect& other) const;
-    S1Angle GetHausdorffDistance(const LatLngRect& other) const;
+    S1Angle GetDirectedHausdorffDistance(const GTLatLngRect& other) const;
+    S1Angle GetHausdorffDistance(const GTLatLngRect& other) const;
 
     // Returns true if two rectangles contains the same set of points.
-    bool operator==(const LatLngRect& other) const;
+    bool operator==(const GTLatLngRect& other) const;
 
     // Returns the opposite of what operator == returns.
-    bool operator!=(const LatLngRect& other) const;
+    bool operator!=(const GTLatLngRect& other) const;
 
     // Returns true if the latitude and longitude intervals of the two rectangles
     // are the same up to the given tolerance (see r1interval.h and s1interval.h
     // for details).
-    bool ApproxEquals(const LatLngRect& other,
+    bool ApproxEquals(const GTLatLngRect& other,
                       S1Angle max_error = S1Angle::Radians(1e-15)) const;
 
     // ApproxEquals() with separate tolerances for latitude and longitude.
-    bool ApproxEquals(const LatLngRect& other, const S2LatLng& max_error) const;
+    bool ApproxEquals(const GTLatLngRect& other, const S2LatLng& max_error) const;
 
     ////////////////////////////////////////////////////////////////////////
     // Region interface (see Region.h for details):
 
-    LatLngRect* Clone() const override;
-    Cap GetCapBound() const override;
-    LatLngRect GetRectBound() const override;
-    bool Contains(const Cell& cell) const override;
+    GTLatLngRect* Clone() const override;
+    GTCap GetCapBound() const override;
+    GTLatLngRect GetRectBound() const override;
+    bool Contains(const GTCell& cell) const override;
 
     // This test is cheap but is NOT exact.  Use Intersects() if you want a more
     // accurate and more expensive test.  Note that when this method is used by
     // an RegionCoverer, the accuracy isn't all that important since if a cell
     // may intersect the region then it is subdivided, and the accuracy of this
     // method goes up as the cells get smaller.
-    bool MayIntersect(const Cell& cell) const override;
+    bool MayIntersect(const GTCell& cell) const override;
 
     // The point 'p' does not need to be normalized.
     bool Contains(const S2Point& p) const override;
 
-    // Appends a serialized representation of the LatLngRect to "encoder".
+    // Appends a serialized representation of the GTLatLngRect to "encoder".
     //
     // REQUIRES: "encoder" uses the default constructor, so that its buffer
     //           can be enlarged as necessary by calling Ensure(int).
     void Encode(Encoder* const encoder) const;
 
-    // Decodes an LatLngRect encoded with Encode().  Returns true on success.
+    // Decodes an GTLatLngRect encoded with Encode().  Returns true on success.
     bool Decode(Decoder* const decoder);
 
     // Returns true if the edge AB intersects the given edge of constant
@@ -368,34 +368,34 @@ private:
 };
 
 
-std::ostream& operator<<(std::ostream& os, const LatLngRect& r);
+std::ostream& operator<<(std::ostream& os, const GTLatLngRect& r);
 
-inline LatLngRect::LatLngRect(const S2LatLng& lo, const S2LatLng& hi)
+inline GTLatLngRect::GTLatLngRect(const S2LatLng& lo, const S2LatLng& hi)
         : lat_(lo.lat().radians(), hi.lat().radians()),
           lng_(lo.lng().radians(), hi.lng().radians()) {
             S2_DLOG_IF(ERROR, !is_valid())
             << "Invalid rect: " << lo << ", " << hi;
 }
 
-inline LatLngRect::LatLngRect(const R1Interval& lat, const S1Interval& lng)
+inline GTLatLngRect::GTLatLngRect(const R1Interval& lat, const S1Interval& lng)
         : lat_(lat), lng_(lng) {
             S2_DLOG_IF(ERROR, !is_valid())
             << "Invalid rect: " << lat << ", " << lng;
 }
 
-inline LatLngRect::LatLngRect()
+inline GTLatLngRect::GTLatLngRect()
         : lat_(R1Interval::Empty()), lng_(S1Interval::Empty()) {
 }
 
-inline LatLngRect LatLngRect::Empty() {
-    return LatLngRect();
+inline GTLatLngRect GTLatLngRect::Empty() {
+    return GTLatLngRect();
 }
 
-inline LatLngRect LatLngRect::Full() {
-    return LatLngRect(FullLat(), FullLng());
+inline GTLatLngRect GTLatLngRect::Full() {
+    return GTLatLngRect(FullLat(), FullLng());
 }
 
-inline bool LatLngRect::is_valid() const {
+inline bool GTLatLngRect::is_valid() const {
     // The lat/lng ranges must either be both empty or both non-empty.
     return (std::fabs(lat_.lo()) <= M_PI_2 &&
             std::fabs(lat_.hi()) <= M_PI_2 &&
@@ -403,23 +403,23 @@ inline bool LatLngRect::is_valid() const {
             lat_.is_empty() == lng_.is_empty());
 }
 
-inline bool LatLngRect::is_empty() const {
+inline bool GTLatLngRect::is_empty() const {
     return lat_.is_empty();
 }
 
-inline bool LatLngRect::is_full() const {
+inline bool GTLatLngRect::is_full() const {
     return lat_ == FullLat() && lng_.is_full();
 }
 
-inline bool LatLngRect::is_point() const {
+inline bool GTLatLngRect::is_point() const {
     return lat_.lo() == lat_.hi() && lng_.lo() == lng_.hi();
 }
 
-inline bool LatLngRect::operator==(const LatLngRect& other) const {
+inline bool GTLatLngRect::operator==(const GTLatLngRect& other) const {
     return lat() == other.lat() && lng() == other.lng();
 }
 
-inline bool LatLngRect::operator!=(const LatLngRect& other) const {
+inline bool GTLatLngRect::operator!=(const GTLatLngRect& other) const {
     return !operator==(other);
 }
 

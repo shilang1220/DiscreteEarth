@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "gt_cell_union.h"
+#include "core/gt_cell_union.h"
 
 #include <algorithm>
 #include <vector>
@@ -25,22 +25,20 @@
 #include "util/coding/coder.h"
 
 #include "s2/s1angle.h"
-#include "../../src/tmp/s2metrics.h"
-
+#include "core/gt_metrics.h"
 #include "core/gt_latlng_rect.h"
 #include "core/gt_cap.h"
-
 #include "core/gt_cell.h"
 #include "core/gt_cell_id.h"
-
+#include "core/gt_coords.h"
 
 using std::is_sorted;
 using std::max;
 using std::min;
 using std::vector;
 
-DEFINE_int32(s2cell_union_decode_max_num_cells, 1000000,
-             "The maximum number of cells allowed by GTCellUnion::Decode");
+//DEFINE_int32(s2cell_union_decode_max_num_cells, 1000000,
+//             "The maximum number of cells allowed by GTCellUnion::Decode");
 
 static const unsigned char kCurrentLosslessEncodingVersionNumber = 1;
 
@@ -85,8 +83,8 @@ void GTCellUnion::InitFromBeginEnd(GTCellId begin, GTCellId end) {
 
   // We repeatedly add the largest cell we can.
   cell_ids_.clear();
-  for (GTCellId id = begin.maximum_tile(end.id());
-       id != end; id = id.next().maximum_tile(end.id())) {
+  for (GTCellId id = begin.maximum_tile(end);
+       id != end; id = id.next().maximum_tile(end)) {
     cell_ids_.push_back(id);
   }
   // The output is already normalized.
@@ -119,8 +117,7 @@ inline static bool AreSiblings(GTCellId a, GTCellId b, GTCellId c, GTCellId d) {
   uint64 id_masked = (d.id() & mask);
   return ((a.id() & mask) == id_masked &&
           (b.id() & mask) == id_masked &&
-          (c.id() & mask) == id_masked &&
-          !d.is_face());
+          (c.id() & mask) == id_masked );
 }
 
 bool GTCellUnion::IsValid() const {
@@ -200,7 +197,7 @@ void GTCellUnion::Denormalize(const vector<GTCellId>& in,
       // Round up so that (new_level - min_level) is a multiple of level_mod.
       // (Note that GTCellId::kMaxLevel is a multiple of 1, 2, and 3.)
       new_level += (GTCellId::kMaxLevel - (new_level - min_level)) % level_mod;
-      new_level = min(GTCellId::kMaxLevel, new_level);
+      new_level = min(int(GTCellId::kMaxLevel), new_level);
     }
     if (new_level == level) {
       out->push_back(id);
@@ -217,13 +214,13 @@ GTCap GTCellUnion::GetCapBound() const {
   // Compute the approximate centroid of the region.  This won't produce the
   // bounding cap of minimal area, but it should be close enough.
   if (cell_ids_.empty()) return GTCap::Empty();
-  GTPoint centroid(0, 0, 0);
+  S2Point centroid(0, 0, 0);
   for (GTCellId id : *this) {
     double area = GTCell::AverageArea(id.level());
     centroid += area * id.ToPoint();
   }
-  if (centroid == GTPoint(0, 0, 0)) {
-    centroid = GTPoint(1, 0, 0);
+  if (centroid == S2Point(0, 0, 0)) {
+    centroid = S2Point(1, 0, 0);
   } else {
     centroid = centroid.Normalize();
   }
@@ -421,14 +418,14 @@ void GTCellUnion::Expand(S1Angle min_radius, int max_level_diff) {
   for (GTCellId id : *this) {
     min_level = min(min_level, id.level());
   }
-  // Find the maximum level such that all cells are at least "min_radius" wide.
-  int radius_level = GT::kMinWidth.GetLevelForMinValue(min_radius.radians());
-  if (radius_level == 0 && min_radius.radians() > GT::kMinWidth.GetValue(0)) {
-    // The requested expansion is greater than the width of a face cell.
-    // The easiest way to handle this is to expand twice.
-    Expand(0);
-  }
-  Expand(min(min_level + max_level_diff, radius_level));
+//  // Find the maximum level such that all cells are at least "min_radius" wide.
+//  int radius_level = GT::kMinWidth.GetLevelForMinValue(min_radius.radians());
+//  if (radius_level == 0 && min_radius.radians() > GT::kMinWidth.GetValue(0)) {
+//    // The requested expansion is greater than the width of a face cell.
+//    // The easiest way to handle this is to expand twice.
+//    Expand(0);
+//  }
+//  Expand(min(min_level + max_level_diff, radius_level));
 }
 
 uint64 GTCellUnion::LeafCellsCovered() const {
@@ -468,11 +465,11 @@ bool operator!=(const GTCellUnion& x, const GTCellUnion& y) {
   return x.cell_ids() != y.cell_ids();
 }
 
-bool GTCellUnion::Contains(const Cell& cell) const {
+bool GTCellUnion::Contains(const GTCell& cell) const {
   return Contains(cell.id());
 }
 
-bool GTCellUnion::MayIntersect(const Cell& cell) const {
+bool GTCellUnion::MayIntersect(const GTCell& cell) const {
   return Intersects(cell.id());
 }
 
@@ -496,9 +493,9 @@ bool GTCellUnion::Decode(Decoder* const decoder) {
   if (version > kCurrentLosslessEncodingVersionNumber) return false;
 
   uint64 num_cells = decoder->get64();
-  if (num_cells > FLAGS_s2cell_union_decode_max_num_cells) {
-    return false;
-  }
+//  if (num_cells > FLAGS_s2cell_union_decode_max_num_cells) {
+//    return false;
+//  }
 
   vector<GTCellId> temp_cell_ids(num_cells);
   for (int i = 0; i < num_cells; ++i) {

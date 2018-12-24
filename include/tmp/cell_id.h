@@ -162,22 +162,22 @@ public:
     // Note that Sentinel().range_min() == Sentinel.range_max() == Sentinel().
     // 本网格包含的子面片中ID的最小值
     // 本网格包含的子面片中ID的最大值
-    virtual uint64 range_min() const = 0 ;
-    virtual uint64 range_max() const = 0 ;
+    virtual CellId& range_min() const = 0 ;
+    virtual CellId& range_max() const = 0 ;
 
     /************************************
     *  网格空间关系计算函数
     ************************************/
     // 判断本网格是否包含某个网格（other是否自己的子孙网格）
     // Return true if the given cell is contained within this one.
-    virtual bool contains(const uint64 other) const = 0 ;
+    virtual bool contains(const CellId& other) const = 0 ;
 
     //判断本网格是否某个网格other的子孙网格
-    virtual bool isChildOf(const uint64 other) const = 0 ;
+    virtual bool isChildOf(const CellId& other) const = 0 ;
 
     // 判断本网格是否和某个网格相交
     // Return true if the given cell intersects this one.
-    virtual bool intersects(const uint64 other) const = 0 ;
+    virtual bool intersects(const CellId& other) const = 0 ;
 
     /************************************
     *  祖先节点或子孙节点访问函数
@@ -185,14 +185,14 @@ public:
     // 返回父面片的ID
     // Return the cell at the previous level or at the given level (which must
     // be less than or equal to the current level).
-   virtual uint64 parentID() const = 0 ;
+   virtual CellId& parent() const = 0 ;
    // 返回某个层级父面片的ID
-   virtual uint64 parentID(int level) const = 0 ;
+   virtual CellId& parent(int level) const = 0 ;
 
     // 返回某个子面片的ID（0..3）
     // Return the immediate child of this cell at the given traversal order
     // position (in the range 0 to 3).  This cell must not be a leaf cell.
-    virtual uint64 child(int position) const = 0 ;
+    virtual CellId& child(int position) const = 0 ;
 
     // Iterator-style methods for traversing the immediate children of a cell or
     // all of the children at a given level (greater than or equal to the current
@@ -206,23 +206,23 @@ public:
     // The convention for advancing the iterator is "c = c.next()" rather
     // than "++c" to avoid possible confusion with incrementing the
     // underlying 64-bit cell id.
-    virtual uint64 child_begin() const = 0 ;
-    virtual uint64 child_begin(int level) const = 0 ;
-    virtual uint64 child_end() const = 0 ;
-    virtual uint64 child_end(int level) const = 0 ;
+    virtual CellId& child_begin() const = 0 ;
+    virtual CellId& child_begin(int level) const = 0 ;
+    virtual CellId& child_end() const = 0 ;
+    virtual CellId& child_end(int level) const = 0 ;
 
     // 指定层级子孙中，沿曲线的下一个子节点或上一个子节点ID
     // Return the next/previous cell at the same level along the Hilbert curve.
     // Works correctly when advancing from one face to the next, but
     // does *not* wrap around from the last face to the first or vice versa.
-    virtual  uint64 next() const = 0 ;
-    virtual uint64 prev() const = 0 ;
+    virtual  CellId& next() const = 0 ;
+    virtual CellId& prev() const = 0 ;
 
     // 在当前层级中，沿着曲线向前跳steps部的网格ID
     // This method advances or retreats the indicated number of steps along the
     // Hilbert curve at the current level, and returns the new position.  The
     // position is never advanced past End() or before Begin().
-    virtual  uint64 advance(int64 steps) const = 0 ;
+    virtual  CellId& advance(int64 steps) const = 0 ;
 
     // 在当前层级中，本网格ID距曲线起点的步长
     // Returns the number of steps that this cell is from Begin(level()). The
@@ -241,22 +241,22 @@ public:
     // Note that in general the cells in the tiling will be of different sizes;
     // they gradually get larger (near the middle of the range) and then
     // gradually get smaller (as "limit" is approached).
-    virtual uint64 maximum_tile(uint64 limit) const = 0;
+    virtual CellId& maximum_tile(CellId& limit) const = 0;
 
     //返回本网格和指定网格other的共同祖先所在的层
     // Returns the level of the lowest common ancestor of this cell and "other",
     // that is, the maximum level such that parent(level) == other.parent(level).
     // Returns -1 if the two cells do not have any common ancestor (i.e., they
     // are from different faces).
-    virtual int GetCommonAncestorLevel(uint64 other) const = 0 ;
+    virtual int GetCommonAncestorLevel(GTCellId other) const = 0 ;
 
     // 迭代器风格的函数，可用于遍历访问某一层级的所有网格
     // Iterator-style methods for traversing all the cells along the Hilbert
     // curve at a given level (across all 6 faces of the cube).  Note that the
     // end value is exclusive (just like standard STL iterators), and is not a
     // valid cell id.
-    virtual uint64 Begin(int level) = 0;
-    virtual uint64 End(int level) = 0;
+    virtual CellId Begin(int level) = 0;
+    virtual CellId End(int level) = 0;
 
      /************************************
     *  邻居节点访问函数
@@ -266,8 +266,8 @@ public:
     // Return the four cells that are adjacent across the cell's four edges.
     // Neighbors are returned in the order defined by S2Cell::GetEdge.  All
     // neighbors are guaranteed to be distinct.
-    virtual void GetFourNeighbors(uint64 neighbors[4]) const = 0 ;
-    virtual void GetEightNeighbors(uint64 neighbors[8]) const = 0 ;
+    virtual void GetFourNeighbors(CellId neighbors[4]) const = 0 ;
+    virtual void GetEightNeighbors(CellId neighbors[8]) const = 0 ;
 
     // 在指定的某个父层级中，与距离本网格最近的格点相邻的所有网格
     // Return the neighbors of closest vertex to this cell at the given level,
@@ -277,7 +277,7 @@ public:
     //
     // Requires: level < this->level(), so that we can determine which vertex is
     // closest (in particular, level == kMaxLevel is not allowed).
-    virtual void AppendVertexNeighbors(int level, std::vector<uint64>* output) const = 0 ;
+    virtual void AppendVertexNeighbors(int level, std::vector<CellId>* output) const = 0 ;
 
     // 在指定的某个子层级中，与本网格相邻的所有网格
     // Append all neighbors of this cell at the given level to "output".  Two
@@ -305,8 +305,8 @@ public:
     // "x" is an invalid cell id.  All tokens are alphanumeric strings.
     // FromToken() returns CellId::None() for malformed inputs.
     virtual string ToToken() const  = 0 ;
-    virtual  uint64 FromToken(const char* token, size_t length) = 0 ;
-    virtual  uint64 FromToken(const string& token) = 0 ;
+    virtual  CellId FromToken(const char* token, size_t length) = 0 ;
+    virtual  CellId FromToken(const string& token) = 0 ;
 
     /************************************
     *  编码串行化输入输出函数

@@ -52,7 +52,7 @@
 
 #include "s2/s2point.h"
 
-//球面三角形或弧的质心计算类
+//空间三角形和球面的质心计算类
 
 namespace S2 {
 
