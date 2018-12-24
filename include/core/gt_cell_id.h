@@ -33,14 +33,14 @@ class GT_API GTCellId {
 
 public:
     ///////////////////////////////////////////////
-    // 基本参数定义
+    // Basic parameters
     //////////////////////////////////////////////
-    static const unsigned int kMaxLevel = GT::kMaxCellLevel;     // 有效层数    31层   Valid levels: 0..kMaxLevel
-    static const unsigned int kPosBits = 2 * kMaxLevel;          // 有效bit数   62位   最末尾两个bit只用于区分层级（以'10'结尾表示第31层网格编码）
-    static const unsigned int kMaxSize = 1 << kMaxLevel;         // X/Y方向最大尺寸    2**31次方
+    static const unsigned int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 0-31 levels
+    static const unsigned int kPosBits = 2 * kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
+    static const unsigned int kMaxSize = 1 << kMaxLevel;         // Valid cell number, numbers of column and row at 31 levels must be 2**31.
 
     //////////////////////////////////////////////
-    // 编码示例： 下面两个字节能够表示7级网格
+    // ID examples： 下面两个字节能够表示7级网格
     // 0b 0010 0000 0000 0000  第2级的第3个子网格
     // 0b 1101 1100 1000 0000  第4级的第1个子网格
     // 0b 1101 1100 1110 0000  第5级的第4个子网格
@@ -62,8 +62,10 @@ public:
     // 构造函数
     //////////////////////////////////////////////
 
+    //Default constructor set id_ as an invalid id number.
     GTCellId() { id_ = 0; }
 
+    // Construct using a known id number;
     explicit GTCellId(const uint64 id) { id_ = id; }
 
     // Construct a leaf cell containing the given point "p".
@@ -72,11 +74,9 @@ public:
     // Construct a leaf cell containing the given S2LatLng.
     explicit GTCellId(const S2LatLng ll);
 
-
     /************************************
     *  GEOSOT网格ID与球面坐标之间的转换函数
     ************************************/
-    // 返回网格中心点对应的球面坐标
     // Return the direction vector corresponding to the center of the given
     // cell.  The vector returned by ToPointRaw is not necessarily unit length.
     // This method returns the same result as S2Cell::GetCenter().
