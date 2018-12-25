@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////
 bool GT::IJtoUV (const uint32 I, const uint32 J, double *pU, double *pV) {
     bool bRet = false;
-
+    // uint32 I_=I,J_=J;
     //边界检查
     S2_DCHECK_LE(I , 0XFFFFFFFE);
     S2_DCHECK_LE(J , 0XFFFFFFFE);
@@ -45,20 +45,25 @@ bool GT::IJtoUV (const uint32 I, const uint32 J, double *pU, double *pV) {
     unsigned int int_binary2code_B = J,int_binary2code_L = I;
     unsigned int  degreeLat,degreeLng,minuteLat,minuteLng,secondLat,secondLng;
 
-    int_binary2code_B = J & 0X7FFFFFFFF;
-    int_binary2code_L = I & 0X7FFFFFFFF;
+    // std::cout<<std::hex<<I<<std::endl;
+    // std::cout<<std::hex<<J<<std::endl;
+    // std::cout<<std::hex<<(I_& 0X7FFFFFFF)<<std::endl;
+    // std::cout<<std::hex<<(J_& 0X7FFFFFFF)<<std::endl;
+
+    int_binary2code_B = J & 0X7FFFFFFF;
+    int_binary2code_L = I & 0X7FFFFFFF;
 
     //整度
     degreeLat = (int)(int_binary2code_B >> 23);                 // 9bit度
     degreeLng = (int)(int_binary2code_L >> 23);                 // 9bit度
 
-    S2_DCHECK_LE(degreeLat , 90);                              //不得大于90度
-    S2_DCHECK_LE(degreeLng , 180);                              //不得大于180度
+    S2_DCHECK_LE(degreeLat , 90+DBL_EPSILON);                              //不得大于90度
+    S2_DCHECK_LE(degreeLng , 180+DBL_EPSILON);                              //不得大于180度
     //整分
     minuteLat = (int)((int_binary2code_B  & 0X007FFFFF) >> 17); // 6bit分
     minuteLng = (int)((int_binary2code_B  & 0X007FFFFF) >> 17); // 6bit分
-    S2_DCHECK_LT(minuteLat , 60);                               //不得大于60分
-    S2_DCHECK_LT(minuteLng , 60);                               //不得大于60分
+    S2_DCHECK_LT(minuteLat , 60+DBL_EPSILON);                               //不得大于60分
+    S2_DCHECK_LT(minuteLng , 60+DBL_EPSILON);                               //不得大于60分
 
     //整1/2048秒
     secondLat = (int)(int_binary2code_B & 0X0001FFFF);          //17bit秒

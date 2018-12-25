@@ -15,8 +15,8 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#ifndef S2_S2LATLNG_RECT_BOUNDER_H_
-#define S2_S2LATLNG_RECT_BOUNDER_H_
+#ifndef GT_LATLNG_RECT_BOUNDER_GENERATOR_H
+#define GT_LATLNG_RECT_BOUNDER_GENERATOR_H
 
 #include "_fp_contract_off.h"
 #include "exports.h"
@@ -38,9 +38,9 @@
 // guarantees the following.  Let L be a closed edge chain (loop) such that
 // the interior of the loop does not contain either pole.  Now if P is any
 // point such that L.Contains(P), then RectBound(L).Contains(S2LatLng(P)).
- class GT_API LatLngRectBounder {
+ class GT_API GTLatLngRectBounderGenerator {
  public:
-  LatLngRectBounder() : bound_(LatLngRect::Empty()) {}
+  GTLatLngRectBounderGenerator() : bound_(GTLatLngRect::Empty()) {}
 
   // This method is called to add a vertex to the chain when the vertex is
   // represented as an S2Point.  Requires that 'b' has unit length.  Repeated
@@ -55,7 +55,7 @@
   // vertices defined so far.  This bound satisfies the guarantee made
   // above, i.e. if the edge chain defines a loop, then the bound contains
   // the S2LatLng coordinates of all S2Points contained by the loop.
-  LatLngRect GetBound() const;
+  GTLatLngRect GetBound() const;
 
   // Expands a bound returned by GetBound() so that it is guaranteed to
   // contain the bounds of any subregion whose bounds are computed using
@@ -71,7 +71,7 @@
   // is a loop such that L.Contains(S), then
   //
   //   ExpandForSubregions(RectBound(L)).Contains(RectBound(S)).
-  static LatLngRect ExpandForSubregions(const LatLngRect& bound);
+  static GTLatLngRect ExpandForSubregions(const GTLatLngRect& bound);
 
   // Returns the maximum error in GetBound() provided that the result does
   // not include either pole.  It is only to be used for testing purposes
@@ -85,10 +85,10 @@
 
   S2Point a_;             // The previous vertex in the chain.
   S2LatLng a_latlng_;     // The corresponding latitude-longitude.
-  LatLngRect bound_;    // The current bounding rectangle.
+  GTLatLngRect bound_;    // The current bounding rectangle.
 
-  LatLngRectBounder(const LatLngRectBounder&) = delete;
-  void operator=(const LatLngRectBounder&) = delete;
+  GTLatLngRectBounderGenerator(const GTLatLngRectBounderGenerator&) = delete;
+  void operator=(const GTLatLngRectBounderGenerator&) = delete;
 };
 
-#endif  // S2_S2LATLNG_RECT_BOUNDER_H_
+#endif  // GT_LATLNG_RECT_BOUNDER_GENERATOR_H

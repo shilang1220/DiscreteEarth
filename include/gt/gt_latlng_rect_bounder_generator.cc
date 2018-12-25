@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "gt/gt_latlng_rect_bounder.h"
+#include "gt/gt_latlng_rect_bounder_generator.h"
 
 #include <cfloat>
 #include <cmath>
@@ -31,16 +31,16 @@ using std::fabs;
 using std::max;
 using std::min;
 
-void LatLngRectBounder::AddPoint(const S2Point& b) {
+void GTLatLngRectBounderGenerator::AddPoint(const S2Point& b) {
   S2_DCHECK(S2::IsUnitLength(b));
   AddInternal(b, S2LatLng(b));
 }
 
-void LatLngRectBounder::AddLatLng(const S2LatLng& b_latlng) {
+void GTLatLngRectBounderGenerator::AddLatLng(const S2LatLng& b_latlng) {
   AddInternal(b_latlng.ToPoint(), b_latlng);
 }
 
-void LatLngRectBounder::AddInternal(const S2Point& b,
+void GTLatLngRectBounderGenerator::AddInternal(const S2Point& b,
                                       const S2LatLng& b_latlng) {
   // Simple consistency check to verify that b and b_latlng are alternate
   // representations of the same vertex.
@@ -75,13 +75,13 @@ void LatLngRectBounder::AddInternal(const S2Point& b,
         // The two points are nearly antipodal.  The easiest solution is to
         // assume that the edge between A and B could go in any direction
         // around the sphere.
-        bound_ = LatLngRect::Full();
+        bound_ = GTLatLngRect::Full();
       } else {
         // The two points are nearly identical (to within 4.309 * DBL_EPSILON).
         // In this case we can just use the bounding rectangle of the points,
         // since after the expansion done by GetBound() this rectangle is
         // guaranteed to include the (lat,lng) values of all points along AB.
-        bound_ = bound_.Union(LatLngRect::FromPointPair(a_latlng_, b_latlng));
+        bound_ = bound_.Union(GTLatLngRect::FromPointPair(a_latlng_, b_latlng));
       }
     } else {
       // Compute the longitude range spanned by AB.
@@ -165,14 +165,14 @@ void LatLngRectBounder::AddInternal(const S2Point& b,
           lat_ab.set_lo(max(-max_lat, lat_ab.lo() - max_delta));
         }
       }
-      bound_ = bound_.Union(LatLngRect(lat_ab, lng_ab));
+      bound_ = bound_.Union(GTLatLngRect(lat_ab, lng_ab));
     }
   }
   a_ = b;
   a_latlng_ = b_latlng;
 }
 
-LatLngRect LatLngRectBounder::GetBound() const {
+GTLatLngRect GTLatLngRectBounderGenerator::GetBound() const {
   // To save time, we ignore numerical errors in the computed S2LatLngs while
   // accumulating the bounds and then account for them here.
   //
@@ -199,8 +199,8 @@ LatLngRect LatLngRectBounder::GetBound() const {
   return bound_.Expanded(kExpansion).PolarClosure();
 }
 
-LatLngRect LatLngRectBounder::ExpandForSubregions(
-    const LatLngRect& bound) {
+GTLatLngRect GTLatLngRectBounderGenerator::ExpandForSubregions(
+    const GTLatLngRect& bound) {
   // Empty bounds don't need expansion.
   if (bound.is_empty()) return bound;
 
@@ -256,7 +256,7 @@ LatLngRect LatLngRectBounder::ExpandForSubregions(
     // "lng_gap" are both lower bounds on their true values so we do not need
     // to make any adjustments for their errors.
     if (2 * min_abs_lat + lng_gap < 1.354e-15) {
-      return LatLngRect::Full();
+      return GTLatLngRect::Full();
     }
   } else if (lng_gap >= M_PI_2) {
     // B spans at most Pi/2 in longitude.  The minimum distance is always
@@ -276,7 +276,7 @@ LatLngRect LatLngRectBounder::ExpandForSubregions(
     //   lat_gap1 + lat_gap2  <  (sqrt(2) * 4.309 + 1.5) * DBL_EPSILON
     //                        ~= 1.687e-15
     if (lat_gap1 + lat_gap2 < 1.687e-15) {
-      return LatLngRect::Full();
+      return GTLatLngRect::Full();
     }
   } else {
     // Otherwise we know that (1) the bound straddles the equator and (2) its
@@ -306,7 +306,7 @@ LatLngRect LatLngRectBounder::ExpandForSubregions(
     //   max_lat_gap * lng_gap  <  (4.309 + 0.75) * (Pi/2) * DBL_EPSILON
     //                          ~= 1.765e-15
     if (max(lat_gap1, lat_gap2) * lng_gap < 1.765e-15) {
-      return LatLngRect::Full();
+      return GTLatLngRect::Full();
     }
   }
   // Next we need to check whether the subregion might contain any edges that
@@ -330,7 +330,7 @@ LatLngRect LatLngRectBounder::ExpandForSubregions(
                                               lng_expansion)).PolarClosure();
 }
 
-S2LatLng LatLngRectBounder::MaxErrorForTests() {
+S2LatLng GTLatLngRectBounderGenerator::MaxErrorForTests() {
   // The maximum error in the latitude calculation is
   //    3.84 * DBL_EPSILON   for the RobustCrossProd calculation
   //    0.96 * DBL_EPSILON   for the Latitude() calculation

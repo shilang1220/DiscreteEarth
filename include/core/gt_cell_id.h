@@ -35,9 +35,9 @@ public:
     ///////////////////////////////////////////////
     // Basic parameters
     //////////////////////////////////////////////
-    static const unsigned int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 0-31 levels
-    static const unsigned int kPosBits = 2 * kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
-    static const unsigned int kMaxSize = 1 << kMaxLevel;         // Valid cell number, numbers of column and row at 31 levels must be 2**31.
+    static const int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 0-31 levels
+    static const int kPosBits = 2 * kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
+    static const int kMaxSize = 1 << kMaxLevel;         // Valid cell number, numbers of column and row at 31 levels must be 2**31.
 
     //////////////////////////////////////////////
     // ID examples： 下面两个字节能够表示7级网格
@@ -106,6 +106,7 @@ public:
     /************************************
  *  网格ID属性访问函数
  ************************************/
+    static GTCellId None(){return GTCellId(0);}
     // Return true if id() represents a valid cell.
     bool is_valid() const;
 

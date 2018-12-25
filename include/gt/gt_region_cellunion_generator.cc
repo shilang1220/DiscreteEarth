@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "gt/s2region_coverer.h"
+#include "gt/gt_region_cellunion_generator.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -31,7 +31,7 @@
 #include "s2/s1angle.h"
 
 #include "core/gt_cap.h"
-#include "core/cell_union.h"
+#include "core/gt_cell_union.h"
 #include "core/region.h"
 
 using std::is_sorted;
@@ -41,54 +41,54 @@ using std::unordered_set;
 using std::vector;
 
 // Define storage for header file constants (the values are not needed here).
-constexpr int S2RegionCoverer::Options::kDefaultMaxCells;
+constexpr int GTRegionCellUnionGenerator::Options::kDefaultMaxCells;
 
-S2RegionCoverer::S2RegionCoverer(const S2RegionCoverer::Options& options) :
+GTRegionCellUnionGenerator::GTRegionCellUnionGenerator(const GTRegionCellUnionGenerator::Options& options) :
   options_(options) {
   S2_DCHECK_LE(options.min_level(), options.max_level());
 }
 
 // Defaulted in the implementation to prevent inline bloat.
-S2RegionCoverer::S2RegionCoverer() = default;
-S2RegionCoverer::~S2RegionCoverer() = default;
-S2RegionCoverer::S2RegionCoverer(S2RegionCoverer&&) = default;
-S2RegionCoverer& S2RegionCoverer::operator=(S2RegionCoverer&&) = default;
+GTRegionCellUnionGenerator::GTRegionCellUnionGenerator() = default;
+GTRegionCellUnionGenerator::~GTRegionCellUnionGenerator() = default;
+GTRegionCellUnionGenerator::GTRegionCellUnionGenerator(GTRegionCellUnionGenerator&&) = default;
+GTRegionCellUnionGenerator& GTRegionCellUnionGenerator::operator=(GTRegionCellUnionGenerator&&) = default;
 
-void S2RegionCoverer::Options::set_max_cells(int max_cells) {
+void GTRegionCellUnionGenerator::Options::set_max_cells(int max_cells) {
   max_cells_ = max_cells;
 }
 
-void S2RegionCoverer::Options::set_min_level(int min_level) {
+void GTRegionCellUnionGenerator::Options::set_min_level(int min_level) {
   S2_DCHECK_GE(min_level, 0);
-  S2_DCHECK_LE(min_level, S2CellId::kMaxLevel);
-  // min_level() <= max_level() is checked by S2RegionCoverer.
-  min_level_ = max(0, min(S2CellId::kMaxLevel, min_level));
+  S2_DCHECK_LE(min_level, GTCellId::kMaxLevel);
+  // min_level() <= max_level() is checked by GTRegionCellUnionGenerator.
+  min_level_ = max(0, min(int(GTCellId::kMaxLevel), min_level));
 }
 
-void S2RegionCoverer::Options::set_max_level(int max_level) {
+void GTRegionCellUnionGenerator::Options::set_max_level(int max_level) {
   S2_DCHECK_GE(max_level, 0);
-  S2_DCHECK_LE(max_level, S2CellId::kMaxLevel);
-  // min_level() <= max_level() is checked by S2RegionCoverer.
-  max_level_ = max(0, min(S2CellId::kMaxLevel, max_level));
+  S2_DCHECK_LE(max_level, GTCellId::kMaxLevel);
+  // min_level() <= max_level() is checked by GTRegionCellUnionGenerator.
+  max_level_ = max(0, min(int(GTCellId::kMaxLevel), max_level));
 }
 
-void S2RegionCoverer::Options::set_fixed_level(int level) {
+void GTRegionCellUnionGenerator::Options::set_fixed_level(int level) {
   set_min_level(level);
   set_max_level(level);
 }
 
-void S2RegionCoverer::Options::set_level_mod(int level_mod) {
+void GTRegionCellUnionGenerator::Options::set_level_mod(int level_mod) {
   S2_DCHECK_GE(level_mod, 1);
   S2_DCHECK_LE(level_mod, 3);
   level_mod_ = max(1, min(3, level_mod));
 }
 
-int S2RegionCoverer::Options::true_max_level() const {
+int GTRegionCellUnionGenerator::Options::true_max_level() const {
   if (level_mod_ == 1) return max_level_;
   return max_level_ - (max_level_ - min_level_) % level_mod_;
 }
 
-S2RegionCoverer::Candidate* S2RegionCoverer::NewCandidate(const S2Cell& cell) {
+GTRegionCellUnionGenerator::Candidate* GTRegionCellUnionGenerator::NewCandidate(const GTCell& cell) {
   if (!region_->MayIntersect(cell)) return nullptr;
 
   bool is_terminal = false;
@@ -123,7 +123,7 @@ S2RegionCoverer::Candidate* S2RegionCoverer::NewCandidate(const S2Cell& cell) {
   return candidate;
 }
 
-void S2RegionCoverer::DeleteCandidate(Candidate* candidate,
+void GTRegionCellUnionGenerator::DeleteCandidate(Candidate* candidate,
                                       bool delete_children) {
   if (delete_children) {
     for (int i = 0; i < candidate->num_children; ++i)
@@ -132,10 +132,10 @@ void S2RegionCoverer::DeleteCandidate(Candidate* candidate,
   ::operator delete(candidate);
 }
 
-int S2RegionCoverer::ExpandChildren(Candidate* candidate,
-                                    const S2Cell& cell, int num_levels) {
+int GTRegionCellUnionGenerator::ExpandChildren(Candidate* candidate,
+                                    const GTCell& cell, int num_levels) {
   num_levels--;
-  S2Cell child_cells[4];
+  GTCell child_cells[4];
   cell.Subdivide(child_cells);
   int num_terminals = 0;
   for (int i = 0; i < 4; ++i) {
@@ -154,7 +154,7 @@ int S2RegionCoverer::ExpandChildren(Candidate* candidate,
   return num_terminals;
 }
 
-void S2RegionCoverer::AddCandidate(Candidate* candidate) {
+void GTRegionCellUnionGenerator::AddCandidate(Candidate* candidate) {
   if (candidate == nullptr) return;
 
   if (candidate->is_terminal) {
@@ -198,19 +198,19 @@ void S2RegionCoverer::AddCandidate(Candidate* candidate) {
   }
 }
 
-inline int S2RegionCoverer::AdjustLevel(int level) const {
+inline int GTRegionCellUnionGenerator::AdjustLevel(int level) const {
   if (options_.level_mod() > 1 && level > options_.min_level()) {
     level -= (level - options_.min_level()) % options_.level_mod();
   }
   return level;
 }
 
-void S2RegionCoverer::AdjustCellLevels(vector<S2CellId>* cells) const {
+void GTRegionCellUnionGenerator::AdjustCellLevels(vector<GTCellId>* cells) const {
   S2_DCHECK(is_sorted(cells->begin(), cells->end()));
   if (options_.level_mod() == 1) return;
 
   int out = 0;
-  for (S2CellId id : *cells) {
+  for (GTCellId id : *cells) {
     int level = id.level();
     int new_level = AdjustLevel(level);
     if (new_level != level) id = id.parent(new_level);
@@ -221,21 +221,21 @@ void S2RegionCoverer::AdjustCellLevels(vector<S2CellId>* cells) const {
   cells->resize(out);
 }
 
-void S2RegionCoverer::GetInitialCandidates() {
+void GTRegionCellUnionGenerator::GetInitialCandidates() {
   // Optimization: start with a small (usually 4 cell) covering of the
   // region's bounding cap.
-  S2RegionCoverer tmp_coverer;
+  GTRegionCellUnionGenerator tmp_coverer;
   tmp_coverer.mutable_options()->set_max_cells(min(4, options_.max_cells()));
   tmp_coverer.mutable_options()->set_max_level(options_.max_level());
-  vector<S2CellId> cells;
+  vector<GTCellId> cells;
   tmp_coverer.GetFastCovering(*region_, &cells);
   AdjustCellLevels(&cells);
-  for (S2CellId cell_id : cells) {
-    AddCandidate(NewCandidate(S2Cell(cell_id)));
+  for (GTCellId cell_id : cells) {
+    AddCandidate(NewCandidate(GTCell(cell_id)));
   }
 }
 
-void S2RegionCoverer::GetCoveringInternal(const S2Region& region) {
+void GTRegionCellUnionGenerator::GetCoveringInternal(const Region& region) {
   // We check this on each call because of mutable_options().
   S2_DCHECK_LE(options_.min_level(), options_.max_level());
 
@@ -306,52 +306,52 @@ void S2RegionCoverer::GetCoveringInternal(const S2Region& region) {
   // parameters specified (min_level, level_mod, etc).  This significantly
   // reduces the number of cells returned in many cases, and it is cheap
   // compared to computing the covering in the first place.
-  S2CellUnion::Normalize(&result_);
+  GTCellUnion::Normalize(&result_);
   if (options_.min_level() > 0 || options_.level_mod() > 1) {
     auto result_copy = result_;
-    S2CellUnion::Denormalize(result_copy, options_.min_level(),
+    GTCellUnion::Denormalize(result_copy, options_.min_level(),
                              options_.level_mod(), &result_);
   }
   S2_DCHECK(IsCanonical(result_));
 }
 
-void S2RegionCoverer::GetCovering(const S2Region& region,
-                                  vector<S2CellId>* covering) {
+void GTRegionCellUnionGenerator::GetCovering(const Region& region,
+                                  vector<GTCellId>* covering) {
   interior_covering_ = false;
   GetCoveringInternal(region);
   *covering = std::move(result_);
 }
 
-void S2RegionCoverer::GetInteriorCovering(const S2Region& region,
-                                          vector<S2CellId>* interior) {
+void GTRegionCellUnionGenerator::GetInteriorCovering(const Region& region,
+                                          vector<GTCellId>* interior) {
   interior_covering_ = true;
   GetCoveringInternal(region);
   *interior = std::move(result_);
 }
 
-S2CellUnion S2RegionCoverer::GetCovering(const S2Region& region) {
+GTCellUnion GTRegionCellUnionGenerator::GetCovering(const Region& region) {
   interior_covering_ = false;
   GetCoveringInternal(region);
-  return S2CellUnion::FromVerbatim(std::move(result_));
+  return GTCellUnion::FromVerbatim(std::move(result_));
 }
 
-S2CellUnion S2RegionCoverer::GetInteriorCovering(const S2Region& region) {
+GTCellUnion GTRegionCellUnionGenerator::GetInteriorCovering(const Region& region) {
   interior_covering_ = true;
   GetCoveringInternal(region);
-  return S2CellUnion::FromVerbatim(std::move(result_));
+  return GTCellUnion::FromVerbatim(std::move(result_));
 }
 
-void S2RegionCoverer::GetFastCovering(const S2Region& region,
-                                      vector<S2CellId>* covering) {
+void GTRegionCellUnionGenerator::GetFastCovering(const Region& region,
+                                      vector<GTCellId>* covering) {
   region.GetCellUnionBound(covering);
   CanonicalizeCovering(covering);
 }
 
-bool S2RegionCoverer::IsCanonical(const S2CellUnion& covering) const {
+bool GTRegionCellUnionGenerator::IsCanonical(const GTCellUnion& covering) const {
   return IsCanonical(covering.cell_ids());
 }
 
-bool S2RegionCoverer::IsCanonical(const vector<S2CellId>& covering) const {
+bool GTRegionCellUnionGenerator::IsCanonical(const vector<GTCellId>& covering) const {
   // We check this on each call because of mutable_options().
   S2_DCHECK_LE(options_.min_level(), options_.max_level());
 
@@ -360,16 +360,16 @@ bool S2RegionCoverer::IsCanonical(const vector<S2CellId>& covering) const {
   const int level_mod = options_.level_mod();
   const bool too_many_cells = covering.size() > options_.max_cells();
   int same_parent_count = 1;
-  S2CellId prev_id = S2CellId::None();
-  for (const S2CellId id : covering) {
+  GTCellId prev_id = GTCellId::None();
+  for (const GTCellId id : covering) {
     if (!id.is_valid()) return false;
 
-    // Check that the S2CellId level is acceptable.
+    // Check that the GTCellId level is acceptable.
     const int level = id.level();
     if (level < min_level || level > max_level) return false;
     if (level_mod > 1 && (level - min_level) % level_mod != 0) return false;
 
-    if (prev_id != S2CellId::None()) {
+    if (prev_id != GTCellId::None()) {
       // Check that cells are sorted and non-overlapping.
       if (prev_id.range_max() >= id.range_min()) return false;
 
@@ -394,11 +394,11 @@ bool S2RegionCoverer::IsCanonical(const vector<S2CellId>& covering) const {
   return true;
 }
 
-bool S2RegionCoverer::ContainsAllChildren(const vector<S2CellId>& covering,
-                                          S2CellId id) const {
+bool GTRegionCellUnionGenerator::ContainsAllChildren(const vector<GTCellId>& covering,
+                                          GTCellId id) const {
   auto it = std::lower_bound(covering.begin(), covering.end(), id.range_min());
   int level = id.level() + options_.level_mod();
-  for (S2CellId child = id.child_begin(level);
+  for (GTCellId child = id.child_begin(level);
        child != id.child_end(level); ++it, child = child.next()) {
     if (it == covering.end() || *it != child) return false;
   }
@@ -407,8 +407,8 @@ bool S2RegionCoverer::ContainsAllChildren(const vector<S2CellId>& covering,
 
 // Replaces all descendants of "id" in "covering" with "id".
 // REQUIRES: "covering" contains at least one descendant of "id".
-void S2RegionCoverer::ReplaceCellsWithAncestor(vector<S2CellId>* covering,
-                                               S2CellId id) const {
+void GTRegionCellUnionGenerator::ReplaceCellsWithAncestor(vector<GTCellId>* covering,
+                                               GTCellId id) const {
   auto begin = std::lower_bound(covering->begin(), covering->end(),
                                 id.range_min());
   auto end = std::upper_bound(covering->begin(), covering->end(),
@@ -418,13 +418,13 @@ void S2RegionCoverer::ReplaceCellsWithAncestor(vector<S2CellId>* covering,
   *begin = id;
 }
 
-S2CellUnion S2RegionCoverer::CanonicalizeCovering(const S2CellUnion& covering) {
-  vector<S2CellId> ids = covering.cell_ids();
+GTCellUnion GTRegionCellUnionGenerator::CanonicalizeCovering(const GTCellUnion& covering) {
+  vector<GTCellId> ids = covering.cell_ids();
   CanonicalizeCovering(&ids);
-  return S2CellUnion(std::move(ids));
+  return GTCellUnion(std::move(ids));
 }
 
-void S2RegionCoverer::CanonicalizeCovering(vector<S2CellId>* covering) {
+void GTRegionCellUnionGenerator::CanonicalizeCovering(vector<GTCellId>* covering) {
   // We check this on each call because of mutable_options().
   S2_DCHECK_LE(options_.min_level(), options_.max_level());
 
@@ -433,8 +433,8 @@ void S2RegionCoverer::CanonicalizeCovering(vector<S2CellId>* covering) {
 
   // If any cells are too small, or don't satisfy level_mod(), then replace
   // them with ancestors.
-  if (options_.max_level() < S2CellId::kMaxLevel || options_.level_mod() > 1) {
-    for (S2CellId& id : *covering) {
+  if (options_.max_level() < GTCellId::kMaxLevel || options_.level_mod() > 1) {
+    for (GTCellId& id : *covering) {
       int level = id.level();
       int new_level = AdjustLevel(min(level, options_.max_level()));
       if (new_level != level) {
@@ -444,27 +444,27 @@ void S2RegionCoverer::CanonicalizeCovering(vector<S2CellId>* covering) {
   }
 
   // Sort the cells and simplify them.
-  S2CellUnion::Normalize(covering);
+  GTCellUnion::Normalize(covering);
 
   // Make sure that the covering satisfies min_level() and level_mod(),
   // possibly at the expense of satisfying max_cells().
   if (options_.min_level() > 0 || options_.level_mod() > 1) {
-    S2CellUnion::Denormalize(*covering, options_.min_level(),
+    GTCellUnion::Denormalize(*covering, options_.min_level(),
                              options_.level_mod(), &result_);
     *covering = std::move(result_);
   }
 
   // If there are too many cells and the covering is very large, use the
-  // S2RegionCoverer to compute a new covering.  (This avoids possible O(n^2)
+  // GTRegionCellUnionGenerator to compute a new covering.  (This avoids possible O(n^2)
   // behavior of the simpler algorithm below.)
   int64 excess = covering->size() - options_.max_cells();
   if (excess <= 0 || IsCanonical(*covering)) {
     return;
   }
   if (excess * covering->size() > 10000) {
-    GetCovering(S2CellUnion(std::move(*covering)), covering);
+    GetCovering(GTCellUnion(std::move(*covering)), covering);
   } else {
-    // Repeatedly replace two adjacent cells in S2CellId order by their lowest
+    // Repeatedly replace two adjacent cells in GTCellId order by their lowest
     // common ancestor until the number of cells is acceptable.
     while (covering->size() > options_.max_cells()) {
       int best_index = -1, best_level = -1;
@@ -479,7 +479,7 @@ void S2RegionCoverer::CanonicalizeCovering(vector<S2CellId>* covering) {
       if (best_level < options_.min_level()) break;
 
       // Replace all cells contained by the new ancestor cell.
-      S2CellId id = (*covering)[best_index].parent(best_level);
+      GTCellId id = (*covering)[best_index].parent(best_level);
       ReplaceCellsWithAncestor(covering, id);
 
       // Now repeatedly check whether all children of the parent cell are
@@ -495,23 +495,23 @@ void S2RegionCoverer::CanonicalizeCovering(vector<S2CellId>* covering) {
   S2_DCHECK(IsCanonical(*covering));
 }
 
-void S2RegionCoverer::FloodFill(const S2Region& region, S2CellId start,
-                                vector<S2CellId>* output) {
-  unordered_set<S2CellId, S2CellIdHash> all;
-  vector<S2CellId> frontier;
+void GTRegionCellUnionGenerator::FloodFill(const Region& region, GTCellId start,
+                                vector<GTCellId>* output) {
+  unordered_set<GTCellId, GTCellIdHash> all;
+  vector<GTCellId> frontier;
   output->clear();
   all.insert(start);
   frontier.push_back(start);
   while (!frontier.empty()) {
-    S2CellId id = frontier.back();
+    GTCellId id = frontier.back();
     frontier.pop_back();
-    if (!region.MayIntersect(S2Cell(id))) continue;
+    if (!region.MayIntersect(GTCell(id))) continue;
     output->push_back(id);
 
-    S2CellId neighbors[4];
+    GTCellId neighbors[4];
     id.GetEdgeNeighbors(neighbors);
     for (int edge = 0; edge < 4; ++edge) {
-      S2CellId nbr = neighbors[edge];
+      GTCellId nbr = neighbors[edge];
       if (all.insert(nbr).second) {
         frontier.push_back(nbr);
       }
@@ -519,8 +519,8 @@ void S2RegionCoverer::FloodFill(const S2Region& region, S2CellId start,
   }
 }
 
-void S2RegionCoverer::GetSimpleCovering(
-    const S2Region& region, const S2Point& start,
-    int level, vector<S2CellId>* output) {
-  return FloodFill(region, S2CellId(start).parent(level), output);
+void GTRegionCellUnionGenerator::GetSimpleCovering(
+    const Region& region, const S2Point& start,
+    int level, vector<GTCellId>* output) {
+  return FloodFill(region, GTCellId(start).parent(level), output);
 }

@@ -15,7 +15,7 @@
 class GTCap;
 class GTLatLngRect;
 class GTCell;
-
+class GTCellId;
 
 //区域类，用于封装一些标准接口
 
@@ -55,6 +55,8 @@ public:
     // The point 'p' is generally required to be unit length, although some
     // subtypes may relax this restriction.
     virtual bool Contains(const S2Point& p) const = 0;
+
+    void GetCellUnionBound(std::vector<GTCellId> *cell_ids) const;
 };
 
 

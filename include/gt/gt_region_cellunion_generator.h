@@ -15,8 +15,8 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#ifndef S2_S2REGION_COVERER_H_
-#define S2_S2REGION_COVERER_H_
+#ifndef GT_REGION_CELLUNION_GENERATOR_H_
+#define GT_REGION_CELLUNION_GENERATOR_H_
 
 #include <queue>
 #include <utility>
@@ -24,23 +24,23 @@
 
 #include "third_party/absl/base/macros.h"
 #include "_fp_contract_off.h"
-#include "object/s2cell.h"
-#include "core/s2cell_id.h"
-#include "object/s2cell_union.h"
+#include "core/gt_cell.h"
+#include "core/gt_cell_id.h"
+#include "core/gt_cell_union.h"
 
-class S2Region;
+class Region;
 
-// An S2RegionCoverer is a class that allows arbitrary regions to be
-// approximated as unions of cells (S2CellUnion).  This is useful for
+// An GTRegionCellUnionGenerator is a class that allows arbitrary regions to be
+// approximated as unions of cells (GTCellUnion).  This is useful for
 // implementing various sorts of search and precomputation operations.
 //
 // Typical usage:
 //
-// S2RegionCoverer::Options options;
+// GTRegionCellUnionGenerator::Options options;
 // options.set_max_cells(5);
-// S2RegionCoverer coverer(options);
+// GTRegionCellUnionGenerator coverer(options);
 // S2Cap cap(center, radius);
-// S2CellUnion covering = coverer.GetCovering(cap);
+// GTCellUnion covering = coverer.GetCovering(cap);
 //
 // This yields a vector of at most 5 cells that is guaranteed to cover the
 // given cap (a disc-shaped region on the sphere).
@@ -63,7 +63,7 @@ class S2Region;
 // interior coverings - otherwise for regions with small or zero area, the
 // algorithm may spend a lot of time subdividing cells all the way to leaf
 // level to try to find contained cells.
-class S2RegionCoverer {
+class GTRegionCellUnionGenerator {
  public:
 #ifndef SWIG
   class Options {
@@ -88,7 +88,7 @@ class S2RegionCoverer {
     // Accuracy is measured by dividing the area of the covering by the area
     // of the original region.  The following table shows the median and worst
     // case values for this area ratio on a test case consisting of 100,000
-    // spherical caps of random size (generated using s2region_coverer_test):
+    // spherical caps of random size (generated using Region_coverer_test):
     //
     //   max_cells:        3      4     5     6     8    12    20   100   1000
     //   median ratio:  5.33   3.32  2.73  2.34  1.98  1.66  1.42  1.11   1.01
@@ -106,7 +106,7 @@ class S2RegionCoverer {
     // use all cell levels.
     //
     // To find the cell level corresponding to a given physical distance, use
-    // the S2Cell metrics defined in s2metrics.h.  For example, to find the
+    // the GTCell metrics defined in s2metrics.h.  For example, to find the
     // cell level that corresponds to an average edge length of 10km, use:
     //
     //   int level =
@@ -125,7 +125,7 @@ class S2RegionCoverer {
     void set_min_level(int min_level);
 
     // REQUIRES: min_level() <= max_level()
-    // DEFAULT: S2CellId::kMaxLevel
+    // DEFAULT: GTCellId::kMaxLevel
     int max_level() const { return max_level_; }
     void set_max_level(int max_level);
 
@@ -134,7 +134,7 @@ class S2RegionCoverer {
 
     // If specified, then only cells where (level - min_level) is a multiple
     // of "level_mod" will be used (default 1).  This effectively allows the
-    // branching factor of the S2CellId hierarchy to be increased.  Currently
+    // branching factor of the GTCellId hierarchy to be increased.  Currently
     // the only parameter values allowed are 1, 2, or 3, corresponding to
     // branching factors of 4, 16, and 64 respectively.
     //
@@ -152,43 +152,43 @@ class S2RegionCoverer {
    protected:
     int max_cells_ = kDefaultMaxCells;
     int min_level_ = 0;
-    int max_level_ = S2CellId::kMaxLevel;
+    int max_level_ = GTCellId::kMaxLevel;
     int level_mod_ = 1;
   };
 
-  // Constructs an S2RegionCoverer with the given options.
-  explicit S2RegionCoverer(const Options& options);
+  // Constructs an GTRegionCellUnionGenerator with the given options.
+  explicit GTRegionCellUnionGenerator(const Options& options);
 
-  // S2RegionCoverer is movable but not copyable.
-  S2RegionCoverer(const S2RegionCoverer&) = delete;
-  S2RegionCoverer& operator=(const S2RegionCoverer&) = delete;
-  S2RegionCoverer(S2RegionCoverer&&);
-  S2RegionCoverer& operator=(S2RegionCoverer&&);
+  // GTRegionCellUnionGenerator is movable but not copyable.
+  GTRegionCellUnionGenerator(const GTRegionCellUnionGenerator&) = delete;
+  GTRegionCellUnionGenerator& operator=(const GTRegionCellUnionGenerator&) = delete;
+  GTRegionCellUnionGenerator(GTRegionCellUnionGenerator&&);
+  GTRegionCellUnionGenerator& operator=(GTRegionCellUnionGenerator&&);
 #endif  // SWIG
 
   // Default constructor.  Options can be set using mutable_options().
-  S2RegionCoverer();
-  ~S2RegionCoverer();
+  GTRegionCellUnionGenerator();
+  ~GTRegionCellUnionGenerator();
 
   // Returns the current options.  Options can be modifed between calls.
   const Options& options() const { return options_; }
   Options* mutable_options() { return &options_; }
 
-  // Returns an S2CellUnion that covers (GetCovering) or is contained within
+  // Returns an GTCellUnion that covers (GetCovering) or is contained within
   // (GetInteriorCovering) the given region and satisfies the current options.
   //
   // Note that if options().min_level() > 0 or options().level_mod() > 1, the
-  // by definition the S2CellUnion may not be normalized, i.e. there may be
+  // by definition the GTCellUnion may not be normalized, i.e. there may be
   // groups of four child cells that can be replaced by their parent cell.
-  S2CellUnion GetCovering(const S2Region& region);
-  S2CellUnion GetInteriorCovering(const S2Region& region);
+  GTCellUnion GetCovering(const Region& region);
+  GTCellUnion GetInteriorCovering(const Region& region);
 
-  // Like the methods above, but works directly with a vector of S2CellIds.
+  // Like the methods above, but works directly with a vector of GTCellIds.
   // This version can be more efficient when this method is called many times,
   // since it does not require allocating a new vector on each call.
-  void GetCovering(const S2Region& region, std::vector<S2CellId>* covering);
-  void GetInteriorCovering(const S2Region& region,
-                           std::vector<S2CellId>* interior);
+  void GetCovering(const Region& region, std::vector<GTCellId>* covering);
+  void GetInteriorCovering(const Region& region,
+                           std::vector<GTCellId>* interior);
 
   // Like GetCovering(), except that this method is much faster and the
   // coverings are not as tight.  All of the usual parameters are respected
@@ -198,7 +198,7 @@ class S2RegionCoverer {
   //
   // This function is useful as a starting point for algorithms that
   // recursively subdivide cells.
-  void GetFastCovering(const S2Region& region, std::vector<S2CellId>* covering);
+  void GetFastCovering(const Region& region, std::vector<GTCellId>* covering);
 
   // Given a connected region and a starting point on the boundary or inside the
   // region, returns a set of cells at the given level that cover the region.
@@ -210,42 +210,42 @@ class S2RegionCoverer {
   // Currently it can be faster at generating coverings of long narrow regions
   // such as polylines, but this may change in the future, in which case this
   // method will most likely be removed.
-  static void GetSimpleCovering(const S2Region& region, const S2Point& start,
-                                int level, std::vector<S2CellId>* output);
+  static void GetSimpleCovering(const Region& region, const S2Point& start,
+                                int level, std::vector<GTCellId>* output);
 
-  // Like GetSimpleCovering(), but accepts a starting S2CellId rather than a
+  // Like GetSimpleCovering(), but accepts a starting GTCellId rather than a
   // starting point and cell level.  Returns all edge-connected cells at the
   // same level as "start" that intersect "region", in arbitrary order.
-  static void FloodFill(const S2Region& region, S2CellId start,
-                        std::vector<S2CellId>* output);
+  static void FloodFill(const Region& region, GTCellId start,
+                        std::vector<GTCellId>* output);
 
-  // Returns true if the given S2CellId vector represents a valid covering
+  // Returns true if the given GTCellId vector represents a valid covering
   // that conforms to the current covering parameters.  In particular:
   //
-  //  - All S2CellIds must be valid.
+  //  - All GTCellIds must be valid.
   //
-  //  - S2CellIds must be sorted and non-overlapping.
+  //  - GTCellIds must be sorted and non-overlapping.
   //
-  //  - S2CellId levels must satisfy min_level(), max_level(), and level_mod().
+  //  - GTCellId levels must satisfy min_level(), max_level(), and level_mod().
   //
   //  - If covering.size() > max_cells(), there must be no two cells with
   //    a common ancestor at min_level() or higher.
   //
   //  - There must be no sequence of cells that could be replaced by an
   //    ancestor (i.e. with level_mod() == 1, the 4 child cells of a parent).
-  bool IsCanonical(const S2CellUnion& covering) const;
-  bool IsCanonical(const std::vector<S2CellId>& covering) const;
+  bool IsCanonical(const GTCellUnion& covering) const;
+  bool IsCanonical(const std::vector<GTCellId>& covering) const;
 
   // Modify "covering" if necessary so that it conforms to the current
   // covering parameters (max_cells, min_level, max_level, and level_mod).
-  // There are no restrictions on the input S2CellIds (they may be unsorted,
+  // There are no restrictions on the input GTCellIds (they may be unsorted,
   // overlapping, etc).
-  S2CellUnion CanonicalizeCovering(const S2CellUnion& covering);
-  void CanonicalizeCovering(std::vector<S2CellId>* covering);
+  GTCellUnion CanonicalizeCovering(const GTCellUnion& covering);
+  void CanonicalizeCovering(std::vector<GTCellId>* covering);
 
  private:
   struct Candidate {
-    S2Cell cell;
+    GTCell cell;
     bool is_terminal;        // Cell should not be expanded further.
     int num_children;        // Number of children that intersect the region.
     Candidate* children[0];  // Actual size may be 0, 4, 16, or 64 elements.
@@ -254,7 +254,7 @@ class S2RegionCoverer {
   // If the cell intersects the given region, return a new candidate with no
   // children, otherwise return nullptr.  Also marks the candidate as "terminal"
   // if it should not be expanded further.
-  Candidate* NewCandidate(const S2Cell& cell);
+  Candidate* NewCandidate(const GTCell& cell);
 
   // Returns the log base 2 of the maximum number of children of a candidate.
   int max_children_shift() const { return 2 * options().level_mod(); }
@@ -270,13 +270,13 @@ class S2RegionCoverer {
   // Populates the children of "candidate" by expanding the given number of
   // levels from the given cell.  Returns the number of children that were
   // marked "terminal".
-  int ExpandChildren(Candidate* candidate, const S2Cell& cell, int num_levels);
+  int ExpandChildren(Candidate* candidate, const GTCell& cell, int num_levels);
 
   // Computes a set of initial candidates that cover the given region.
   void GetInitialCandidates();
 
   // Generates a covering and stores it in result_.
-  void GetCoveringInternal(const S2Region& region);
+  void GetCoveringInternal(const Region& region);
 
   // If level > min_level(), then reduces "level" if necessary so that it also
   // satisfies level_mod().  Levels smaller than min_level() are not affected
@@ -287,27 +287,27 @@ class S2RegionCoverer {
   // by replacing them with an ancestor if necessary.  Cell levels smaller
   // than min_level() are not modified (see AdjustLevel).  The output is
   // then normalized to ensure that no redundant cells are present.
-  void AdjustCellLevels(std::vector<S2CellId>* cells) const;
+  void AdjustCellLevels(std::vector<GTCellId>* cells) const;
 
   // Returns true if "covering" contains all children of "id" at level
   // (id.level() + options_.level_mod()).
-  bool ContainsAllChildren(const std::vector<S2CellId>& covering,
-                           S2CellId id) const;
+  bool ContainsAllChildren(const std::vector<GTCellId>& covering,
+                           GTCellId id) const;
 
   // Replaces all descendants of "id" in "covering" with "id".
   // REQUIRES: "covering" contains at least one descendant of "id".
-  void ReplaceCellsWithAncestor(std::vector<S2CellId>* covering,
-                                S2CellId id) const;
+  void ReplaceCellsWithAncestor(std::vector<GTCellId>* covering,
+                                GTCellId id) const;
 
   Options options_;
 
   // We save a temporary copy of the pointer passed to GetCovering() in order
   // to avoid passing this parameter around internally.  It is only used (and
   // only valid) for the duration of a single GetCovering() call.
-  const S2Region* region_ = nullptr;
+  const Region* region_ = nullptr;
 
-  // The set of S2CellIds that have been added to the covering so far.
-  std::vector<S2CellId> result_;
+  // The set of GTCellIds that have been added to the covering so far.
+  std::vector<GTCellId> result_;
 
   // We keep the candidates in a priority queue.  We specify a vector to hold
   // the queue entries since for some reason priority_queue<> uses a deque by
@@ -333,4 +333,4 @@ class S2RegionCoverer {
   int candidates_created_counter_;
 };
 
-#endif  // S2_S2REGION_COVERER_H_
+#endif  // GT_REGION_CELLUNION_GENERATOR_H_

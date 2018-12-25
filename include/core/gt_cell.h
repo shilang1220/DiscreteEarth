@@ -38,6 +38,7 @@ public:
      *
      * *************************************/
     GTCellId  id() const {return id_;}
+    int level()const{return 0;}
     bool is_leaf() const ;
 
     S2Point GetVertex(int k) const ;
