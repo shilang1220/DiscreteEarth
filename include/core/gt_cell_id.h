@@ -417,8 +417,8 @@ inline  uint64 GTCellId::lsb_for_level(int level)  {
 };
 
 inline bool GTCellId::is_valid() const {
-    // 采用末尾补100..0方式表示层级时，至少有一个偶数位bit必须为1
-    return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
+
+    return(GT::IsValidID(id_) && !GT::IsPseudoCell(id_));
 }
 
 inline GTCellId GTCellId::range_min() const {
