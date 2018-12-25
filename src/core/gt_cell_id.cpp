@@ -49,14 +49,7 @@ bool GTCellId::FromPoint(S2Point point, unsigned int level)  {
 
     S2_DCHECK_LE(level,31);
 
-    GT::XYZtoIJ(point,&I,&J);
-
-    mask = 0XFFFFFFFF << (kMaxLevel - level + 1);
-
-    I = I & mask;
-    J = J & mask;
-
-    GT::IJtoCellID(I,J,&id_);
+    GT::XYZtoCellID(point,&id_,level);
     level_ = level;
 
     return true;
@@ -73,34 +66,31 @@ S2LatLng GTCellId::ToLatLng() const {
 
 bool GTCellId::FromLatLng(S2LatLng latLng)  {
     GT::LLtoCellID(latLng.lng().degrees(),latLng.lat().degrees(),&id_);
+    level_= kMaxLevel;
     return true;
 }
 
 bool GTCellId::FromLatLng(S2LatLng latLng, unsigned int level)  {
     uint32 I,J,mask;
-
-
     
     S2_DCHECK_LE(level,31);
 
-    GT::LLtoIJ(latLng.lng().degrees(),latLng.lat().degrees(),&I,&J);
-
-    mask = 0XFFFFFFFF << (kMaxLevel - level + 1);
-
-    I = I & mask;
-    J = J & mask;
-
-    GT::IJtoCellID(I,J,&id_);
+    GT::LLtoCellID(latLng.lng().degrees(),latLng.lat().degrees(),&id_,level);
+    level_ = level;
 
     return true;
 }
 
 int GTCellId::child_position() const {
-    return 0;
+
+    return child_position(level());
 }
 
 int GTCellId::child_position(int level) const {
-    return 0;
+    S2_DCHECK(is_valid());
+    S2_DCHECK_GE(level, 1);
+    S2_DCHECK_LE(level, this->level());
+    return static_cast<int>(id_ >> (2 * (kMaxLevel - level +1 ))) & 0x3;
 }
 
 bool GTCellId::contains(const GTCellId other) const {
@@ -110,15 +100,25 @@ bool GTCellId::contains(const GTCellId other) const {
 }
 
 bool GTCellId::isChildOf(const GTCellId other) const {
-    return false;
+    S2_DCHECK(is_valid());
+    S2_DCHECK(other.is_valid());
+
+    return (*this)<=other.range_max() && (*this)>=other.range_min();
 }
 
 bool GTCellId::intersects(const GTCellId other) const {
-    return false;
+    S2_DCHECK(is_valid());
+    S2_DCHECK(other.is_valid());
+    return other.range_min() <= range_max() && other.range_max() >= range_min();
 }
 
 GTCellId GTCellId::parent() const {
-    return GTCellId();
+    S2_DCHECK(is_valid());
+    S2_DCHECK_GE(level, 0);
+    S2_DCHECK_LE(level, this->level());
+
+    uint64 new_lsb = lsb_for_level(level);
+    return GTCellId((id_ & (~new_lsb + 1)) | new_lsb);
 }
 
 GTCellId GTCellId::parent(int level) const {

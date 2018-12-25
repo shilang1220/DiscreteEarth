@@ -67,7 +67,7 @@ public:
     GTCellId () { id_ = 0; }
 
     // Construct using a known id number;
-    explicit GTCellId (const uint64 id) { id_ = id; }
+    explicit GTCellId (const uint64 id) { id_ = id; level_ = GT::Level(id); }
 
     // Construct a leaf cell containing the given point "p".
     explicit GTCellId (const S2Point p);
@@ -430,11 +430,15 @@ inline bool GTCellId::is_valid () const {
 }
 
 inline GTCellId GTCellId::range_min () const {
-    return GTCellId(id_ - (lsb() - 1));
+    // exam. id_ = 0b 10 10 10 10 01 10 00 00 00,it's lsb = 0b 00 00 00 00 00 10 00 00 00
+    // id_ - lsb = 0b 10 10 10 10 01 00 00 00 00,it's min child = 0b 10 10 10 10 01 00 00 00 10
+    return GTCellId(id_ - lsb() + 2);
 }
 
 inline GTCellId GTCellId::range_max () const {
-    return GTCellId(id_ + (lsb() - 1));
+    // exam. id_ = 0b 10 10 10 10 01 10 00 00 00,it's lsb = 0b 00 00 00 00 00 10 00 00 00
+    // lsb - 2   = 0b 00 00 00 00 00 01 11 11 10,it's max child = 0b 10 10 10 10 01 11 11 11 10
+    return GTCellId(id_ + (lsb() - 2));
 }
 
 inline int GTCellId::level () const {

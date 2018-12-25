@@ -297,6 +297,10 @@ bool GT::IsValidID (const uint64 CellID) {
     return false;
 }
 
+int GT::Level(const uint64 CellID) {
+    return 0;
+}
+
 
 
 

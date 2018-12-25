@@ -112,6 +112,8 @@ namespace GT{
     GT_API bool IsValidID(const uint64 CellID);
     //判断网格ID是否为伪网格
     GT_API bool IsPseudoCell(const uint64 CellID);
+    //计算网格ID对应的层级
+    GT_API int Level(const uint64 CellID);
 
 }
 
