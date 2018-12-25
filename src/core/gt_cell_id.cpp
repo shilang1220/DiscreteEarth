@@ -17,7 +17,14 @@ GTCellId::GTCellId(const S2LatLng ll) {
     //默认为叶子网格
     FromLatLng(ll);
 }
-
+GTCellId::GTCellId(const S2Point p,int level) {
+    //默认为叶子网格
+    FromPoint(p,level);
+}
+GTCellId::GTCellId(const S2LatLng ll,int level) {
+    //默认为叶子网格
+    FromLatLng(ll,level);
+}
 S2Point GTCellId::ToPoint() const {
     S2Point pnt;
 

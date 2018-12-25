@@ -37,10 +37,8 @@ public:
     // Basic parameters
     //////////////////////////////////////////////
     static const int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 0-31 levels
-    static const int kPosBits = 2 *
-                                kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
-    static const int kMaxSize =
-            1 << kMaxLevel;         // Valid cell number, numbers of column and row at 31 levels must be 2**31.
+    static const int kPosBits = 2 * kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
+    static const int kMaxSize = 1 << kMaxLevel;          // Valid cell number, numbers of column and row at 31 levels must be 2**31.
 
     //////////////////////////////////////////////
     // ID examples： 下面两个字节能够表示7级网格
@@ -77,6 +75,11 @@ public:
     // Construct a leaf cell containing the given S2LatLng.
     explicit GTCellId (const S2LatLng ll);
 
+    // Construct a  cell  at 'level' containing the given point "p".
+    explicit GTCellId (const S2Point p,int level);
+
+    // Construct a cell at 'level' containing the given S2LatLng.
+    explicit GTCellId (const S2LatLng ll,int level);
     /************************************
     *  网格ID与球面坐标之间的转换函数
     ************************************/
@@ -418,7 +421,7 @@ inline uint64 GTCellId::lsb () const {
 }
 
 inline uint64 GTCellId::lsb_for_level (int level) {
-    return 1 << (2 * (GT::kMaxCellLevel - level + 1) - 1);
+    return 1 << (2 * (kMaxLevel - level + 1) - 1);
 };
 
 inline bool GTCellId::is_valid () const {
