@@ -45,11 +45,6 @@ bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
     unsigned int int_binary2code_B = J, int_binary2code_L = I;
     unsigned int degreeLat, degreeLng, minuteLat, minuteLng, secondLat, secondLng;
 
-    // std::cout<<std::hex<<I<<std::endl;
-    // std::cout<<std::hex<<J<<std::endl;
-    // std::cout<<std::hex<<(I_& 0X7FFFFFFF)<<std::endl;
-    // std::cout<<std::hex<<(J_& 0X7FFFFFFF)<<std::endl;
-
     int_binary2code_B = J & 0X7FFFFFFF;
     int_binary2code_L = I & 0X7FFFFFFF;
 
@@ -81,11 +76,25 @@ bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
     return bRet;
 }
 
+
+bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat, int level) {
+    uint32 I_, J_;
+    uint32 mask = 1 << (kMaxCellLevel - level + 1);
+    mask = (~mask + 1);
+
+    I_ = I & mask;
+    J_ = J & mask;
+
+    IJtoLL(I_, J_, pLng, pLat);
+
+    return true;
+}
+
 bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     bool bRet = false;
 
     // 检查是否越界
-    S2_DCHECK_LT(fabs(Lng), 180+DBL_EPSILON);
+    S2_DCHECK_LT(fabs(Lng), 180 + DBL_EPSILON);
     S2_DCHECK_LT(fabs(Lat), 90 + DBL_EPSILON);
 
     unsigned int int_binary2code_B = 0, int_binary2code_L = 0, int_B, int_L;
@@ -95,9 +104,9 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
 
     //全球四分（第1级）
     if (Lng < 0)//西经
-        int_binary2code_L = 1 << 31;
+        int_binary2code_L = 0X80000000;
     if (Lat < 0)//南纬
-        int_binary2code_B = 1 << 31;
+        int_binary2code_B = 0X80000000;
 
     //度级（第2到9级为连续四分,最高层级尺度为1度）
     int_B = ((unsigned int) codeV);
@@ -130,7 +139,17 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
 }
 
 bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ, int level) {
-    return false;
+
+    uint32 I, J;
+    uint32 mask = 1 << (kMaxCellLevel - level + 1);
+    mask = (~mask + 1);
+
+    LLtoIJ(Lng, Lat, &I, &J);
+
+    *pI = I & mask;
+    *pJ = J & mask;
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////
@@ -167,7 +186,11 @@ bool GT::XYZtoIJ (const S2Point &p, uint32 *pI, uint32 *pJ) {
 }
 
 bool GT::XYZtoIJ (const S2Point &p, uint32 *pI, uint32 *pJ, int level) {
-    return false;
+    double u, v;
+
+    XYZtoLL(p, &u, &v);
+    LLtoIJ(u, v, pI, pJ, level);
+    return true;
 }
 
 bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt) {
@@ -177,56 +200,62 @@ bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt) {
     return false;
 }
 
+bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt, int level) {
+    uint32 I_, J_;
+    uint32 mask = 1 << (kMaxCellLevel - level + 1);
+    mask = (~mask + 1);
+
+    I_ = I & mask;
+    J_ = J & mask;
+
+    IJtoXYZ(I_, J_, pPnt);
+
+    return true;
+}
+
 ////////////////////////////////////////////////////////
 //网格坐标系（I，J）与一维编码ID之间的转换函数
 ///////////////////////////////////////////////////////
 bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
 
+    IJtoCellID(I,J,pCellID,kMaxCellLevel);
+
+    return true;
+}
+
+bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID, int level) {
+
     uint64 cellID = 0X0;
-    uint64 bitI, bitJ, mask;
+    uint64 lsb = 1 << ((kMaxCellLevel - level) * 2 + 1);
 
     cellID = util_bits::InterleaveUint32(I, J);
-//
-//   for (int i = 0; i<32; i++)
-//    {
-//        mask = 1U << i;
-//        bitI = ((uint64) I & mask) << 2*i;
-//        bitJ = ((uint64) J & mask) << 2*i+1;
-//        cellID = cellID | bitI | bitJ;
-//    }
-    //处理末尾2bit截止位
-    cellID = cellID & 0XFFFFFFFFFFFFFFFE;
-    cellID = cellID | 0X0000000000000002;
+
+    cellID = cellID & (~lsb + 1) | lsb;
 
     *pCellID = cellID;
 
     return true;
 }
 
-bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ) {
-    uint32 bitI, bitJ, tmpI = 0, tmpJ = 0;
-    uint64 maskI, maskJ;
 
+bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
+    uint32 I, J;
+    uint64 id ;
 
-    for (int i = 0; i < 32; i++) {
-        maskI = 1U << 2 * i;
-        maskJ = 1U << 2 * i + 1;
+    //去除标识位
+    id = CellID - CellID & (~CellID + 2);
 
-        bitI = CellID & maskI;
-        bitJ = CellID & maskJ;
+    S2_DCHECK(CellID != 0);
 
-        if (bitI) {
-            tmpI = tmpI | ((uint32) 1 << i);
-        }
-        if (bitJ) {
-            tmpJ = tmpJ | ((uint32) 1 << i);
-        }
-    }
-    *pI = tmpI;
-    *pJ = tmpJ;
+    util_bits::DeinterleaveUint32(id, &I, &J);
+
+    *pI = I;
+    *pJ = J;
+    *level = kMaxCellLevel - (Bits::FindLSBSetNonZero64(CellID) >> 1);
 
     return true;
 }
+
 ////////////////////////////////////////////////////////
 //经纬度坐标系（LNG，LAT）与网格ID之间的转换函数
 ///////////////////////////////////////////////////////
@@ -238,13 +267,21 @@ bool GT::LLtoCellID (const double Lng, const double Lat, uint64 *pCellID) {
 }
 
 bool GT::LLtoCellID (const double Lng, const double Lat, uint64 *pCellID, int level) {
-    return false;
+
+    uint32 I, J;
+
+    LLtoIJ(Lng, Lat, &I, &J, level);
+    IJtoCellID(I, J, pCellID, level);
+
+    return true;
 }
 
 bool GT::CellIDtoLL (const uint64 CellID, double *pLng, double *pLat) {
     uint32 I, J;
-    CellIDtoIJ(CellID, &I, &J);
-    IJtoLL(I, J, pLng, pLat);
+    int level;
+
+    CellIDtoIJ(CellID, &I, &J, &level);
+    IJtoLL(I, J, pLng, pLat, level);
     return false;
 }
 
@@ -261,23 +298,23 @@ bool GT::XYZtoCellID (const S2Point pnt, uint64 *pCellID) {
 }
 
 bool GT::XYZtoCellID (const S2Point pnt, uint64 *pCellID, int level) {
-    return false;
+    uint32 I, J;
+
+    XYZtoIJ(pnt, &I, &J,level);
+    IJtoCellID(I, J, pCellID,level);
+
+    return true;
 }
 
 bool GT::CellIDtoXYZ (const uint64 CellID, S2Point *pPnt) {
     uint32 I, J;
+    int level;
 
-    CellIDtoIJ(CellID, &I, &J);
-    IJtoXYZ(I, J, pPnt);
+    CellIDtoIJ(CellID, &I, &J, &level);
+    IJtoXYZ(I, J, pPnt, level);
 
     return true;
 }
-////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////
-
-
-
 
 
 

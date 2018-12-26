@@ -60,11 +60,16 @@ namespace GT{
     const double kMin2Degree = 1/60.00;              //分向度的转换常数
     const double kSec2Degree = 2048.00/3600;        //1/2048秒向度的转换常数
 
+
     //经纬度坐标系（LNG，LAT）与网格坐标系（I，J）之间的转换函数
     //网格坐标向经纬度坐标的转换函数，求网格定位点的经纬度
     //当求某个网格的质心经纬度时，求其第3个子网格的定位点经纬度即可
-    //当（I,J）不对应有效经纬度时，返回false
+    //获得<I,J>所对应的叶子网格（第32层）的定位点经纬度
+    // 注意： 程序强行取I,J的前32个bits做处理，由用户对IJ的合法性进行判断
     GT_API bool IJtoLL(const uint32 I, const uint32 J,double* pLng,double* pLat);
+    //获得<I,J>的第level层父网格的定位点经纬度
+    //注意： 程序强行取I,J的前level个bits做处理，由用户对IJ的合法性进行判断，level<=32
+    GT_API bool IJtoLL(const uint32 I, const uint32 J,double* pLng,double* pLat,int level);
     //经纬度坐标向32级网格坐标的转换函数
     GT_API bool LLtoIJ(const double Lng,const double Lat,uint32* pI,uint32* pJ);
     //经纬度坐标向指定层级网格坐标的转换函数，level<=32
@@ -80,7 +85,12 @@ namespace GT{
     //当（I,J）不对应实际空间时，返回false
     //网格坐标向球面坐标的转换函数，求网格定位点的球面坐标
     //当求某个网格的质心球面坐标时，求其第3个子网格的定位点球面坐标即可
+    //获得<I,J>所对应的叶子网格（第32层）的球面坐标
+    //注意： 程序强行取I,J的前32个bits做处理，由用户对IJ的合法性进行判断
     GT_API bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt);
+    //获得<I,J>的第level层父网格的定位点球面坐标
+    // 注意： 程序强行取I,J的前level个bits做处理，由用户对IJ的合法性进行判断,level<=32
+    GT_API bool IJtoXYZ(const uint32 I,const uint32 J,S2Point* pPnt,int level);
     //球面坐标向第32级网格坐标的转换函数
     GT_API bool XYZtoIJ(const S2Point& p, uint32* pI, uint32* pJ);
     //球面坐标向指定层级网格坐标的转换函数，level<=32
@@ -89,8 +99,11 @@ namespace GT{
     //Z序编码与网格坐标系（I,J）之间的转换函数
     //网格坐标系（I，J）向网格编码的转换，当I，J为第32级时，略去
      bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID);
-     //网格ID向网格坐标系（I，J）的转换函数
-     bool CellIDtoIJ(const uint64 CellID, uint32* pI, uint32* pJ);
+    // 注意： 程序强行取I,J的前level个bits做处理，由用户对IJ的合法性进行判断,level<=31
+     bool IJtoCellID(const uint32 I, const uint32 J, uint64* pCellID,int level);
+
+     //网格ID向网格坐标系（I，J）的转换函数,level<=31
+     bool CellIDtoIJ(const uint64 CellID, uint32* pI, uint32* pJ,int* level);
 
     //Z序编码与经纬度坐标系（Lng,Lat）之间的转换函数
     GT_API bool CellIDtoLL(const uint64 CellID, double* pLng, double* pLat);
