@@ -30,7 +30,7 @@
 
 #include "core/gt_metrics.h"
 
-namespace S2 {
+namespace GT {
 //
 //const LengthMetric kMinAngleSpan(
 //    S2_PROJECTION == S2_LINEAR_PROJECTION ? 1.0 :                      // 1.000

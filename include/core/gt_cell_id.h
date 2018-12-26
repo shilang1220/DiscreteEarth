@@ -82,6 +82,16 @@ public:
     // Construct a cell at 'level' containing the given S2LatLng.
     explicit GTCellId (const S2LatLng ll,int level);
 
+
+    //构建第一级网格ID
+    static GTCellId FromFace(int face);
+    // Return a cell given its face (range 0..3), Z curve position within
+    // that face (an unsigned integer with GTCellId::kPosBits bits), and level
+    // (range 0..kMaxLevel).  The given position will be modified to correspond
+    // to the Hilbert curve position at the center of the returned cell.  This
+    // is a static function rather than a constructor in order to indicate what
+    // the arguments represent.
+    static GTCellId FromFacePosLevel(int face, uint64 pos, int level);
     /************************************
     *  网格ID与球面坐标之间的转换函数
     ************************************/
@@ -130,7 +140,8 @@ public:
     // 网格ID所在的层级
     int level () const;
 
-    // 网格ID所在的曲线位置
+    // The position of the cell center along the Hilbert curve over this face,
+    // in the range 0..(2**kPosBits-1).
     uint64 pos () const;
 
     // Return true if id() represents a valid cell.
@@ -231,6 +242,7 @@ public:
     // position (in the range 0 to 3).  This cell must not be a leaf cell.
     GTCellId child (int position) const;
 
+    // 注意： end为截止标识ID，不是本网格的子孙网格ID，而且可能不存在
     // Iterator-style methods for traversing the immediate children of a cell or
     // all of the children at a given level (greater than or equal to the current
     // level).  Note that the end value is exclusive, just like standard STL
@@ -249,6 +261,7 @@ public:
 
     GTCellId child_begin (int level) const;
 
+    // 注意： end为截止标识ID，不是本网格的子孙网格ID，而且可能不存在
     GTCellId child_end (int level) const;
 
     // 指定层级子孙中，沿曲线的下一个子节点或上一个子节点ID
@@ -353,6 +366,7 @@ public:
     static GTCellId FromString16(string strCode);
     static GTCellId FromString32(string strCode);
 
+    // Token, 变长字符串,不影响排序，最大长度16
     // Methods to encode and decode cell ids to compact text strings suitable
     // for display or indexing.  Cells at lower levels (i.e. larger cells) are
     // encoded into fewer characters.  The maximum token length is 16.
@@ -391,6 +405,8 @@ public:
 
 
 private:
+
+    static const uint64 kWrapOffset = static_cast<uint64>(kNumFaces) << kPosBits;
     // This structure occupies 44 bytes plus one pointer for the vtable.
     uint64 id_;
 };
@@ -423,6 +439,14 @@ inline bool operator>= (GTCellId x, GTCellId y) {
 /////////////////////////////////////////////////////////////////////////////
 // some inline realization
 /////////////////////////////////////////////////////////////////////////////
+inline GTCellId GTCellId::FromFace(int face) {
+    return GTCellId((static_cast<uint64>(face) << kPosBits) + lsb_for_level(0));
+}
+
+inline GTCellId GTCellId::FromFacePosLevel(int face, uint64 pos, int level) {
+    GTCellId cell((static_cast<uint64>(face) << kPosBits) + (pos | 1));
+    return cell.parent(level);
+}
 
 inline uint64 GTCellId::lsb () const {
     return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
@@ -459,8 +483,8 @@ inline GTCellId GTCellId::range_max () const {
 
 inline int GTCellId::level () const {
     // We can't just S2_DCHECK(is_valid()) because we want level() to be
-    // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
-    // no good way to define S2CellId::None().level(), so we do prohibit that.
+    // defined for end-iterators, i.e. GTCellId::End(kLevel).  However there is
+    // no good way to define GTCellId::None().level(), so we do prohibit that.
     S2_DCHECK(id_ != 0);
 
     // A special case for leaf cells is not worthwhile.
@@ -468,7 +492,8 @@ inline int GTCellId::level () const {
 }
 //TODO:
 inline uint64 GTCellId::pos() const {
-    return 0;
+
+    return id_ & (~uint64{0} >> kFaceBits);
 }
 
 inline int GTCellId::face() const {
@@ -495,7 +520,7 @@ inline int GTCellId::child_position(int level) const {
 
 //获得父网格ID
 inline GTCellId GTCellId::parent() const {
-            S2_DCHECK(is_valid());
+    S2_DCHECK(is_valid());
 
     uint64 new_lsb = lsb() << 2;
     return GTCellId((id_ & (~new_lsb + 1)) | new_lsb);
@@ -512,8 +537,8 @@ inline GTCellId GTCellId::parent(int level) const {
 //TODO:
 //获取第position个子网格的ID，position值域[0..3]
 inline GTCellId GTCellId::child(int position) const {
-            S2_DCHECK(is_valid());
-            S2_DCHECK(!is_leaf());
+    S2_DCHECK(is_valid());
+    S2_DCHECK(!is_leaf());
     // To change the level, we need to move the least-significant bit two
     // positions downward.  We do this by subtracting (4 * new_lsb) and adding
     // new_lsb.  Then to advance to the given child cell, we add

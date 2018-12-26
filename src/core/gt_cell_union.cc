@@ -25,7 +25,7 @@
 #include "util/coding/coder.h"
 
 #include "s2/s1angle.h"
-#include "core/gt_metrics.h"
+// #include "core/gt_metrics.h"
 #include "core/gt_latlng_rect.h"
 #include "core/gt_cap.h"
 #include "core/gt_cell.h"

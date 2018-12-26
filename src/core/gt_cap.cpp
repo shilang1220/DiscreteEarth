@@ -29,6 +29,7 @@ using std::min;
 using std::vector;
 
 
+//S = 2 * PI * R * Height
 double GTCap::GetArea() const {
     return 2 * M_PI * max(0.0, height());
 }
@@ -72,7 +73,7 @@ bool GTCap::InteriorIntersects(const GTCap& other) const {
 
 void GTCap::AddPoint(const S2Point& p) {
     // Compute the squared chord length, then convert it into a height.
-            S2_DCHECK(S2::IsUnitLength(p));
+    S2_DCHECK(S2::IsUnitLength(p));
     if (is_empty()) {
         center_ = p;
         radius_ = S1ChordAngle::Zero();

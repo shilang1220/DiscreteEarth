@@ -16,7 +16,7 @@
 // Author: ericv@google.com (Eric Veach)
 //
 // The following are various constants that describe the shapes and sizes of
-// S2Cells (see s2coords.h and s2cell_id.h).  They are useful for deciding
+// GTCells (see s2coords.h and s2cell_id.h).  They are useful for deciding
 // which cell level to use in order to satisfy a given condition (e.g. that
 // cell vertices must be no further than "x" apart).  All of the raw constants
 // are differential quantities; you can use the GetValue(level) method to
@@ -25,19 +25,19 @@
 // levels, but they may be somewhat conservative for very large cells
 // (e.g. face cells).
 
-#ifndef S2_S2METRICS_H_
-#define S2_S2METRICS_H_
+#ifndef GT_GTMETRICS_H_
+#define GT_GTMETRICS_H_
 
 #include <algorithm>
 #include <cmath>
 
-//#include "s2/s2coords.h"
+#include "core/gt_coords.h"
 #include "util/math/mathutil.h"
 
 
-namespace S2 {
+namespace GT {
 
-    const int kMaxCellLevel = 31;
+    // const int kMaxCellLevel = 31;
 
 // Defines a cell metric of the given dimension (1 == length, 2 == area).
 template <int dim> class Metric {
@@ -60,7 +60,7 @@ template <int dim> class Metric {
   int GetClosestLevel(double value) const;
 
   // Return the minimum level such that the metric is at most the given
-  // value, or S2CellId::kMaxLevel if there is no such level.  For example,
+  // value, or GTCellId::kMaxLevel if there is no such level.  For example,
   // s2::kMaxDiag.GetLevelForMaxValue(0.1) returns the minimum level such
   // that all cell diagonal lengths are 0.1 or smaller.  The return value
   // is always a valid level.
@@ -79,6 +79,7 @@ template <int dim> class Metric {
   Metric(const Metric&) = delete;
   void operator=(const Metric&) = delete;
 };
+
 using LengthMetric = Metric<1>;
 using AreaMetric = Metric<2>;
 
@@ -112,9 +113,9 @@ extern const LengthMetric kAvgAngleSpan;
 // point on one edge of a cell to the closest point on the opposite edge.
 // For example, this is useful when "growing" regions by a fixed distance.
 //
-// Note that because S2Cells are not usually rectangles, the minimum width of
+// Note that because GTCells are not usually rectangles, the minimum width of
 // a cell is generally smaller than its minimum edge length.  (The interior
-// angles of an S2Cell range from 60 to 120 degrees.)
+// angles of an GTCell range from 60 to 120 degrees.)
 extern const LengthMetric kMinWidth;
 extern const LengthMetric kMaxWidth;
 extern const LengthMetric kAvgWidth;
@@ -166,29 +167,29 @@ extern const double kMaxDiagAspect;
 
 
 template <int dim>
-int S2::Metric<dim>::GetLevelForMaxValue(double value) const {
-  if (value <= 0) return S2::kMaxCellLevel;
+int GT::Metric<dim>::GetLevelForMaxValue(double value) const {
+  if (value <= 0) return GT::kMaxCellLevel;
 
   // This code is equivalent to computing a floating-point "level"
   // value and rounding up.  ilogb() returns the exponent corresponding to a
   // fraction in the range [1,2).
   int level = ilogb(value / deriv_);
-  level = std::max(0, std::min(S2::kMaxCellLevel, -(level >> (dim - 1))));
-  S2_DCHECK(level == S2::kMaxCellLevel || GetValue(level) <= value);
-  S2_DCHECK(level == 0 || GetValue(level - 1) > value);
+  level = std::max(0, std::min(GT::kMaxCellLevel, -(level >> (dim - 1))));
+  GT_DCHECK(level == GT::kMaxCellLevel || GetValue(level) <= value);
+  GT_DCHECK(level == 0 || GetValue(level - 1) > value);
   return level;
 }
 
 template <int dim>
-int S2::Metric<dim>::GetLevelForMinValue(double value) const {
-  if (value <= 0) return S2::kMaxCellLevel;
+int GT::Metric<dim>::GetLevelForMinValue(double value) const {
+  if (value <= 0) return GT::kMaxCellLevel;
 
   // This code is equivalent to computing a floating-point "level"
   // value and rounding down.
   int level = ilogb(deriv_ / value);
-  level = std::max(0, std::min(S2::kMaxCellLevel, level >> (dim - 1)));
-  S2_DCHECK(level == 0 || GetValue(level) >= value);
-  S2_DCHECK(level == kMaxCellLevel || GetValue(level + 1) < value);
+  level = std::max(0, std::min(GT::kMaxCellLevel, level >> (dim - 1)));
+  GT_DCHECK(level == 0 || GetValue(level) >= value);
+  GT_DCHECK(level == kMaxCellLevel || GetValue(level + 1) < value);
   return level;
 }
 
@@ -199,4 +200,4 @@ int Metric<dim>::GetClosestLevel(double value) const {
 
 }  // namespace s2
 
-#endif  // S2_S2METRICS_H_
+#endif  // GT_GTMETRICS_H_
