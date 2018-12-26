@@ -50,7 +50,7 @@ namespace GT{
 // constant is defined here so that the s2::Metric class and the conversion
 // functions below can be implemented without including s2cell_id.h.  Please
 // see s2cell_id.h for other useful constants and conversion functions.
-    const unsigned int kMaxCellLevel = 31;
+    const uint8 kMaxCellLevel = 31;
 
 // 叶子节点（I，J）索引值的最大值
 // The maximum index of a valid leaf cell plus one.  The range of valid leaf
@@ -106,14 +106,6 @@ namespace GT{
     GT_API bool XYZtoCellID(const S2Point pnt, uint64* pCellID);
     //球面坐标向指定层级网格ID的转换函数，level<=31
     GT_API bool XYZtoCellID(const S2Point pnt, uint64* pCellID,int level);
-
-
-    //判断网格ID是否合法
-    GT_API bool IsValidID(const uint64 CellID);
-    //判断网格ID是否为伪网格
-    GT_API bool IsPseudoCell(const uint64 CellID);
-    //计算网格ID对应的层级
-    GT_API int Level(const uint64 CellID);
 
 }
 

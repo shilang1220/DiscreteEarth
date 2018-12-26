@@ -23,13 +23,13 @@ public:
     GTCell() {};
 
     // A GTCell always corresponds to a particular GTCellId.
-    explicit GTCell(GTCellId id) : id_(id) {};
+    explicit GTCell(GTCellId id) : id_(id) {level_=id_.level();}
 
     // A GTCell from spherical 3d coordinates.
-    explicit GTCell(const S2Point &p) : GTCell(GTCellId(p)) {}
+    explicit GTCell(const S2Point &p) : GTCell(GTCellId(p)) {level_=id_.level();}
 
     // A GTCell from latitude and longitude. The S2LatLng must within[-90..+90,-180..+180]
-    explicit GTCell(const S2LatLng &ll) : GTCell(GTCellId(ll)) {}
+    explicit GTCell(const S2LatLng &ll) : GTCell(GTCellId(ll)) {level_=id_.level();}
 
     ~GTCell() {};
 
@@ -39,9 +39,12 @@ public:
      * *************************************/
     GTCellId id() const { return id_; }
 
-    int level() const { return id_.level(); }
+    //判断网格ID是否是伪网格
+    bool IsPseudoCell() const ;
 
-    bool is_leaf() const;
+    int level() const { return level_; }
+
+    bool is_leaf() const {return (level_ == GT::kMaxCellLevel);}
 
     S2Point GetVertex(int k) const;
 
@@ -123,7 +126,21 @@ public:
     ////////////////////////////////////////////////////////////
 private:
     GTCellId id_;
+    int8 level_;
 };
 
+inline bool GTCell::IsPseudoCell() const {
+    bool exist = false;
+    // unsigned int lat1, lat2, lat3;
+    // unsigned int lon1, lon2, lon3;
+    // lat1 = (90 - (code.latCode << 1 >> 24)) >> 8;
+    // lon1 = (180 - (code.lonCode << 1 >> 24)) >> 8;
+    // lat2 = (code.latCode << 9 >> 28) ^ 15;
+    // lon2 = (code.lonCode << 9 >> 28) ^ 15;
+    // lat3 = (code.latCode << 15 >> 28) ^ 15;
+    // lon3 = (code.lonCode << 15 >> 28) ^ 15;
+    // exist = !lat1 && !lon1 && lat2 && lon2 && lat3 && lon3;
+    return exist;
+};
 
 #endif //DISCRETEEARTH_GTCELL_H

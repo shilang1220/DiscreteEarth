@@ -273,33 +273,9 @@ bool GT::CellIDtoXYZ (const uint64 CellID, S2Point *pPnt) {
     return true;
 }
 ////////////////////////////////////////////////////////
-//判断给定网格ID是否是伪网格
-///////////////////////////////////////////////////////
-bool GT::IsPseudoCell (const uint64 CellID) {
-    bool exist = false;
-    // unsigned int lat1, lat2, lat3;
-    // unsigned int lon1, lon2, lon3;
-    // lat1 = (90 - (code.latCode << 1 >> 24)) >> 8;
-    // lon1 = (180 - (code.lonCode << 1 >> 24)) >> 8;
-    // lat2 = (code.latCode << 9 >> 28) ^ 15;
-    // lon2 = (code.lonCode << 9 >> 28) ^ 15;
-    // lat3 = (code.latCode << 15 >> 28) ^ 15;
-    // lon3 = (code.lonCode << 15 >> 28) ^ 15;
-    // exist = !lat1 && !lon1 && lat2 && lon2 && lat3 && lon3;
-    return exist;
-}
-////////////////////////////////////////////////////////
-//判断给定网格ID是否是合法ID
-///////////////////////////////////////////////////////
-bool GT::IsValidID (const uint64 CellID) {
-    // 采用末尾补100..0方式表示层级时，至少有一个偶数位bit必须为1
-    // return (lsb() & 0x2AAAAAAAAAAAAAAAULL);
-    return false;
-}
 
-int GT::Level(const uint64 CellID) {
-    return 0;
-}
+///////////////////////////////////////////////////////
+
 
 
 

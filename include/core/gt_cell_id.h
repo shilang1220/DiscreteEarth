@@ -15,7 +15,6 @@
 #include "exports.h"
 
 #include "base/integral_types.h"
-#include "base/logging.h"
 #include "base/port.h"
 #include "third_party/absl/strings/string_view.h"
 #include "util/bits/bits.h"
@@ -36,6 +35,8 @@ public:
     ///////////////////////////////////////////////
     // Basic parameters
     //////////////////////////////////////////////
+    static const int kNumFaces = 4;                     //四个半球
+    static const int kFaceBits = 2;                     //2bit，Z序编码方向不同
     static const int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 0-31 levels
     static const int kPosBits = 2 * kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
     static const int kMaxSize = 1 << kMaxLevel;          // Valid cell number, numbers of column and row at 31 levels must be 2**31.
@@ -67,7 +68,7 @@ public:
     GTCellId () { id_ = 0; }
 
     // Construct using a known id number;
-    explicit GTCellId (const uint64 id) { id_ = id; level_ = GT::Level(id); }
+    explicit GTCellId (const uint64 id) { id_ = id; }
 
     // Construct a leaf cell containing the given point "p".
     explicit GTCellId (const S2Point p);
@@ -80,6 +81,7 @@ public:
 
     // Construct a cell at 'level' containing the given S2LatLng.
     explicit GTCellId (const S2LatLng ll,int level);
+
     /************************************
     *  网格ID与球面坐标之间的转换函数
     ************************************/
@@ -93,9 +95,9 @@ public:
     S2Point ToPoint () const;
 
     // 根据球面坐标创建对应的网格ID, point为球面坐标，ID对应其与球面的交点
-    bool FromPoint (S2Point point);
+    static GTCellId FromPoint (S2Point point);
 
-    bool FromPoint (S2Point point, unsigned int level);
+    static GTCellId FromPoint (S2Point point, unsigned int level);
 
     /************************************
       *  GEOSOT网格ID与经纬度之间的转换函数
@@ -105,30 +107,44 @@ public:
     S2LatLng ToLatLng () const;
 
     //  根据经纬度，生成对应的网格ID
-    bool FromLatLng (S2LatLng latLng);
+    static GTCellId FromLatLng (S2LatLng latLng);
 
-    bool FromLatLng (S2LatLng latLng, unsigned int level);
+    static GTCellId FromLatLng (S2LatLng latLng, unsigned int level);
 
     /************************************
      *  网格ID属性访问函数
      ************************************/
-    static GTCellId None () { return GTCellId(0); }
+    // The default constructor returns an invalid cell id 00...00
+    static GTCellId None() { return GTCellId(); }
 
-    // Return true if id() represents a valid cell.
-    bool is_valid () const;
+    // Returns an invalid cell id guaranteed to be larger than any
+    // valid cell id 11..11.  Useful for creating indexes.
+    static GTCellId Sentinel() { return GTCellId(~uint64{0}); }
+
+    // The 64-bit unique identifier for this cell.
+    uint64 id() const { return id_; }
+
+    // Which face this cell belongs to, in the range 0..3.
+    int face() const;
+
+    // 网格ID所在的层级
+    int level () const;
 
     // 网格ID所在的曲线位置
     uint64 pos () const;
 
-    // 网格ID所在的层级
-    int level () const;
+    // Return true if id() represents a valid cell.
+    bool is_valid () const;
+
+    // Return true if id() represents a face.
+    bool is_face () const;
 
     // 网格ID是否对应叶子节点
     // Return true if this is a leaf cell (more efficient than checking
     // whether level() == kMaxLevel).
     bool is_leaf () const;
 
-    // 返回该网格编码的最低有效位
+    // 获得本网格ID的标识位00..1..000
     // Return the lowest-numbered bit that is on for this cell id, which is
     // equal to (uint64{1} << (2 * (kMaxLevel - level))).  So for example,
     // a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
@@ -138,12 +154,12 @@ public:
     //return ‘lsb’ for given level
     static uint64 lsb_for_level (int level);
 
-    // 网格ID在其父节点中的位置（0..3）
+    // 本网格ID在其父节点中的位置（0..3）
     // Return the child position (0..3) of this cell within its parent.
     // REQUIRES: level() >= 1.
     int child_position () const;
 
-    // 网格ID的某个层级祖先节点在其父节点中的位置
+    // 本网格ID的某个层级祖先节点在其父节点中的位置
     // Return the child position (0..3) of this cell's ancestor at the given
     // level within its parent.  For example, child_position(1) returns the
     // position of this cell's level-1 ancestor within its top-level face cell.
@@ -206,7 +222,6 @@ public:
     // 返回祖先网格的ID
     GTCellId parent () const;
 
-
     // 返回某个层级祖先网格的ID
     GTCellId parent (int level) const;
 
@@ -222,7 +237,7 @@ public:
     // iterators, and may not even be a valid cell id.  You should iterate using
     // code like this:
     //
-    //   for(uint64 c = id.child_begin(); c != id.child_end(); c = c.next())
+    //   for(GTCellId c = id.child_begin(); c != id.child_end(); c = c.next())
     //     ...
     //
     // The convention for advancing the iterator is "c = c.next()" rather
@@ -244,7 +259,7 @@ public:
 
     GTCellId prev () const;
 
-    // 在当前层级中，沿着曲线向前跳steps部的网格ID
+    // 在当前层级中，沿着曲线向前或向后跳steps步的网格ID
     // This method advances or retreats the indicated number of steps along the
     // Hilbert curve at the current level, and returns the new position.  The
     // position is never advanced past End() or before Begin().
@@ -256,19 +271,6 @@ public:
     /// @brief
     /// @return
     int64 distance_from_begin () const;
-
-//    // Like next() and prev(), but these methods wrap around from the last face
-//    // to the first and vice versa.  They should *not* be used for iteration in
-//    // conjunction with child_begin(), child_end(), Begin(), or End().  The
-//    // input must be a valid cell id.
-//    virtual  CellId* next_wrap() const = 0 ;
-//    virtual  CellId* prev_wrap() const = 0 ;
-
-//    // This method advances or retreats the indicated number of steps along the
-//    // Hilbert curve at the current level, and returns the new position.  The
-//    // position wraps between the first and last faces as necessary.  The input
-//    // must be a valid cell id.
-//    virtual  CellId* advance_wrap(int64 steps) const = 0 ;
 
     // Return the largest cell with the same range_min() and such that
     // range_max() < limit.range_min().  Returns "limit" if no such cell exists.
@@ -294,9 +296,9 @@ public:
     // curve at a given level (across all 6 faces of the cube).  Note that the
     // end value is exclusive (just like standard STL iterators), and is not a
     // valid cell id.
-    GTCellId Begin (int level);
+    static GTCellId Begin (int level);
 
-    GTCellId End (int level);
+    static GTCellId End (int level);
 
     /************************************
   *  邻居节点访问函数
@@ -328,14 +330,29 @@ public:
     // REQUIRES: nbr_level >= this->level().
     void AppendAllNeighbors (int nbr_level, std::vector<GTCellId> *output) const;
 
-    uint64 id () const;
-
-    friend std::ostream &operator<< (std::ostream &os, const GTCellId &id);
-
-
     /************************************
     *  编码转换函数
     ************************************/
+    // Creates a human readable debug string.  Used for << and available for
+    // direct usage as well.  The format is "f/dd..d" where "f" is a digit in
+    // the range [0-3] representing the CellId face, and "dd..d" is a string
+    // of digits in the range [0-3] representing each child's position with
+    // respect to its parent.  (Note that the latter string may be empty.)
+    //
+    // For example "3/" represents the cellid is from face 3, and "3/02" represents
+    // CellId::FromFace(3).child(0).child(2).
+    // 四进制编码输出
+    string ToString4 () const;
+    // 十六进制编码输出
+    string ToString16 () const;
+    // 32进制编码输出
+    string ToString32 () const;
+
+    //将字符串转换为ID
+    static GTCellId FromString4(string strCode);
+    static GTCellId FromString16(string strCode);
+    static GTCellId FromString32(string strCode);
+
     // Methods to encode and decode cell ids to compact text strings suitable
     // for display or indexing.  Cells at lower levels (i.e. larger cells) are
     // encoded into fewer characters.  The maximum token length is 16.
@@ -348,6 +365,7 @@ public:
     // These methods guarantee that FromToken(ToToken(x)) == x even when
     // "x" is an invalid cell id.  All tokens are alphanumeric strings.
     // FromToken() returns CellId::None() for malformed inputs.
+
     string ToToken () const;
 
     GTCellId FromToken (const char *token, size_t length);
@@ -357,6 +375,7 @@ public:
     /************************************
     *  编码串行化输入输出函数
     ************************************/
+    friend std::ostream &operator<< (std::ostream &os, const GTCellId &id);
     // Use encoder to generate a serialized representation of this cell id.
     // Can also encode an invalid cell.
     /**
@@ -369,23 +388,11 @@ public:
     // Decodes an CellId encoded by Encode(). Returns true on success.
     bool Decode (Decoder *const decoder);
 
-    // Creates a human readable debug string.  Used for << and available for
-    // direct usage as well.  The format is "f/dd..d" where "f" is a digit in
-    // the range [0-5] representing the CellId face, and "dd..d" is a string
-    // of digits in the range [0-3] representing each child's position with
-    // respect to its parent.  (Note that the latter string may be empty.)
-    //
-    // For example "4/" represents CellId::FromFace(4), and "3/02" represents
-    // CellId::FromFace(3).child(0).child(2).
-    string ToString () const;
 
 
 private:
     // This structure occupies 44 bytes plus one pointer for the vtable.
     uint64 id_;
-    int8 level_;
-    int8 orientation_;
-
 };
 
 //重载逻辑表达运算的全局函数
@@ -414,7 +421,8 @@ inline bool operator>= (GTCellId x, GTCellId y) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-//
+// some inline realization
+/////////////////////////////////////////////////////////////////////////////
 
 inline uint64 GTCellId::lsb () const {
     return id_ & (~id_ + 2);  //如果是非法编码的话，标识位在奇数位上
@@ -424,9 +432,17 @@ inline uint64 GTCellId::lsb_for_level (int level) {
     return 1 << (2 * (kMaxLevel - level + 1) - 1);
 };
 
+
+//TODO：
 inline bool GTCellId::is_valid () const {
 
-    return (GT::IsValidID(id_) && !GT::IsPseudoCell(id_));
+    return (face() < kNumFaces && (lsb() & 0x2AAAAAAAAAAAAAAAULL));
+}
+
+//TODO：
+inline bool GTCellId::is_face () const {
+
+    return (id_ & (lsb_for_level(0) - 1)) == 0;
 }
 
 inline GTCellId GTCellId::range_min () const {
@@ -445,10 +461,64 @@ inline int GTCellId::level () const {
     // We can't just S2_DCHECK(is_valid()) because we want level() to be
     // defined for end-iterators, i.e. S2CellId::End(kLevel).  However there is
     // no good way to define S2CellId::None().level(), so we do prohibit that.
-            S2_DCHECK(id_ != 0);
+    S2_DCHECK(id_ != 0);
 
     // A special case for leaf cells is not worthwhile.
     return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
 }
+//TODO:
+inline uint64 GTCellId::pos() const {
+    return 0;
+}
 
+inline int GTCellId::face() const {
+    return id_ >> kPosBits;
+}
+
+
+inline bool GTCellId::is_leaf() const {
+    return(level() == GT::kMaxCellLevel);
+}
+
+//返回本网格在父网格中的位置[0..3]
+inline int GTCellId::child_position() const {
+
+    return child_position(level());
+}
+//返回在level级中的祖先网格在其父网格中的位置[0..3]
+inline int GTCellId::child_position(int level) const {
+    S2_DCHECK(is_valid());
+    S2_DCHECK_GE(level, 1);
+    S2_DCHECK_LE(level, this->level());
+    return static_cast<int>(id_ >> (2 * (kMaxLevel - level +1 ))) & 0x3;
+}
+
+//获得父网格ID
+inline GTCellId GTCellId::parent() const {
+            S2_DCHECK(is_valid());
+
+    uint64 new_lsb = lsb() << 2;
+    return GTCellId((id_ & (~new_lsb + 1)) | new_lsb);
+}
+//获得第level层级父网格的ID
+inline GTCellId GTCellId::parent(int level) const {
+    S2_DCHECK(is_valid());
+    S2_DCHECK_GE(level, 0);
+    S2_DCHECK_LE(level, this->level());
+    uint64 new_lsb = lsb_for_level(level);
+    return GTCellId((id_ & (~new_lsb + 1)) | new_lsb);
+}
+
+//TODO:
+//获取第position个子网格的ID，position值域[0..3]
+inline GTCellId GTCellId::child(int position) const {
+            S2_DCHECK(is_valid());
+            S2_DCHECK(!is_leaf());
+    // To change the level, we need to move the least-significant bit two
+    // positions downward.  We do this by subtracting (4 * new_lsb) and adding
+    // new_lsb.  Then to advance to the given child cell, we add
+    // (2 * position * new_lsb).
+    uint64 new_lsb = lsb() >> 2;
+    return GTCellId(id_ + (2 * position + 1 - 4) * new_lsb);
+}
 #endif //DISCRETEEARTH_GTCELLID_H

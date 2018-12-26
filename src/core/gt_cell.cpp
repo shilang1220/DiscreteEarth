@@ -7,10 +7,6 @@
 #include "core/gt_cell.h"
 
 
-bool GTCell::is_leaf () const {
-    return false;
-}
-
 S2Point GTCell::GetVertex (int k) const {
     return S2Point();
 }
