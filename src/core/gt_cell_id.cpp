@@ -163,11 +163,13 @@ GTCellId GTCellId::child_end (int level) const {
 
 //本级曲线上的下一个ID
 GTCellId GTCellId::next () const {
+    //+1
     return GTCellId(id_ + (lsb() << 1));
 }
 
 //本级曲线上的上一个ID
 GTCellId GTCellId::prev () const {
+    //-1
     return GTCellId(id_ - (lsb() << 1));
 }
 

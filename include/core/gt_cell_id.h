@@ -35,29 +35,49 @@ public:
     ///////////////////////////////////////////////
     // Basic parameters
     //////////////////////////////////////////////
-    static const int kNumFaces = 4;                     //四个半球
-    static const int kFaceBits = 2;                     //2bit，Z序编码方向不同
-    static const int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 0-31 levels
-    static const int kPosBits = 2 * kMaxLevel;          // Valid bits,   first 62-bits   last 2-bits only used as stop flag for 31-level cells.
-    static const int kMaxSize = 1 << kMaxLevel;          // Valid cell number, numbers of column and row at 31 levels must be 2**31.
+    static const int kNumFaces = 4;                     // 4 hemisphere 四个半球
+    static const int kFaceBits = 2;                     // 2bit，由于第一级的Z序与东北半球相反，做单独处理
+    static const int kMaxLevel = GT::kMaxCellLevel;     // Valid levels, 1 - 31 levels
+    static const int kPosBits = 2 *  kMaxLevel ;        // 62 Valid bits,   60-bits pos + 2-bits stop flag,kFaceBits + kPosBits =64
+    static const int kMaxSize = 1 << (kMaxLevel-1);     // Valid cell number  in row or column within a hemisphere.
 
+    /////////////////////////////////////////////////
+    // 关于层的约定
+    // 从1层至第32层
+    // level = 1，表示半球，网格编码中用高位起第0-1bit表示，为反Z字逆序
+    // level = 2, 网格编码中用高位起第2-3bit表示，为反Z字顺序
+    // level = 3, 网格编码中用高位起第4-5bit表示，为反Z字顺序
+    // ......，后面以此类推
+    // level = 31,网格编码中用高位起第60-61bit表示，为反Z字顺序
+    // level = 32，转做截止符专用，网格编码中用高位起第62-63bit表示，为00或10,10时专指叶子网格编码
+    // 所有层级网格编码均为其前序层编码从高位到低位连接而成，其后跟随10..00..00作为编码截止标识
     //////////////////////////////////////////////
     // ID examples： 下面两个字节能够表示7级网格
-    // 0b 0010 0000 0000 0000  第2级的第3个子网格
-    // 0b 1101 1100 1000 0000  第4级的第1个子网格
-    // 0b 1101 1100 1110 0000  第5级的第4个子网格
-    // 0b 1101 1100 1110 1000  第6级的第3个子网格
-    // 0b 1101 1100 1110 0010  第7级的第1个子网格
-    // 0b 1101 1100 1110 0110  第7级的第2个子网格
-    // 0b 1101 1100 1110 1010  第7级的第3个子网格
-    // 0b 1101 1100 1110 1110  第7级的第4个子网格
+    // 0b 1000 0000 0000 0000  第0级网格，代表全球
+    // 0b 0010 0000 0000 0000  第1级的第0个子网格
+    // 0b 1101 1100 1000 0000  第4级的第0个子网格
+    // 0b 1101 1100 1110 0000  第5级的第3个子网格
+    // 0b 1101 1100 1110 1000  第6级的第2个子网格
+    // 0b 1101 1100 1110 0010  第7级的第0个子网格
+    // 0b 1101 1100 1110 0110  第7级的第1个子网格
+    // 0b 1101 1100 1110 1010  第7级的第2个子网格
+    // 0b 1101 1100 1110 1110  第7级的第3个子网格
     // 0b 1101 1100 1110 1100  非法网格编码
     // 0b 1101 1100 1110 0100  非法网格编码
-    // 0b 1101 1100 1110 1000  合法网格编码，只能被解释为第6级的第3个子网格
+    // 0b 1101 1100 1110 1000  合法网格编码，只能被解释为第6级的第2个子网格
     // 0b 1101 1100 1110 1100  非法网格编码
     // 0b 1101 1100 1100 0000  非法网格编码
     // 0b 1101 1100 1101 0000  非法网格编码
     // 0b 1101 1100 1111 0000  非法网格编码
+    /////////////////////////////////////////////
+    // 注意几个特殊网格ID：
+    // 1000..00..00  代表全球网格
+    // 0010  10..00  代表东北半球
+    // 0001  10..00  代表西北半球
+    // 0010  10..00  代表东南半球
+    // 0011  10..00  代表西南半球
+    // 0000..00..00  全0代表未赋值网格
+    // 1111  11..11  全1作为网格编码的最大值指示器
     /////////////////////////////////////////////
 
     ///////////////////////////////////////////////
@@ -83,22 +103,24 @@ public:
     explicit GTCellId (const S2LatLng ll,int level);
 
 
-    //构建第一级网格ID
+    // Return a cell according to hemisphere input。
+    // 构建第一级网格ID
     static GTCellId FromFace(int face);
-    // Return a cell given its face (range 0..3), Z curve position within
+    // Return a cell given its hemisphere (range 0..3), Z curve position within
     // that face (an unsigned integer with GTCellId::kPosBits bits), and level
-    // (range 0..kMaxLevel).  The given position will be modified to correspond
-    // to the Hilbert curve position at the center of the returned cell.  This
-    // is a static function rather than a constructor in order to indicate what
+    // (range 1..kMaxLevel,level 1 mean the hemisphere itself).  The given position will
+    // be modified to correspond to the Z curve position at the center of the returned cell.
+    // This is a static function rather than a constructor in order to indicate what
     // the arguments represent.
+    // 指定半球[0..3]、层级[1..31]和Z[0..2**kPosBits]序位置，返回对应的网格编码
+    // 注意： Z序位置和level之间的对应关系由用户判断，由于pos没有截止标识，程序将其作为叶子网格（第31级）
+    // 处理，并返回该叶子节点的第level级祖先网格
     static GTCellId FromFacePosLevel(int face, uint64 pos, int level);
     /************************************
     *  网格ID与球面坐标之间的转换函数
     ************************************/
     // Return the direction vector corresponding to the center of the given
-    // cell.  The vector returned by ToPointRaw is not necessarily unit length.
-    // This method returns the same result as S2Cell::GetCenter().
-    //
+    // cell.   This method returns the same result as S2Cell::GetCenter().
     // The maximum directional error in ToPoint() (compared to the exact
     // mathematical result) is 1.5 * DBL_EPSILON radians, and the maximum length
     // error is 2 * DBL_EPSILON (the same as Normalize).
@@ -137,11 +159,12 @@ public:
     // Which face this cell belongs to, in the range 0..3.
     int face() const;
 
+    // Return the cell's level[1..31]
     // 网格ID所在的层级
     int level () const;
 
-    // The position of the cell center along the Hilbert curve over this face,
-    // in the range 0..(2**kPosBits-1).
+    // The position of the cell center along the Z curve over this face,
+    // in the range 0..(2**kPosBits-1),including stop flag bits.
     uint64 pos () const;
 
     // Return true if id() represents a valid cell.
@@ -157,24 +180,24 @@ public:
 
     // 获得本网格ID的标识位00..1..000
     // Return the lowest-numbered bit that is on for this cell id, which is
-    // equal to (uint64{1} << (2 * (kMaxLevel - level))).  So for example,
+    // equal to (uint64{1} << (2 * (kMaxLevel - level)+1)).  So for example,
     // a.lsb() <= b.lsb() if and only if a.level() >= b.level(), but the
     // first test is more efficient.
     uint64 lsb () const;
 
-    //return ‘lsb’ for given level
+    //return ‘lsb’ for given level[1..31]
     static uint64 lsb_for_level (int level);
 
     // 本网格ID在其父节点中的位置（0..3）
     // Return the child position (0..3) of this cell within its parent.
-    // REQUIRES: level() >= 1.
+    // REQUIRES: level() > 1.
     int child_position () const;
 
     // 本网格ID的某个层级祖先节点在其父节点中的位置
     // Return the child position (0..3) of this cell's ancestor at the given
     // level within its parent.  For example, child_position(1) returns the
     // position of this cell's level-1 ancestor within its top-level face cell.
-    // REQUIRES: 1 <= level <= this->level().
+    // REQUIRES: 1 < level <= this->level().
     int child_position (int level) const;
 
     // These methods return the range of cell ids that are contained within this
@@ -200,11 +223,10 @@ public:
     // if necessary (which is not always a valid CellId but can still be used
     // with FromToken/ToToken), or you can convert range_max() to the key space
     // of your key-value store and define "limit" as Successor(key).
-    //
-    // Note that Sentinel().range_min() == Sentinel.range_max() == Sentinel().
+
     // 获得本网格所包含的所有子网格ID值的最大值和最小值
     // 注意：  本网格所有的子网格ID一定在最小值和最大值之间，
-    // 但是最大值和最小值之间的值并非都是子网格，因此遍历子网格不能依赖此值域
+    // 但是最大值和最小值之间的值并非都是子网格编码，因此遍历子网格不能依赖此值域
 
     // 本网格包含的子网格中ID的最小值，根据编码的定义，最小值出现在叶子结点
     GTCellId range_min () const;
@@ -242,7 +264,6 @@ public:
     // position (in the range 0 to 3).  This cell must not be a leaf cell.
     GTCellId child (int position) const;
 
-    // 注意： end为截止标识ID，不是本网格的子孙网格ID，而且可能不存在
     // Iterator-style methods for traversing the immediate children of a cell or
     // all of the children at a given level (greater than or equal to the current
     // level).  Note that the end value is exclusive, just like standard STL
@@ -256,11 +277,10 @@ public:
     // than "++c" to avoid possible confusion with incrementing the
     // underlying 64-bit cell id.
     GTCellId child_begin () const;
-
+    // 注意： end为截止标识ID，不是本网格的子孙网格ID，而且可能不存在
     GTCellId child_end () const;
 
     GTCellId child_begin (int level) const;
-
     // 注意： end为截止标识ID，不是本网格的子孙网格ID，而且可能不存在
     GTCellId child_end (int level) const;
 
@@ -440,11 +460,11 @@ inline bool operator>= (GTCellId x, GTCellId y) {
 // some inline realization
 /////////////////////////////////////////////////////////////////////////////
 inline GTCellId GTCellId::FromFace(int face) {
-    return GTCellId((static_cast<uint64>(face) << kPosBits) + lsb_for_level(0));
+    return GTCellId((static_cast<uint64>(face) << kPosBits) + lsb_for_level(1));
 }
 
 inline GTCellId GTCellId::FromFacePosLevel(int face, uint64 pos, int level) {
-    GTCellId cell((static_cast<uint64>(face) << kPosBits) + (pos | 1));
+    GTCellId cell(((static_cast<uint64>(face) << kPosBits) + (pos | 2))& 0XFFFFFFFFFFFFFFFE);
     return cell.parent(level);
 }
 
@@ -466,7 +486,7 @@ inline bool GTCellId::is_valid () const {
 //TODO：
 inline bool GTCellId::is_face () const {
 
-    return (id_ & (lsb_for_level(0) - 1)) == 0;
+    return (id_ & (lsb_for_level(1) - 1)) == 0;
 }
 
 inline GTCellId GTCellId::range_min () const {
@@ -488,7 +508,7 @@ inline int GTCellId::level () const {
     S2_DCHECK(id_ != 0);
 
     // A special case for leaf cells is not worthwhile.
-    return kMaxLevel - (Bits::FindLSBSetNonZero64(id_) >> 1);
+    return kMaxLevel - ((Bits::FindLSBSetNonZero64(id_) - 1 )>> 1);
 }
 //TODO:
 inline uint64 GTCellId::pos() const {

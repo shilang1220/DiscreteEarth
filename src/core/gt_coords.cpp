@@ -276,12 +276,14 @@ bool GT::LLtoCellID (const double Lng, const double Lat, uint64 *pCellID, int le
     return true;
 }
 
-bool GT::CellIDtoLL (const uint64 CellID, double *pLng, double *pLat) {
+bool GT::CellIDtoLL (const uint64 CellID, double *pLng, double *pLat,int *level) {
     uint32 I, J;
-    int level;
+    int le;
 
-    CellIDtoIJ(CellID, &I, &J, &level);
-    IJtoLL(I, J, pLng, pLat, level);
+    CellIDtoIJ(CellID, &I, &J, &le);
+    IJtoLL(I, J, pLng, pLat, le);
+    *level = le;
+
     return false;
 }
 
@@ -306,12 +308,13 @@ bool GT::XYZtoCellID (const S2Point pnt, uint64 *pCellID, int level) {
     return true;
 }
 
-bool GT::CellIDtoXYZ (const uint64 CellID, S2Point *pPnt) {
+bool GT::CellIDtoXYZ (const uint64 CellID, S2Point *pPnt,int* level) {
     uint32 I, J;
-    int level;
+    int le;
 
-    CellIDtoIJ(CellID, &I, &J, &level);
-    IJtoXYZ(I, J, pPnt, level);
+    CellIDtoIJ(CellID, &I, &J, &le);
+    IJtoXYZ(I, J, pPnt, le);
+    *level = le;
 
     return true;
 }
