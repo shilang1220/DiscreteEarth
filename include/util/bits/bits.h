@@ -233,9 +233,11 @@ class Bits {
   // undefined value if n == 0.  FindLSBSetNonZero() is similar to ffs() except
   // that it's 0-indexed, while FindMSBSetNonZero() is the same as
   // Log2FloorNonZero().
+  //Find low 0 counts
   static int FindLSBSetNonZero(uint32 n);
   static int FindLSBSetNonZero64(uint64 n);
   static int FindLSBSetNonZero128(absl::uint128 n);
+  //Find high 0 counts
   static int FindMSBSetNonZero(uint32 n) { return Log2FloorNonZero(n); }
   static int FindMSBSetNonZero64(uint64 n) { return Log2FloorNonZero64(n); }
   static int FindMSBSetNonZero128(absl::uint128 n) {

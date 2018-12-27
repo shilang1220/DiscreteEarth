@@ -277,6 +277,7 @@ static string HexFormatString(uint64 val, size_t num_digits) {
 
 
 //TODO
+// 转换为变长字符串
 string GTCellId::ToToken () const {
     // Simple implementation: print the id in hex without trailing zeros.
     // Using hex has the advantage that the tokens are case-insensitive, all
