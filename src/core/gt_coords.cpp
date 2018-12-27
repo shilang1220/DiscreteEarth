@@ -35,13 +35,9 @@
 ////////////////////////////////////////////////////////
 //经纬度坐标系（LNG，LAT）与网格坐标系（I，J）之间的转换函数
 ///////////////////////////////////////////////////////
-bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
-    bool bRet = false;
+bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat) {
     // uint32 I_=I,J_=J;
     //边界检查
-    S2_DCHECK_LE(I, 0XFFFFFFFE);
-    S2_DCHECK_LE(J, 0XFFFFFFFE);
-
     unsigned int int_binary2code_B = J, int_binary2code_L = I;
     unsigned int degreeLat, degreeLng, minuteLat, minuteLng, secondLat, secondLng;
 
@@ -52,20 +48,20 @@ bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
     degreeLat = (int) (int_binary2code_B >> 23);                 // 9bit度
     degreeLng = (int) (int_binary2code_L >> 23);                 // 9bit度
 
-    S2_DCHECK_LT(degreeLat, 90 + DBL_EPSILON);                              //不得大于90度
-    S2_DCHECK_LT(degreeLng, 180 + DBL_EPSILON);                              //不得大于180度
+    if (degreeLat > 90 || degreeLng > 180) return false;
+
+    //不得大于180度
     //整分
     minuteLat = (int) ((int_binary2code_B & 0X007FFFFF) >> 17); // 6bit分
     minuteLng = (int) ((int_binary2code_B & 0X007FFFFF) >> 17); // 6bit分
-    S2_DCHECK_LT(minuteLat, 60 + DBL_EPSILON);                               //不得大于60分
-    S2_DCHECK_LT(minuteLng, 60 + DBL_EPSILON);                               //不得大于60分
+
+    if (minuteLat > 60 || minuteLng > 60) return false;                               //不得大于60分
 
     //整1/2048秒
     secondLat = (int) (int_binary2code_B & 0X0001FFFF);          //17bit秒
     secondLng = (int) (int_binary2code_L & 0X0001FFFF);          //17bit秒
 
-    S2_DCHECK_LT(secondLat, 122880);                           //不得大于60秒
-    S2_DCHECK_LT(secondLng, 122880);                           //不得大于60秒
+    if (secondLat > 122880 || secondLng > 122880) return false;                           //不得大于60秒
 
     *pLat = degreeLat + minuteLat * kMin2Degree + secondLat * kSec2Degree;
     *pLng = degreeLng + minuteLng * kMin2Degree + secondLng * kSec2Degree;
@@ -73,11 +69,11 @@ bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat) {
     if (I & 0X80000000) *pLng = -*pLng;
     if (J & 0X80000000) *pLat = -*pLat;
 
-    return bRet;
+    return true;
 }
 
 
-bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat, int level) {
+bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat, int level) {
     uint32 I_, J_;
     uint32 mask = 1 << (kMaxCellLevel - level + 1);
     mask = (~mask + 1);
@@ -85,12 +81,10 @@ bool GT::IJtoLL (const uint32 I, const uint32 J, double *pLng, double *pLat, int
     I_ = I & mask;
     J_ = J & mask;
 
-    IJtoLL(I_, J_, pLng, pLat);
-
-    return true;
+    return IJtoLL(I_, J_, pLng, pLat);
 }
 
-bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
+bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     bool bRet = false;
 
     // 检查是否越界
@@ -111,6 +105,9 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     //度级（第2到9级为连续四分,最高层级尺度为1度）
     int_B = ((unsigned int) codeV);
     int_L = ((unsigned int) codeU);
+    S2_DCHECK_LE(int_B, 90);
+    S2_DCHECK_LE(int_L, 180);
+
     int_binary2code_B |= (int_B << 23);
     int_binary2code_L |= (int_L << 23);
 
@@ -119,6 +116,10 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     minuteL = (codeU - (int) codeU) * 60.0;
     int_B = ((unsigned int) minuteB);  //整分
     int_L = ((unsigned int) minuteL);  //整分
+    S2_DCHECK_LE(int_B, 60);
+    S2_DCHECK_LE(int_L, 60);
+
+
     int_binary2code_B |= (int_B << 17);
     int_binary2code_L |= (int_L << 17);
 
@@ -128,6 +129,8 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
 
     int_B = (int) (secondB * 2048.0);   //整1/2048秒
     int_L = (int) (secondL * 2048.0);   //整1/2048秒
+    S2_DCHECK_LE(int_B, 122880);
+    S2_DCHECK_LE(int_L, 122880);
 
     int_binary2code_B |= int_B;
     int_binary2code_L |= int_L;
@@ -138,7 +141,7 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     return bRet;
 }
 
-bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ, int level) {
+bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ, int level) {
 
     uint32 I, J;
     uint32 mask = 1 << (kMaxCellLevel - level + 1);
@@ -155,15 +158,22 @@ bool GT::LLtoIJ (const double Lng, const double Lat, uint32 *pI, uint32 *pJ, int
 ////////////////////////////////////////////////////////
 //球面坐标系（X，Y,Z）与经纬度坐标系（LNG，LAT）之间的转换函数
 ///////////////////////////////////////////////////////
-bool GT::XYZtoLL (const S2Point &p, double *pLng, double *pLat) {
+bool GT::XYZtoLL(const S2Point &p, double *pLng, double *pLat) {
 
-    *pLat = S2LatLng::Latitude(p).degrees();
-    *pLng = S2LatLng::Longitude(p).degrees();
+    double lng,lat;
 
+    lat  = S2LatLng::Latitude(p).degrees();
+    lng = S2LatLng::Longitude(p).degrees();
+
+    S2_DCHECK_LE(fabs(lat),90 + DBL_EPSILON);
+    S2_DCHECK_LE(fabs(lng),180 + DBL_EPSILON);
+
+    *pLat = lat;
+    *pLng = lng;
     return false;
 }
 
-bool GT::LLtoXYZ (const double Lng, const double Lat, S2Point *pPnt) {
+bool GT::LLtoXYZ(const double Lng, const double Lat, S2Point *pPnt) {
     S2LatLng latLng;
 
     latLng.FromDegrees(Lat, Lng);
@@ -178,29 +188,38 @@ bool GT::LLtoXYZ (const double Lng, const double Lat, S2Point *pPnt) {
 //球面坐标系（X，Y,Z）与网格坐标系（I，J）之间的转换函数
 ///////////////////////////////////////////////////////
 
-bool GT::XYZtoIJ (const S2Point &p, uint32 *pI, uint32 *pJ) {
+bool GT::XYZtoIJ(const S2Point &p, uint32 *pI, uint32 *pJ) {
     double u, v;
-    XYZtoLL(p, &u, &v);
-    LLtoIJ(u, v, pI, pJ);
+    uint32 I,J;
+
+    if(XYZtoLL(p, &u, &v) && LLtoIJ(u, v, &I, &J)){
+        *pI = I;
+        *pJ = J;
+        return true;
+    }
     return false;
 }
 
-bool GT::XYZtoIJ (const S2Point &p, uint32 *pI, uint32 *pJ, int level) {
+bool GT::XYZtoIJ(const S2Point &p, uint32 *pI, uint32 *pJ, int level) {
     double u, v;
+    uint32 I,J;
 
-    XYZtoLL(p, &u, &v);
-    LLtoIJ(u, v, pI, pJ, level);
-    return true;
+    if(XYZtoLL(p, &u, &v) && LLtoIJ(u, v, &I, &J, level)){
+        *pI = I;
+        *pJ = J;
+        return true;
+    };
+    return false;
 }
 
-bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt) {
+bool GT::IJtoXYZ(const uint32 I, const uint32 J, S2Point *pPnt) {
     double u, v;
     IJtoLL(I, J, &u, &v);
     LLtoXYZ(u, v, pPnt);
     return false;
 }
 
-bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt, int level) {
+bool GT::IJtoXYZ(const uint32 I, const uint32 J, S2Point *pPnt, int level) {
     uint32 I_, J_;
     uint32 mask = 1 << (kMaxCellLevel - level + 1);
     mask = (~mask + 1);
@@ -216,14 +235,14 @@ bool GT::IJtoXYZ (const uint32 I, const uint32 J, S2Point *pPnt, int level) {
 ////////////////////////////////////////////////////////
 //网格坐标系（I，J）与一维编码ID之间的转换函数
 ///////////////////////////////////////////////////////
-bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID) {
+bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID) {
 
-    IJtoCellID(I,J,pCellID,kMaxCellLevel);
+    IJtoCellID(I, J, pCellID, kMaxCellLevel);
 
     return true;
 }
 
-bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID, int level) {
+bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID, int level) {
 
     uint64 cellID = 0X0;
     uint64 lsb = 1 << ((kMaxCellLevel - level) * 2 + 1);
@@ -238,14 +257,14 @@ bool GT::IJtoCellID (const uint32 I, const uint32 J, uint64 *pCellID, int level)
 }
 
 
-bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
+bool GT::CellIDtoIJ(const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
     uint32 I, J;
-    uint64 id ;
+    uint64 id;
 
     //去除标识位
     id = CellID - CellID & (~CellID + 2);
 
-    S2_DCHECK(CellID != 0);
+            S2_DCHECK(CellID != 0);
 
     util_bits::DeinterleaveUint32(id, &I, &J);
 
@@ -259,14 +278,14 @@ bool GT::CellIDtoIJ (const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
 ////////////////////////////////////////////////////////
 //经纬度坐标系（LNG，LAT）与网格ID之间的转换函数
 ///////////////////////////////////////////////////////
-bool GT::LLtoCellID (const double Lng, const double Lat, uint64 *pCellID) {
+bool GT::LLtoCellID(const double Lng, const double Lat, uint64 *pCellID) {
     uint32 I, J;
     LLtoIJ(Lng, Lat, &I, &J);
     IJtoCellID(I, J, pCellID);
     return true;
 }
 
-bool GT::LLtoCellID (const double Lng, const double Lat, uint64 *pCellID, int level) {
+bool GT::LLtoCellID(const double Lng, const double Lat, uint64 *pCellID, int level) {
 
     uint32 I, J;
 
@@ -276,7 +295,7 @@ bool GT::LLtoCellID (const double Lng, const double Lat, uint64 *pCellID, int le
     return true;
 }
 
-bool GT::CellIDtoLL (const uint64 CellID, double *pLng, double *pLat,int *level) {
+bool GT::CellIDtoLL(const uint64 CellID, double *pLng, double *pLat, int *level) {
     uint32 I, J;
     int le;
 
@@ -290,7 +309,7 @@ bool GT::CellIDtoLL (const uint64 CellID, double *pLng, double *pLat,int *level)
 ////////////////////////////////////////////////////////
 //球面坐标系（X，Y,Z）与网格ID之间的转换函数
 ///////////////////////////////////////////////////////
-bool GT::XYZtoCellID (const S2Point pnt, uint64 *pCellID) {
+bool GT::XYZtoCellID(const S2Point pnt, uint64 *pCellID) {
     uint32 I, J;
 
     XYZtoIJ(pnt, &I, &J);
@@ -299,16 +318,16 @@ bool GT::XYZtoCellID (const S2Point pnt, uint64 *pCellID) {
     return true;
 }
 
-bool GT::XYZtoCellID (const S2Point pnt, uint64 *pCellID, int level) {
+bool GT::XYZtoCellID(const S2Point pnt, uint64 *pCellID, int level) {
     uint32 I, J;
 
-    XYZtoIJ(pnt, &I, &J,level);
-    IJtoCellID(I, J, pCellID,level);
+    XYZtoIJ(pnt, &I, &J, level);
+    IJtoCellID(I, J, pCellID, level);
 
     return true;
 }
 
-bool GT::CellIDtoXYZ (const uint64 CellID, S2Point *pPnt,int* level) {
+bool GT::CellIDtoXYZ(const uint64 CellID, S2Point *pPnt, int *level) {
     uint32 I, J;
     int le;
 

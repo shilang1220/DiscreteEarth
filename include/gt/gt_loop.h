@@ -235,7 +235,7 @@
     ///   成员变量
     ////////////////////////////////////////////////////////////
 
-private:
+//private:
     // We store the vertices in an array rather than a vector because we don't
     // need any STL methods, and computing the number of vertices using size()
     // would be relatively expensive (due to division by sizeof(S2Point) == 24).

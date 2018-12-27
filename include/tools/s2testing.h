@@ -26,23 +26,24 @@
 
 #include "base/commandlineflags.h"
 #include "base/integral_types.h"
+#include "base/port.h"
 #include "_fp_contract_off.h"
-#include "core/r2.h"
-#include "core/s1angle.h"
-#include "core/s1chord_angle.h"
-#include "core/s2cell_id.h"
+#include "s2/r2.h"
+#include "s2/s1angle.h"
+#include "s2/s1chord_angle.h"
+#include "core/gt_cell_id.h"
 #include "third_party/absl/base/macros.h"
 #include "util/math/matrix3x3.h"
 
 class S1Angle;
-class S2Cap;
-class S2CellUnion;
+class GTCap;
+class GTCellUnion;
 class S2LatLng;
-class S2LatLngRect;
-class S2Loop;
-class S2Polygon;
-class S2Polyline;
-class S2Region;
+class GTLatLngRect;
+class GTLoop;
+class GTPolygon;
+class GTPolyline;
+class Region;
 
 // You can optionally call S2Testing::rnd.Reset(FLAGS_s2_random_seed) at the
 // start of a test or benchmark to ensure that its results do not depend on
@@ -63,13 +64,13 @@ class S2Testing {
   // the center to the circle along the sphere.
   //
   // If you want to construct a regular polygon, try this:
-  //   S2Polygon polygon(S2Loop::MakeRegularLoop(center, radius, num_vertices));
+  //   GTPolygonId polygon(GTLoop::MakeRegularLoop(center, radius, num_vertices));
   static std::vector<S2Point> MakeRegularPoints(const S2Point& center,
                                            S1Angle radius,
                                            int num_vertices);
 
   // Append the vertices of "loop" to "vertices".
-  static void AppendLoopVertices(const S2Loop& loop,
+  static void AppendLoopVertices(const GTLoop& loop,
                                  std::vector<S2Point>* vertices);
 
   // A simple class that generates "Koch snowflake" fractals (see Wikipedia
@@ -143,7 +144,7 @@ class S2Testing {
     // (touching at the fractal's center point) and then projecting the edges
     // onto the sphere.  This has the side effect of shrinking the fractal
     // slightly compared to its nominal radius.
-    std::unique_ptr<S2Loop> MakeLoop(const Matrix3x3_d& frame,
+    std::unique_ptr<GTLoop> MakeLoop(const Matrix3x3_d& frame,
                                      S1Angle nominal_radius) const;
 
    private:
@@ -203,36 +204,36 @@ class S2Testing {
   // Return a cap with a random axis such that the log of its area is
   // uniformly distributed between the logs of the two given values.
   // (The log of the cap angle is also approximately uniformly distributed.)
-  static S2Cap GetRandomCap(double min_area, double max_area);
+  static GTCap GetRandomCap(double min_area, double max_area);
 
   // Return a point chosen uniformly at random (with respect to area)
   // from the given cap.
-  static S2Point SamplePoint(const S2Cap& cap);
+  static S2Point SamplePoint(const GTCap& cap);
 
   // Return a point chosen uniformly at random (with respect to area on the
   // sphere) from the given latitude-longitude rectangle.
-  static S2Point SamplePoint(const S2LatLngRect& rect);
+  static S2Point SamplePoint(const GTLatLngRect& rect);
 
   // Return a random cell id at the given level or at a randomly chosen
   // level.  The distribution is uniform over the space of cell ids,
   // but only approximately uniform over the surface of the sphere.
-  static S2CellId GetRandomCellId(int level);
-  static S2CellId GetRandomCellId();
+  static GTCellId GetRandomCellId(int level);
+  static GTCellId GetRandomCellId();
 
   // Return a polygon with the specified center, number of concentric loops
   // and vertices per loop.
   static void ConcentricLoopsPolygon(const S2Point& center,
                                      int num_loops,
                                      int num_vertices_per_loop,
-                                     S2Polygon* polygon);
+                                     GTPolygon* polygon);
 
   // Checks that "covering" completely covers the given region.  If
   // "check_tight" is true, also checks that it does not contain any cells
   // that do not intersect the given region.  ("id" is only used internally.)
-  static void CheckCovering(const S2Region& region,
-                            const S2CellUnion& covering,
+  static void CheckCovering(const Region& region,
+                            const GTCellUnion& covering,
                             bool check_tight,
-                            S2CellId id = S2CellId());
+                            GTCellId id = GTCellId());
 
  private:
   // Contains static methods

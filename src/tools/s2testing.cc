@@ -24,6 +24,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <random>
 
 #include "base/commandlineflags.h"
 #include "base/integral_types.h"
@@ -54,6 +55,7 @@ using std::max;
 using std::unique_ptr;
 using std::vector;
 
+
 DEFINE_int32(s2_random_seed, 1,
              "Seed value that can be passed to S2Testing::rnd.Reset()");
 
@@ -63,11 +65,11 @@ S2Testing::Random::Random() {
   // Unfortunately we can't use FLAGS_s2_random_seed here, because the default
   // S2Testing::Random instance is initialized before command-line flags have
   // been parsed.
-  srandom(1);
+   srand(1);
 }
 
 void S2Testing::Random::Reset(int seed) {
-  srandom(seed);
+  srand(seed);
 }
 
 // Return a 64-bit unsigned integer whose lowest "num_bits" are random, and
@@ -92,7 +94,7 @@ inline uint64 GetBits(int num_bits) {
 
   uint64 result = 0;
   for (int bits = 0; bits < num_bits; bits += RAND_BITS) {
-    result = (result << RAND_BITS) + random();
+    result = (result << RAND_BITS) + rand();
   }
   if (num_bits < 64) {  // Not legal to shift by full bitwidth of type
     result &= ((1ULL << num_bits) - 1);
@@ -136,23 +138,23 @@ int32 S2Testing::Random::Skewed(int max_log) {
 
 S2Testing::Random S2Testing::rnd;
 
-void S2Testing::AppendLoopVertices(const S2Loop& loop,
+void S2Testing::AppendLoopVertices(const GTLoop& loop,
                                    vector<S2Point>* vertices) {
-  int n = loop.num_vertices();
-  const S2Point* base = &loop.vertex(0);
-  S2_DCHECK_EQ(&loop.vertex(n - 1), base + n - 1);
-  vertices->insert(vertices->end(), base, base + n);
+//  int n = loop.num_vertices();
+//  const S2Point* base = &loop.vertex(0);
+//  S2_DCHECK_EQ(&loop.vertex(n - 1), base + n - 1);
+//  vertices->insert(vertices->end(), base, base + n);
 }
 
 vector<S2Point> S2Testing::MakeRegularPoints(const S2Point& center,
                                              S1Angle radius,
                                              int num_vertices) {
-  unique_ptr<S2Loop> loop(
-      S2Loop::MakeRegularLoop(center, radius, num_vertices));
+//  unique_ptr<GTLoop> loop(
+//      GTLoop::MakeRegularLoop(center, radius, num_vertices));
   vector<S2Point> points;
-  for (int i = 0; i < loop->num_vertices(); i++) {
-    points.push_back(loop->vertex(i));
-  }
+//  for (int i = 0; i < loop->num_vertices(); i++) {
+//    points.push_back(loop->vertex(i));
+//  }
   return points;
 }
 
@@ -174,19 +176,19 @@ double S2Testing::AreaToKm2(double steradians) {
 
 // The overloaded Dump() function is for use within a debugger.
 void Dump(const S2Point& p) {
-  std::cout << "S2Point: " << s2textformat::ToString(p) << std::endl;
+//  std::cout << "S2Point: " << s2textformat::ToString(p) << std::endl;
 }
 
-void Dump(const S2Loop& loop) {
-  std::cout << "S2Polygon: " << s2textformat::ToString(loop) << std::endl;
+void Dump(const GTLoop& loop) {
+//  std::cout << "GTPolygon: " << s2textformat::ToString(loop) << std::endl;
 }
 
-void Dump(const S2Polyline& polyline) {
-  std::cout << "S2Polyline: " << s2textformat::ToString(polyline) << std::endl;
+void Dump(const GTPolyline& polyline) {
+//  std::cout << "GTPolyline: " << s2textformat::ToString(polyline) << std::endl;
 }
 
-void Dump(const S2Polygon& polygon) {
-  std::cout << "S2Polygon: " << s2textformat::ToString(polygon) << std::endl;
+void Dump(const GTPolygon& polygon) {
+//  std::cout << "GTPolygon: " << s2textformat::ToString(polygon) << std::endl;
 }
 
 S2Point S2Testing::RandomPoint() {
@@ -219,47 +221,47 @@ Matrix3x3_d S2Testing::GetRandomFrameAt(const S2Point& z) {
   return Matrix3x3_d::FromCols(x, y, z);
 }
 
-S2CellId S2Testing::GetRandomCellId(int level) {
-  int face = rnd.Uniform(S2CellId::kNumFaces);
-  uint64 pos = rnd.Rand64() & ((1ULL << S2CellId::kPosBits) - 1);
-  return S2CellId::FromFacePosLevel(face, pos, level);
+GTCellId S2Testing::GetRandomCellId(int level) {
+  int face = rnd.Uniform(GTCellId::kNumFaces);
+  uint64 pos = rnd.Rand64() & ((1ULL << GTCellId::kPosBits) - 1);
+  return GTCellId::FromFacePosLevel(face, pos, level);
 }
 
-S2CellId S2Testing::GetRandomCellId() {
-  return GetRandomCellId(rnd.Uniform(S2CellId::kMaxLevel + 1));
+GTCellId S2Testing::GetRandomCellId() {
+  return GetRandomCellId(rnd.Uniform(GTCellId::kMaxLevel + 1));
 }
 
-S2Cap S2Testing::GetRandomCap(double min_area, double max_area) {
+GTCap S2Testing::GetRandomCap(double min_area, double max_area) {
   double cap_area = max_area * pow(min_area / max_area, rnd.RandDouble());
   S2_DCHECK_GE(cap_area, min_area);
   S2_DCHECK_LE(cap_area, max_area);
 
   // The surface area of a cap is 2*Pi times its height.
-  return S2Cap::FromCenterArea(RandomPoint(), cap_area);
+  return GTCap::FromCenterArea(RandomPoint(), cap_area);
 }
 
 void S2Testing::ConcentricLoopsPolygon(const S2Point& center,
                                        int num_loops,
                                        int num_vertices_per_loop,
-                                       S2Polygon* polygon) {
-  Matrix3x3_d m;
-  S2::GetFrame(center, &m);
-  vector<unique_ptr<S2Loop>> loops;
-  for (int li = 0; li < num_loops; ++li) {
-    vector<S2Point> vertices;
-    double radius = 0.005 * (li + 1) / num_loops;
-    double radian_step = 2 * M_PI / num_vertices_per_loop;
-    for (int vi = 0; vi < num_vertices_per_loop; ++vi) {
-      double angle = vi * radian_step;
-      S2Point p(radius * cos(angle), radius * sin(angle), 1);
-      vertices.push_back(S2::FromFrame(m, p.Normalize()));
-    }
-    loops.push_back(make_unique<S2Loop>(vertices));
-  }
-  polygon->InitNested(std::move(loops));
+                                       GTPolygon* polygon) {
+//  Matrix3x3_d m;
+//  S2::GetFrame(center, &m);
+//  vector<unique_ptr<GTLoop>> loops;
+//  for (int li = 0; li < num_loops; ++li) {
+//    vector<S2Point> vertices;
+//    double radius = 0.005 * (li + 1) / num_loops;
+//    double radian_step = 2 * M_PI / num_vertices_per_loop;
+//    for (int vi = 0; vi < num_vertices_per_loop; ++vi) {
+//      double angle = vi * radian_step;
+//      S2Point p(radius * cos(angle), radius * sin(angle), 1);
+//      vertices.push_back(S2::FromFrame(m, p.Normalize()));
+//    }
+//    loops.push_back(make_unique<GTLoop>(vertices));
+//  }
+//  polygon->InitNested(std::move(loops));
 }
 
-S2Point S2Testing::SamplePoint(const S2Cap& cap) {
+S2Point S2Testing::SamplePoint(const GTCap& cap) {
   // We consider the cap axis to be the "z" axis.  We choose two other axes to
   // complete the coordinate frame.
 
@@ -280,7 +282,7 @@ S2Point S2Testing::SamplePoint(const S2Cap& cap) {
          .Normalize();
 }
 
-S2Point S2Testing::SamplePoint(const S2LatLngRect& rect) {
+S2Point S2Testing::SamplePoint(const GTLatLngRect& rect) {
   // First choose a latitude uniformly with respect to area on the sphere.
   double sin_lo = sin(rect.lat().lo());
   double sin_hi = sin(rect.lat().hi());
@@ -291,17 +293,17 @@ S2Point S2Testing::SamplePoint(const S2LatLngRect& rect) {
   return S2LatLng::FromRadians(lat, lng).Normalized().ToPoint();
 }
 
-void S2Testing::CheckCovering(const S2Region& region,
-                              const S2CellUnion& covering,
-                              bool check_tight, S2CellId id) {
+void S2Testing::CheckCovering(const Region& region,
+                              const GTCellUnion& covering,
+                              bool check_tight, GTCellId id) {
   if (!id.is_valid()) {
     for (int face = 0; face < 6; ++face) {
-      CheckCovering(region, covering, check_tight, S2CellId::FromFace(face));
+      CheckCovering(region, covering, check_tight, GTCellId::FromFace(face));
     }
     return;
   }
 
-  if (!region.MayIntersect(S2Cell(id))) {
+  if (!region.MayIntersect(GTCell(id))) {
     // If region does not intersect id, then neither should the covering.
     if (check_tight) S2_CHECK(!covering.Intersects(id));
 
@@ -309,10 +311,10 @@ void S2Testing::CheckCovering(const S2Region& region,
     // The region may intersect id, but we can't assert that the covering
     // intersects id because we may discover that the region does not actually
     // intersect upon further subdivision.  (MayIntersect is not exact.)
-    S2_CHECK(!region.Contains(S2Cell(id)));
+    S2_CHECK(!region.Contains(GTCell(id)));
     S2_CHECK(!id.is_leaf());
-    S2CellId end = id.child_end();
-    S2CellId child;
+    GTCellId end = id.child_end();
+    GTCellId child;
     for (child = id.child_begin(); child != end; child = child.next()) {
       CheckCovering(region, covering, check_tight, child);
     }
@@ -431,16 +433,16 @@ void S2Testing::Fractal::GetR2VerticesHelper(const R2Point& v0,
   GetR2VerticesHelper(v3, v4, level+1, vertices);
 }
 
-std::unique_ptr<S2Loop> S2Testing::Fractal::MakeLoop(
-    const Matrix3x3_d& frame,
-    S1Angle nominal_radius) const {
-  vector<R2Point> r2vertices;
-  GetR2Vertices(&r2vertices);
-  vector<S2Point> vertices;
-  double r = nominal_radius.radians();
-  for (const R2Point& v : r2vertices) {
-    S2Point p(v[0] * r, v[1] * r, 1);
-    vertices.push_back(S2::FromFrame(frame, p).Normalize());
-  }
-  return make_unique<S2Loop>(vertices);
-}
+//std::unique_ptr<GTLoop> S2Testing::Fractal::MakeLoop(
+//    const Matrix3x3_d& frame,
+//    S1Angle nominal_radius) const {
+//  vector<R2Point> r2vertices;
+//  GetR2Vertices(&r2vertices);
+//  vector<S2Point> vertices;
+//  double r = nominal_radius.radians();
+//  for (const R2Point& v : r2vertices) {
+//    S2Point p(v[0] * r, v[1] * r, 1);
+//    vertices.push_back(S2::FromFrame(frame, p).Normalize());
+//  }
+//  return make_unique<GTLoop>(vertices);
+//}
