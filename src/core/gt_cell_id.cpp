@@ -229,6 +229,7 @@ int GTCellId::GetCommonAncestorLevel (GTCellId other) const {
     uint64 bits = max(id() ^ other.id(), max(lsb(), other.lsb()));
     S2_DCHECK_NE(bits, 0);  // Because lsb() is non-zero.
 
+
     // Compute the position of the most significant bit, and then map the bit
     // position as follows:
     // {0} -> 30, {1,2} -> 29, {3,4} -> 28, ... , {59,60} -> 0, {61,62,63} -> -1.
