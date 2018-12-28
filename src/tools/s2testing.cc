@@ -201,6 +201,19 @@ S2Point S2Testing::RandomPoint() {
   return S2Point(x, y, z).Normalize();
 }
 
+S2LatLng S2Testing::RandomLatLng()  {
+  // The order of evaluation of function arguments is unspecified,
+  // so we may not just call S2Point with three RandDouble-based args.
+  // Use temporaries to induce sequence points between calls.
+  double lng = rnd.UniformDouble(-1, 1);
+  double lat = rnd.UniformDouble(-1, 1);
+
+  lng = lng * M_PI;
+  lat = lat * M_2_PI;
+
+  return S2LatLng::FromRadians(lat,lng);
+}
+
 void S2Testing::GetRandomFrame(Vector3_d* x, Vector3_d* y, Vector3_d* z) {
   *z = RandomPoint();
   GetRandomFrameAt(*z, x, y);

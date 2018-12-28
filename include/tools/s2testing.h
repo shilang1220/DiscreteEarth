@@ -192,6 +192,8 @@ class S2Testing {
   // Return a random unit-length vector.
   static S2Point RandomPoint();
 
+  static S2LatLng RandomLatLng();
+
   // Return a right-handed coordinate frame (three orthonormal vectors).
   static void GetRandomFrame(S2Point* x, S2Point* y, S2Point* z);
   static Matrix3x3_d GetRandomFrame();

@@ -32,7 +32,7 @@
 #include "core/gt_cell_id.h"                //GT剖分方案的网格单元编码类，对网格编码进行了封装
 #include "core/gt_cell.h"                   //GT剖分方案的网格单元类，对剖分网格单元进行建模，内部封装了基于剖分编码的各种网格单元操作，如：转码、单元属性、测量、关系计算等
 #include "core/gt_cell_union.h"             //GT剖分方案的网格集合类，对剖分网格单元集合进行建模，用于各种空间要素的空间范围网格化量化
-#include "core/gt_metrics.h"                //网格的角度、长度和面积基本量化分析类
+//#include "core/gt_metrics.h"                //网格的角度、长度和面积基本量化分析类
 
 //GT基础类库（gt）
 //所有空间要素都视为区域，GT实现了各类空间要素的网格化表达

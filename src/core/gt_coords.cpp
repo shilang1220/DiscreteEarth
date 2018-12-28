@@ -88,8 +88,8 @@ bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     bool bRet = false;
 
     // 检查是否越界
-    S2_DCHECK_LT(fabs(Lng), 180 + DBL_EPSILON);
-    S2_DCHECK_LT(fabs(Lat), 90 + DBL_EPSILON);
+    S2_DCHECK_LE(fabs(Lng), 180 + DBL_EPSILON);
+    S2_DCHECK_LE(fabs(Lat), 90 + DBL_EPSILON);
 
     unsigned int int_binary2code_B = 0, int_binary2code_L = 0, int_B, int_L;
     double minuteB, minuteL, secondB, secondL;
@@ -160,13 +160,13 @@ bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ, int 
 ///////////////////////////////////////////////////////
 bool GT::XYZtoLL(const S2Point &p, double *pLng, double *pLat) {
 
-    double lng,lat;
+    double lng, lat;
 
-    lat  = S2LatLng::Latitude(p).degrees();
+    lat = S2LatLng::Latitude(p).degrees();
     lng = S2LatLng::Longitude(p).degrees();
 
-    S2_DCHECK_LE(fabs(lat),90 + DBL_EPSILON);
-    S2_DCHECK_LE(fabs(lng),180 + DBL_EPSILON);
+    S2_DCHECK_LE(fabs(lat), 90 + DBL_EPSILON);
+    S2_DCHECK_LE(fabs(lng), 180 + DBL_EPSILON);
 
     *pLat = lat;
     *pLng = lng;
@@ -176,7 +176,12 @@ bool GT::XYZtoLL(const S2Point &p, double *pLng, double *pLat) {
 bool GT::LLtoXYZ(const double Lng, const double Lat, S2Point *pPnt) {
     S2LatLng latLng;
 
-    latLng.FromDegrees(Lat, Lng);
+    latLng = S2LatLng::FromDegrees(Lat, Lng);
+
+//    std::cout<<latLng.lat().degrees()<<latLng.lng().degrees()<<std::endl;
+//    S2_DCHECK_EQ(latLng.lat().degrees(),Lat);
+//    S2_DCHECK_EQ(latLng.lng().degrees(),Lng);
+
     if (latLng.is_valid()) {
         *pPnt = latLng.ToPoint();
         return true;
@@ -190,9 +195,9 @@ bool GT::LLtoXYZ(const double Lng, const double Lat, S2Point *pPnt) {
 
 bool GT::XYZtoIJ(const S2Point &p, uint32 *pI, uint32 *pJ) {
     double u, v;
-    uint32 I,J;
+    uint32 I, J;
 
-    if(XYZtoLL(p, &u, &v) && LLtoIJ(u, v, &I, &J)){
+    if (XYZtoLL(p, &u, &v) && LLtoIJ(u, v, &I, &J)) {
         *pI = I;
         *pJ = J;
         return true;
@@ -202,9 +207,9 @@ bool GT::XYZtoIJ(const S2Point &p, uint32 *pI, uint32 *pJ) {
 
 bool GT::XYZtoIJ(const S2Point &p, uint32 *pI, uint32 *pJ, int level) {
     double u, v;
-    uint32 I,J;
+    uint32 I, J;
 
-    if(XYZtoLL(p, &u, &v) && LLtoIJ(u, v, &I, &J, level)){
+    if (XYZtoLL(p, &u, &v) && LLtoIJ(u, v, &I, &J, level)) {
         *pI = I;
         *pJ = J;
         return true;
@@ -214,22 +219,30 @@ bool GT::XYZtoIJ(const S2Point &p, uint32 *pI, uint32 *pJ, int level) {
 
 bool GT::IJtoXYZ(const uint32 I, const uint32 J, S2Point *pPnt) {
     double u, v;
-    IJtoLL(I, J, &u, &v);
-    LLtoXYZ(u, v, pPnt);
+    S2Point pnt;
+
+    if (IJtoLL(I, J, &u, &v) && LLtoXYZ(u, v, &pnt)) {
+        *pPnt = pnt;
+        return true;
+    };
     return false;
 }
 
 bool GT::IJtoXYZ(const uint32 I, const uint32 J, S2Point *pPnt, int level) {
     uint32 I_, J_;
+    S2Point pnt;
     uint32 mask = 1 << (kMaxCellLevel - level + 1);
     mask = (~mask + 1);
 
     I_ = I & mask;
     J_ = J & mask;
 
-    IJtoXYZ(I_, J_, pPnt);
+    if (IJtoXYZ(I_, J_, &pnt)) {
+        *pPnt = pnt;
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
 ////////////////////////////////////////////////////////
@@ -242,6 +255,7 @@ bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID) {
     return true;
 }
 
+//level [1..31]
 bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID, int level) {
 
     uint64 cellID = 0X0;
@@ -256,10 +270,10 @@ bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID, int level) 
     return true;
 }
 
-
 bool GT::CellIDtoIJ(const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
     uint32 I, J;
     uint64 id;
+//    uint64 lsb = CellID & (~CellID+2);
 
     //去除标识位
     id = CellID - CellID & (~CellID + 2);
@@ -280,29 +294,39 @@ bool GT::CellIDtoIJ(const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
 ///////////////////////////////////////////////////////
 bool GT::LLtoCellID(const double Lng, const double Lat, uint64 *pCellID) {
     uint32 I, J;
-    LLtoIJ(Lng, Lat, &I, &J);
-    IJtoCellID(I, J, pCellID);
-    return true;
+    uint64 cellID;
+
+    if (LLtoIJ(Lng, Lat, &I, &J) && IJtoCellID(I, J, &cellID)) {
+        *pCellID = cellID;
+        return true;
+    };
+    return false;
 }
 
 bool GT::LLtoCellID(const double Lng, const double Lat, uint64 *pCellID, int level) {
 
     uint32 I, J;
+    uint64 cellID;
 
-    LLtoIJ(Lng, Lat, &I, &J, level);
-    IJtoCellID(I, J, pCellID, level);
+    if (LLtoIJ(Lng, Lat, &I, &J, level) && IJtoCellID(I, J, &cellID, level)) {
+        *pCellID = cellID;
+        return true;
+    };
 
-    return true;
+    return false;
 }
 
 bool GT::CellIDtoLL(const uint64 CellID, double *pLng, double *pLat, int *level) {
     uint32 I, J;
     int le;
+    double lng, lat;
 
-    CellIDtoIJ(CellID, &I, &J, &le);
-    IJtoLL(I, J, pLng, pLat, le);
-    *level = le;
-
+    if (CellIDtoIJ(CellID, &I, &J, &le) && IJtoLL(I, J, &lng, &lat, le)) {
+        *pLng = lng;
+        *pLat = lat;
+        *level = le;
+        return true;
+    };
     return false;
 }
 
@@ -311,31 +335,39 @@ bool GT::CellIDtoLL(const uint64 CellID, double *pLng, double *pLat, int *level)
 ///////////////////////////////////////////////////////
 bool GT::XYZtoCellID(const S2Point pnt, uint64 *pCellID) {
     uint32 I, J;
+    uint64 cellID;
 
-    XYZtoIJ(pnt, &I, &J);
-    IJtoCellID(I, J, pCellID);
+    if (XYZtoIJ(pnt, &I, &J) && IJtoCellID(I, J, &cellID)) {
+        *pCellID = cellID;
+        return true;
+    };
 
-    return true;
+    return false;
 }
 
 bool GT::XYZtoCellID(const S2Point pnt, uint64 *pCellID, int level) {
     uint32 I, J;
+    uint64 cellID;
 
-    XYZtoIJ(pnt, &I, &J, level);
-    IJtoCellID(I, J, pCellID, level);
+    if (XYZtoIJ(pnt, &I, &J, level) && IJtoCellID(I, J, &cellID, level)) {
+        *pCellID = cellID;
+        return true;
+    };
 
-    return true;
+    return false;
 }
 
 bool GT::CellIDtoXYZ(const uint64 CellID, S2Point *pPnt, int *level) {
     uint32 I, J;
     int le;
+    S2Point  pnt;
 
-    CellIDtoIJ(CellID, &I, &J, &le);
-    IJtoXYZ(I, J, pPnt, le);
-    *level = le;
-
-    return true;
+    if(CellIDtoIJ(CellID, &I, &J, &le) && IJtoXYZ(I, J, &pnt, le)){
+        *pPnt = pnt;
+        *level = le;
+            return true;
+        };
+    return false;
 }
 
 
