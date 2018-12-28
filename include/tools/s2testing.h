@@ -58,7 +58,53 @@ DECLARE_int32(s2_random_seed);
 // unit tests.
 class S2Testing {
  public:
-  // Returns a vector of points shaped as a regular polygon with
+
+    // A deterministically-seeded random number generator.
+    class Random;
+
+    static Random rnd;
+
+    // Return a random unit-length vector.
+    static S2Point RandomPoint();
+
+    // Return a random LatLng point.
+    static S2LatLng RandomLatLng();
+
+    //Return a random <I,J> coordinate.
+    static void RandomIJ(uint32* pI,uint32* pJ);
+
+    //Return a random <I,J> coordinate at level.
+    static void RandomIJ(uint32* pI,uint32* pJ,int level);
+    // Return a cap with a random axis such that the log of its area is
+    // uniformly distributed between the logs of the two given values.
+    // (The log of the cap angle is also approximately uniformly distributed.)
+    static GTCap GetRandomCap(double min_area, double max_area);
+
+    // Return a point chosen uniformly at random (with respect to area)
+    // from the given cap.
+    static S2Point SamplePoint(const GTCap& cap);
+
+    // Return a point chosen uniformly at random (with respect to area on the
+    // sphere) from the given latitude-longitude rectangle.
+    static S2Point SamplePoint(const GTLatLngRect& rect);
+
+    // Return a random cell id at the given level or at a randomly chosen
+    // level.  The distribution is uniform over the space of cell ids,
+    // but only approximately uniform over the surface of the sphere.
+    static GTCellId GetRandomCellId(int level);
+    static GTCellId GetRandomCellId();
+
+    // Return a right-handed coordinate frame (three orthonormal vectors).
+    static void GetRandomFrame(S2Point* x, S2Point* y, S2Point* z);
+    static Matrix3x3_d GetRandomFrame();
+
+    // Given a unit-length z-axis, compute x- and y-axes such that (x,y,z) is a
+    // right-handed coordinate frame (three orthonormal vectors).
+    static void GetRandomFrameAt(const S2Point& z, S2Point* x, S2Point *y);
+    static Matrix3x3_d GetRandomFrameAt(const S2Point& z);
+
+
+    // Returns a vector of points shaped as a regular polygon with
   // num_vertices vertices, all on a circle of the specified angular
   // radius around the center.  The radius is the actual distance from
   // the center to the circle along the sphere.
@@ -184,43 +230,6 @@ class S2Testing {
   // The Earth's mean radius in kilometers (according to NASA).
   static const double kEarthRadiusKm;
 
-  // A deterministically-seeded random number generator.
-  class Random;
-
-  static Random rnd;
-
-  // Return a random unit-length vector.
-  static S2Point RandomPoint();
-
-  static S2LatLng RandomLatLng();
-
-  // Return a right-handed coordinate frame (three orthonormal vectors).
-  static void GetRandomFrame(S2Point* x, S2Point* y, S2Point* z);
-  static Matrix3x3_d GetRandomFrame();
-
-  // Given a unit-length z-axis, compute x- and y-axes such that (x,y,z) is a
-  // right-handed coordinate frame (three orthonormal vectors).
-  static void GetRandomFrameAt(const S2Point& z, S2Point* x, S2Point *y);
-  static Matrix3x3_d GetRandomFrameAt(const S2Point& z);
-
-  // Return a cap with a random axis such that the log of its area is
-  // uniformly distributed between the logs of the two given values.
-  // (The log of the cap angle is also approximately uniformly distributed.)
-  static GTCap GetRandomCap(double min_area, double max_area);
-
-  // Return a point chosen uniformly at random (with respect to area)
-  // from the given cap.
-  static S2Point SamplePoint(const GTCap& cap);
-
-  // Return a point chosen uniformly at random (with respect to area on the
-  // sphere) from the given latitude-longitude rectangle.
-  static S2Point SamplePoint(const GTLatLngRect& rect);
-
-  // Return a random cell id at the given level or at a randomly chosen
-  // level.  The distribution is uniform over the space of cell ids,
-  // but only approximately uniform over the surface of the sphere.
-  static GTCellId GetRandomCellId(int level);
-  static GTCellId GetRandomCellId();
 
   // Return a polygon with the specified center, number of concentric loops
   // and vertices per loop.

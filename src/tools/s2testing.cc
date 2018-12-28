@@ -214,6 +214,20 @@ S2LatLng S2Testing::RandomLatLng()  {
   return S2LatLng::FromRadians(lat,lng);
 }
 
+void S2Testing::RandomIJ(uint32* pI,uint32* pJ){
+  RandomIJ(pI,pJ,rnd.Uniform(GT::kMaxCellLevel + 1));
+}
+
+void S2Testing::RandomIJ(uint32* pI,uint32* pJ,int level){
+  uint32 mask;
+
+  mask = 1UL << (GT::kMaxCellLevel - level + 1);
+  mask = ~mask + 1;
+
+  *pI = rnd.Rand32() & mask;
+  *pJ = rnd.Rand32() & mask;
+}
+
 void S2Testing::GetRandomFrame(Vector3_d* x, Vector3_d* y, Vector3_d* z) {
   *z = RandomPoint();
   GetRandomFrameAt(*z, x, y);

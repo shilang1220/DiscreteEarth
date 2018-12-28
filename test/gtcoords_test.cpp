@@ -42,6 +42,14 @@ TEST(GTCOORDS_TEST, LLtoIJ) {
     EXPECT_EQ(0X80000000 | (uint32(180) << 23), I);
     EXPECT_EQ(0X80000000 | (uint32(90) << 23), J);
 
+    S2LatLng ll;
+    for(int i =0; i< 1000; i++){
+        ll = S2Testing::RandomLatLng();
+        GT::LLtoIJ(ll.lng().degrees(),ll.lat().degrees(),&I, &J);
+        GT::IJtoLL(I,J,&lng,&lat);
+        EXPECT_NEAR(lng,ll.lng().degrees(),1e-007);
+        EXPECT_NEAR(lat,ll.lat().degrees(),1e-007);
+    }
 }
 
 
@@ -83,7 +91,10 @@ TEST(GTCOORDS_TEST, IJtoLL) {
     EXPECT_NEAR(-90, lat, DBL_EPSILON);
 
     for(int i =0; i< 1000; i++){
-
+        S2Testing::RandomIJ(&I,&J);
+        GT::IJtoLL(I, J, &lng, &lat);
+        EXPECT_LE(abs(lng),180 + DBL_EPSILON);
+        EXPECT_LE(abs(lat),90 + DBL_EPSILON);
     }
 }
 
