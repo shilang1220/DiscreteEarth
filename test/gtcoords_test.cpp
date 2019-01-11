@@ -5,10 +5,22 @@
 #include "gt.h"
 #include "tools/s2testing.h"
 
+#define TESTTIMES_1000 1000
+#define TESTTIMES_10000 10000
+#define TESTTIMES_100000 100000
+
 //经纬度向二维网格坐标(叶子节点)的转换测试
 TEST(GTCOORDS_TEST, LLtoIJ) {
     double lng, lat;
     uint32 I, J;
+
+    lng = 0.00;
+    lat = 0.00;
+    GT::LLtoIJ(lng, lat, &I, &J);
+    std::cout << std::hex << I << std::endl;
+    std::cout << std::hex << J << std::endl;
+    EXPECT_EQ(uint32(0X0), I);
+    EXPECT_EQ(uint32(0X0), J);
 
     lng = 180.00;
     lat = 90.00;
@@ -43,12 +55,12 @@ TEST(GTCOORDS_TEST, LLtoIJ) {
     EXPECT_EQ(0X80000000 | (uint32(90) << 23), J);
 
     S2LatLng ll;
-    for(int i =0; i< 1000; i++){
+    for (int i = 0; i < TESTTIMES_10000; i++) {
         ll = S2Testing::RandomLatLng();
-        GT::LLtoIJ(ll.lng().degrees(),ll.lat().degrees(),&I, &J);
-        GT::IJtoLL(I,J,&lng,&lat);
-        EXPECT_NEAR(lng,ll.lng().degrees(),1e-007);
-        EXPECT_NEAR(lat,ll.lat().degrees(),1e-007);
+        GT::LLtoIJ(ll.lng().degrees(), ll.lat().degrees(), &I, &J);
+        GT::IJtoLL(I, J, &lng, &lat);
+        EXPECT_NEAR(lng, ll.lng().degrees(), 1.356336805555556e-7);
+        EXPECT_NEAR(lat, ll.lat().degrees(), 1.356336805555556e-7);
     }
 }
 
@@ -66,7 +78,7 @@ TEST(GTCOORDS_TEST, IJtoLL) {
     EXPECT_NEAR(180, lng, DBL_EPSILON);
     EXPECT_NEAR(90, lat, DBL_EPSILON);
 
-    I = 0xda000000;
+    I = 0xda000000; // 0B 1101 1010 00..00
     J = 0x2d000000;
     GT::IJtoLL(I, J, &lng, &lat);
     std::cout << lng << std::endl;
@@ -90,11 +102,23 @@ TEST(GTCOORDS_TEST, IJtoLL) {
     EXPECT_NEAR(-180, lng, DBL_EPSILON);
     EXPECT_NEAR(-90, lat, DBL_EPSILON);
 
-    for(int i =0; i< 1000; i++){
-        S2Testing::RandomIJ(&I,&J);
-        GT::IJtoLL(I, J, &lng, &lat);
-        EXPECT_LE(abs(lng),180 + DBL_EPSILON);
-        EXPECT_LE(abs(lat),90 + DBL_EPSILON);
+    uint32 I_, J_;
+    for (int i = 0; i < TESTTIMES_10000; i++) {
+        S2Testing::RandomIJ(&I, &J,32);
+        if (GT::IJtoLL(I, J, &lng, &lat)) {
+            std::cout << I << ","<<J << " right."<< std::endl;
+            std::cout << lng << ","<<lat << " right."<< std::endl;
+
+            EXPECT_LE(abs(lng), 180 + DBL_EPSILON);
+            EXPECT_LE(abs(lat), 90 + DBL_EPSILON);
+            GT::LLtoIJ(lng, lat, &I_, &J_);
+            EXPECT_EQ(I, I_);
+            EXPECT_EQ(J, J_);
+        }
+        else{
+            std::cout << I << ","<<J << " is fault."<< std::endl;
+        }
+
     }
 }
 
@@ -214,12 +238,12 @@ TEST(GTCOORDS_TEST, LLtoXYZ) {
     EXPECT_NEAR(0.5, pnt.y(), DBL_EPSILON);
     EXPECT_NEAR(0.7071067811865475, pnt.z(), DBL_EPSILON);
 
-    for(int i =0; i<1000;i++){
+    for (int i = 0; i < TESTTIMES_10000; i++) {
         S2LatLng ll = S2Testing::RandomLatLng();
-        GT::LLtoXYZ(ll.lng().degrees(),ll.lat().degrees(),&pnt);
-        GT::XYZtoLL(pnt,&lng,&lat);
-        EXPECT_NEAR(ll.lng().degrees(), lng, 1000*DBL_EPSILON);
-        EXPECT_NEAR(ll.lat().degrees(), lat, 1000*DBL_EPSILON);
+        GT::LLtoXYZ(ll.lng().degrees(), ll.lat().degrees(), &pnt);
+        GT::XYZtoLL(pnt, &lng, &lat);
+        EXPECT_NEAR(ll.lng().degrees(), lng, 1000 * DBL_EPSILON);
+        EXPECT_NEAR(ll.lat().degrees(), lat, 1000 * DBL_EPSILON);
     }
 }
 
@@ -229,13 +253,13 @@ TEST(GTCOORDS_TEST, XYZtoLL) {
     S2Point pnt1, pnt2;
     double lng, lat;
 
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < TESTTIMES_10000; i++) {
         pnt1 = S2Testing::RandomPoint();
         GT::XYZtoLL(pnt1, &lng, &lat);
         GT::LLtoXYZ(lng, lat, &pnt2);
-        EXPECT_NEAR(pnt1.x(), pnt2.x(), 1000*DBL_EPSILON);
-        EXPECT_NEAR(pnt1.y(), pnt2.y(), 1000*DBL_EPSILON);
-        EXPECT_NEAR(pnt1.z(), pnt2.z(), 1000*DBL_EPSILON);
+        EXPECT_NEAR(pnt1.x(), pnt2.x(), 1000 * DBL_EPSILON);
+        EXPECT_NEAR(pnt1.y(), pnt2.y(), 1000 * DBL_EPSILON);
+        EXPECT_NEAR(pnt1.z(), pnt2.z(), 1000 * DBL_EPSILON);
     }
 }
 

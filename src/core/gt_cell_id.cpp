@@ -10,6 +10,8 @@
 #include <iosfwd>
 #include <mutex>
 #include <vector>
+#include <core/gt_cell_id.h>
+
 
 using std::min;
 using std::max;
@@ -30,8 +32,11 @@ GTCellId::GTCellId (const S2Point p) {
 }
 
 GTCellId::GTCellId (const S2LatLng ll) {
+    uint64 id;
+
     //默认为叶子网格
-    GT::LLtoCellID(ll.lng().degrees(), ll.lat().degrees(), &id_);
+    GT::LLtoCellID(ll.lng().degrees(), ll.lat().degrees(), &id);
+    id_=id;
 }
 
 GTCellId::GTCellId (const S2Point p, int level) {
@@ -44,6 +49,7 @@ GTCellId::GTCellId (const S2LatLng ll, int level) {
     GT::LLtoCellID(ll.lng().degrees(), ll.lat().degrees(), &id_, level);
 }
 
+//定位点球面坐标
 S2Point GTCellId::ToPoint () const {
     S2Point pnt;
     S2LatLng ll;
@@ -56,6 +62,12 @@ S2Point GTCellId::ToPoint () const {
 
     return pnt;
 }
+
+//网格中心点球面坐标
+S2Point GTCellId::ToCenterPoint() const {
+    return S2Point();
+}
+
 
 GTCellId GTCellId::FromPoint (S2Point point) {
     uint64 id;
@@ -71,8 +83,22 @@ GTCellId GTCellId::FromPoint (S2Point point, unsigned int level) {
     return GTCellId(id);
 }
 
-//获得网格中心点的经纬度
+//获得网格定位点的经纬度
 S2LatLng GTCellId::ToLatLng () const {
+    double lng, lat;
+    uint32 I, J;
+    int level;
+
+    GT::CellIDtoIJ(id(), &I, &J, &level);
+
+    //求该网格的第4个子网格的定位点经纬度（Z序）
+    GT::IJtoLL(I, J, &lng, &lat, level);
+
+    return S2LatLng().FromDegrees(lat, lng);
+}
+
+//获得网格中心点的经纬度
+S2LatLng GTCellId::ToCenterLatLng() const {
     double lng, lat;
     uint32 I, J,mask;
     int level;
@@ -89,6 +115,7 @@ S2LatLng GTCellId::ToLatLng () const {
 
     return S2LatLng().FromDegrees(lat, lng);
 }
+
 
 GTCellId GTCellId::FromLatLng (S2LatLng latLng) {
     uint64 id;
@@ -327,6 +354,27 @@ string GTCellId::ToString4 () const {
     }
     return out;
 }
+
+string GTCellId::ToString16() const {
+    return std::string();
+}
+
+string GTCellId::ToString32() const {
+    return std::string();
+}
+
+GTCellId GTCellId::FromString4(string strCode) {
+    return GTCellId();
+}
+
+GTCellId GTCellId::FromString16(string strCode) {
+    return GTCellId();
+}
+
+GTCellId GTCellId::FromString32(string strCode) {
+    return GTCellId();
+}
+
 
 //以16进制字符串形式输出编码，编码形式: "/AAAAAAAAA....",A的值域为['0'..'3']，表示在某个层级中的子网格位置
 // Print the num_digits low order hex digits.

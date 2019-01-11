@@ -38,7 +38,7 @@
 bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat) {
     // uint32 I_=I,J_=J;
     //边界检查
-    unsigned int int_binary2code_B = J, int_binary2code_L = I;
+    unsigned int int_binary2code_B, int_binary2code_L;
     unsigned int degreeLat, degreeLng, minuteLat, minuteLng, secondLat, secondLng;
 
     int_binary2code_B = J & 0X7FFFFFFF;
@@ -53,7 +53,7 @@ bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat) {
     //不得大于180度
     //整分
     minuteLat = (int) ((int_binary2code_B & 0X007FFFFF) >> 17); // 6bit分
-    minuteLng = (int) ((int_binary2code_B & 0X007FFFFF) >> 17); // 6bit分
+    minuteLng = (int) ((int_binary2code_L & 0X007FFFFF) >> 17); // 6bit分
 
     if (minuteLat > 60 || minuteLng > 60) return false;                               //不得大于60分
 
@@ -63,8 +63,9 @@ bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat) {
 
     if (secondLat > 122880 || secondLng > 122880) return false;                           //不得大于60秒
 
-    *pLat = degreeLat + minuteLat * kMin2Degree + secondLat * kSec2Degree;
-    *pLng = degreeLng + minuteLng * kMin2Degree + secondLng * kSec2Degree;
+    *pLat = degreeLat + minuteLat * kMin2Degree + secondLat * kSec2Degree + DBL_EPSILON;
+    *pLng = degreeLng + minuteLng * kMin2Degree + secondLng * kSec2Degree + DBL_EPSILON;
+
 
     if (I & 0X80000000) *pLng = -*pLng;
     if (J & 0X80000000) *pLat = -*pLat;
@@ -75,7 +76,7 @@ bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat) {
 
 bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat, int level) {
     uint32 I_, J_;
-    uint32 mask = 1 << (kMaxCellLevel - level + 1);
+    uint32 mask = uint32{1} << (kMaxCellLevel - level + 1);
     mask = (~mask + 1);
 
     I_ = I & mask;
@@ -85,11 +86,8 @@ bool GT::IJtoLL(const uint32 I, const uint32 J, double *pLng, double *pLat, int 
 }
 
 bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
-    bool bRet = false;
-
     // 检查是否越界
-    S2_DCHECK_LE(fabs(Lng), 180 + DBL_EPSILON);
-    S2_DCHECK_LE(fabs(Lat), 90 + DBL_EPSILON);
+    if (fabs(Lng) > 180 + DBL_EPSILON || fabs(Lat) > 90 + DBL_EPSILON) return false;
 
     unsigned int int_binary2code_B = 0, int_binary2code_L = 0, int_B, int_L;
     double minuteB, minuteL, secondB, secondL;
@@ -138,13 +136,13 @@ bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ) {
     *pJ = int_binary2code_B;
     *pI = int_binary2code_L;
 
-    return bRet;
+    return true;
 }
 
 bool GT::LLtoIJ(const double Lng, const double Lat, uint32 *pI, uint32 *pJ, int level) {
 
     uint32 I, J;
-    uint32 mask = 1 << (kMaxCellLevel - level + 1);
+    uint32 mask = uint32{1} << (kMaxCellLevel - level + 1);
     mask = (~mask + 1);
 
     LLtoIJ(Lng, Lat, &I, &J);
@@ -231,7 +229,7 @@ bool GT::IJtoXYZ(const uint32 I, const uint32 J, S2Point *pPnt) {
 bool GT::IJtoXYZ(const uint32 I, const uint32 J, S2Point *pPnt, int level) {
     uint32 I_, J_;
     S2Point pnt;
-    uint32 mask = 1 << (kMaxCellLevel - level + 1);
+    uint32 mask = uint32{1} << (kMaxCellLevel - level + 1);
     mask = (~mask + 1);
 
     I_ = I & mask;
@@ -259,11 +257,14 @@ bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID) {
 bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID, int level) {
 
     uint64 cellID = 0X0;
-    uint64 lsb = 1 << ((kMaxCellLevel - level) * 2 + 1);
+    uint64 lsb = uint64{1} << ((kMaxCellLevel - level) * 2 + 1);
 
     cellID = util_bits::InterleaveUint32(I, J);
 
     cellID = cellID & (~lsb + 1) | lsb;
+
+//    std::cout <<std::hex<<lsb << std::endl;
+//    std::cout << std::hex << cellID << std::endl;
 
     *pCellID = cellID;
 
@@ -273,18 +274,18 @@ bool GT::IJtoCellID(const uint32 I, const uint32 J, uint64 *pCellID, int level) 
 bool GT::CellIDtoIJ(const uint64 CellID, uint32 *pI, uint32 *pJ, int *level) {
     uint32 I, J;
     uint64 id;
-//    uint64 lsb = CellID & (~CellID+2);
+    uint64 lsb = CellID & (~CellID + 2);
 
     //去除标识位
-    id = CellID - CellID & (~CellID + 2);
+    id = CellID - lsb;
 
-            S2_DCHECK(CellID != 0);
+    S2_DCHECK_GE(id, 0);
 
     util_bits::DeinterleaveUint32(id, &I, &J);
 
     *pI = I;
     *pJ = J;
-    *level = kMaxCellLevel - (Bits::FindLSBSetNonZero64(CellID) >> 1);
+    *level = kMaxCellLevel - (Bits::FindLSBSetNonZero64(lsb) >> 1);
 
     return true;
 }
@@ -308,10 +309,11 @@ bool GT::LLtoCellID(const double Lng, const double Lat, uint64 *pCellID, int lev
     uint32 I, J;
     uint64 cellID;
 
-    if (LLtoIJ(Lng, Lat, &I, &J, level) && IJtoCellID(I, J, &cellID, level)) {
-        *pCellID = cellID;
-        return true;
-    };
+    if (LLtoIJ(Lng, Lat, &I, &J, level))
+        if (IJtoCellID(I, J, &cellID, level)) {
+            *pCellID = cellID;
+            return true;
+        };
 
     return false;
 }
@@ -360,13 +362,13 @@ bool GT::XYZtoCellID(const S2Point pnt, uint64 *pCellID, int level) {
 bool GT::CellIDtoXYZ(const uint64 CellID, S2Point *pPnt, int *level) {
     uint32 I, J;
     int le;
-    S2Point  pnt;
+    S2Point pnt;
 
-    if(CellIDtoIJ(CellID, &I, &J, &le) && IJtoXYZ(I, J, &pnt, le)){
+    if (CellIDtoIJ(CellID, &I, &J, &le) && IJtoXYZ(I, J, &pnt, le)) {
         *pPnt = pnt;
         *level = le;
-            return true;
-        };
+        return true;
+    };
     return false;
 }
 

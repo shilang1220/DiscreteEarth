@@ -84,21 +84,25 @@ public:
     // 构造函数
     //////////////////////////////////////////////
 
-    //Default constructor set id_ as an invalid id number.
+    // 缺省构造函数，赋值0
+    // Default constructor set id_ as an invalid id number.
     GTCellId () { id_ = 0; }
 
+    // 利用有效ID构造，ID的合法性由用户确认
     // Construct using a known id number;
     explicit GTCellId (const uint64 id) { id_ = id; }
 
+    // 通过球面坐标构造网格ID，p需要做归一化处理以保证在球面上
+    // level值域：【1~31】
     // Construct a leaf cell containing the given point "p".
     explicit GTCellId (const S2Point p);
-
-    // Construct a leaf cell containing the given S2LatLng.
-    explicit GTCellId (const S2LatLng ll);
-
     // Construct a  cell  at 'level' containing the given point "p".
     explicit GTCellId (const S2Point p,int level);
 
+    // 通过经纬度构造网格ID，lng需在【-180，+180】，lat需在【-90，+90】
+    // level值域：【1~31】
+    // Construct a leaf cell containing the given S2LatLng.
+    explicit GTCellId (const S2LatLng ll);
     // Construct a cell at 'level' containing the given S2LatLng.
     explicit GTCellId (const S2LatLng ll,int level);
 
@@ -116,16 +120,21 @@ public:
     // 注意： Z序位置和level之间的对应关系由用户判断，由于pos没有截止标识，程序将其作为叶子网格（第31级）
     // 处理，并返回该叶子节点的第level级祖先网格
     static GTCellId FromFacePosLevel(int face, uint64 pos, int level);
+
     /************************************
     *  网格ID与球面坐标之间的转换函数
     ************************************/
+    // 返回网格定位点的球面坐标
     // Return the direction vector corresponding to the center of the given
     // cell.   This method returns the same result as S2Cell::GetCenter().
     // The maximum directional error in ToPoint() (compared to the exact
     // mathematical result) is 1.5 * DBL_EPSILON radians, and the maximum length
     // error is 2 * DBL_EPSILON (the same as Normalize).
     S2Point ToPoint () const;
+    //返回网格中心点的球面坐标
+    S2Point ToCenterPoint () const;
 
+    // 全局函数
     // 根据球面坐标创建对应的网格ID, point为球面坐标，ID对应其与球面的交点
     static GTCellId FromPoint (S2Point point);
 
@@ -134,9 +143,10 @@ public:
     /************************************
       *  GEOSOT网格ID与经纬度之间的转换函数
       ************************************/
-    // 返回网格中心点对应的经纬度
+    // 返回网格定位点对应的经纬度
     // Return the S2LatLng corresponding to the center of the given cell.
     S2LatLng ToLatLng () const;
+    S2LatLng ToCenterLatLng () const;
 
     //  根据经纬度，生成对应的网格ID
     static GTCellId FromLatLng (S2LatLng latLng);
@@ -473,7 +483,7 @@ inline uint64 GTCellId::lsb () const {
 }
 
 inline uint64 GTCellId::lsb_for_level (int level) {
-    return 1 << (2 * (kMaxLevel - level + 1) - 1);
+    return uint64{1} << (2 * (kMaxLevel - level + 1) - 1);
 };
 
 

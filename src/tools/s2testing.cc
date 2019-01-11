@@ -191,6 +191,11 @@ void Dump(const GTPolygon& polygon) {
 //  std::cout << "GTPolygon: " << s2textformat::ToString(polygon) << std::endl;
 }
 
+int S2Testing::RandomLevel() {
+  int level = rnd.UniformDouble(1, 31);
+  return level;
+}
+
 S2Point S2Testing::RandomPoint() {
   // The order of evaluation of function arguments is unspecified,
   // so we may not just call S2Point with three RandDouble-based args.

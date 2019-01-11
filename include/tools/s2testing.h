@@ -70,6 +70,9 @@ class S2Testing {
     // Return a random LatLng point.
     static S2LatLng RandomLatLng();
 
+    //Return  a random level number.
+    static int RandomLevel();
+
     //Return a random <I,J> coordinate.
     static void RandomIJ(uint32* pI,uint32* pJ);
 
