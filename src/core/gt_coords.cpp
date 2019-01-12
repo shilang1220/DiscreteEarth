@@ -163,12 +163,12 @@ bool GT::XYZtoLL(const S2Point &p, double *pLng, double *pLat) {
     lat = S2LatLng::Latitude(p).degrees();
     lng = S2LatLng::Longitude(p).degrees();
 
-    S2_DCHECK_LE(fabs(lat), 90 + DBL_EPSILON);
-    S2_DCHECK_LE(fabs(lng), 180 + DBL_EPSILON);
+    if(fabs(lat) > 90 + DBL_EPSILON || fabs(lng) > 180 + DBL_EPSILON) return false;
 
     *pLat = lat;
     *pLng = lng;
-    return false;
+
+    return true;
 }
 
 bool GT::LLtoXYZ(const double Lng, const double Lat, S2Point *pPnt) {

@@ -1,0 +1,6 @@
+2019.1.11
+(1)gt_coords has been developed and tested. It contains main conversion function between coordinate systems of grid,sphere coords,latlng system,and cellid.
+
+2019.1.12
+(1)test gt_cell_id's construct and transform functions.
+
