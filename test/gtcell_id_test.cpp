@@ -28,10 +28,8 @@ TEST(GTCELLID_TEST, ID_CONSTRUCT_TRANSFORM) {
     int level;
 
     for (int i =0; i<100000; i++){
-        ll2 = S2Testing::RandomLatLng();
-        level = S2Testing::RandomLevel();
-
-//        level = 16;
+        ll2 = GTTesting::RandomLatLng();
+        level = GTTesting::RandomLevel();
 
         id = GetCellId(ll2.lat().degrees(),ll2.lng().degrees(),level);
         ll = id.ToLatLng();
@@ -42,20 +40,26 @@ TEST(GTCELLID_TEST, ID_CONSTRUCT_TRANSFORM) {
     }
 
     ////////////////////////////////////////////////////
-    //地心坐标系到ID的转换测试
+    //球面坐标系到ID的转换测试
     ////////////////////////////////////////////////////
     S2Point pnt,pnt2;
     for (int i =0; i<100000; i++){
-        pnt2 = S2Testing::RandomPoint();
-        level = S2Testing::RandomLevel();
+        pnt2 = GTTesting::RandomPoint();
+        level = GTTesting::RandomLevel();
+
+        if(level < 4) continue;
 
         id = GTCellId(pnt2,level);
         pnt = id.ToPoint();
 
         //CellID只编到31级，所以转换的最大误差应当为32级网格大小的两倍
-        EXPECT_NEAR(pnt2.x(),pnt.x(),GT::GetGridInterval(level));
-        EXPECT_NEAR(pnt2.y(),pnt.y(),GT::GetGridInterval(level));
-        EXPECT_NEAR(pnt2.z(),pnt.z(),GT::GetGridInterval(level));
+        double dx = pnt.x() - pnt2.x();
+        double dy = pnt.y() - pnt2.y();
+        double dz = pnt.z() - pnt2.z();
+//        EXPECT_GE(pnt.x()*pnt2.x(),0);
+//        EXPECT_GE(pnt.y()*pnt2.y(),0);
+//        EXPECT_GE(pnt.z()*pnt2.z(),0);
+        EXPECT_LE(sqrt(dx * dx + dy * dy + dz * dz), GT::GetGridMaxDistanceError(level));
     }
 
 }

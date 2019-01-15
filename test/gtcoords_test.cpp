@@ -336,6 +336,9 @@ TEST(GTCOORDS_TEST, XYZtoIJ) {
         double dx = pnt.x() - pnt2.x();
         double dy = pnt.y() - pnt2.y();
         double dz = pnt.z() - pnt2.z();
+//        EXPECT_GE(pnt.x() * pnt2.x(), 0);
+//        EXPECT_GE(pnt.y() * pnt2.y(), 0);
+//        EXPECT_GE(pnt.z() * pnt2.z(), 0);
         EXPECT_LE(sqrt(dx * dx + dy * dy + dz * dz), GT::GetGridMaxDistanceError(level));
         EXPECT_NEAR(pnt2.x() * pnt2.x() + pnt2.y() * pnt2.y() + pnt2.z() * pnt2.z(), 1,
                     1000 * DBL_EPSILON);
@@ -438,8 +441,8 @@ TEST(GTCOORDS_TEST, IDtoIJ) {
         EXPECT_EQ(level, cellID.level());
         EXPECT_TRUE(GT::CellIDtoIJ(id, &I_, &J_, &level_));
         EXPECT_EQ(level, level_);
-        EXPECT_EQ(0,I_&1);
-        EXPECT_EQ(0,J_&1);
+        EXPECT_EQ(0, I_ & 1);
+        EXPECT_EQ(0, J_ & 1);
         EXPECT_TRUE(GT::IJtoCellID(I_, J_, &id2, level));
         EXPECT_EQ(id, id2);
     }
@@ -450,15 +453,15 @@ TEST(GTCOORDS_TEST, IDtoIJ) {
 //经纬度向一维编码（叶子网格）的转换测试
 TEST(GTCOORDS_TEST, LLtoID) {
     double lng, lat, lng2, lat2;
-    uint64 id,id2;
-    int level,level_;
+    uint64 id, id2;
+    int level, level_;
 
     lng = 0.00;
     lat = 0.00;
     EXPECT_TRUE(GT::LLtoCellID(lng, lat, &id));
     EXPECT_EQ(uint64(0X2), id);
-    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2,&level));
-    EXPECT_EQ(31,level);
+    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level));
+    EXPECT_EQ(31, level);
     EXPECT_NEAR(lng, lng2, GT::kMaxError);
     EXPECT_NEAR(lat, lat2, GT::kMaxError);
 
@@ -466,8 +469,8 @@ TEST(GTCOORDS_TEST, LLtoID) {
     lat = 90.00;
     EXPECT_TRUE(GT::LLtoCellID(lng, lat, &id));
     EXPECT_EQ(uint64(0X26d9000000000002), id);
-    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2,&level));
-    EXPECT_EQ(31,level);
+    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level));
+    EXPECT_EQ(31, level);
     EXPECT_NEAR(lng, lng2, GT::kMaxError);
     EXPECT_NEAR(lat, lat2, GT::kMaxError);
 
@@ -475,8 +478,8 @@ TEST(GTCOORDS_TEST, LLtoID) {
     lat = 90.00;
     EXPECT_TRUE(GT::LLtoCellID(lng, lat, &id));
     EXPECT_EQ(uint64(0XA6d9000000000002), id);
-    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2,&level));
-    EXPECT_EQ(31,level);
+    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level));
+    EXPECT_EQ(31, level);
     EXPECT_NEAR(lng, lng2, GT::kMaxError);
     EXPECT_NEAR(lat, lat2, GT::kMaxError);
 
@@ -484,8 +487,8 @@ TEST(GTCOORDS_TEST, LLtoID) {
     lat = -90.00;
     EXPECT_TRUE(GT::LLtoCellID(lng, lat, &id));
     EXPECT_EQ(uint64(0X66d9000000000002), id);
-    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2,&level));
-    EXPECT_EQ(31,level);
+    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level));
+    EXPECT_EQ(31, level);
     EXPECT_NEAR(lng, lng2, GT::kMaxError);
     EXPECT_NEAR(lat, lat2, GT::kMaxError);
 
@@ -493,8 +496,8 @@ TEST(GTCOORDS_TEST, LLtoID) {
     lat = -90.00;
     EXPECT_TRUE(GT::LLtoCellID(lng, lat, &id));
     EXPECT_EQ(uint64(0Xe6d9000000000002), id);
-    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2,&level));
-    EXPECT_EQ(31,level);
+    EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level));
+    EXPECT_EQ(31, level);
     EXPECT_NEAR(lng, lng2, GT::kMaxError);
     EXPECT_NEAR(lat, lat2, GT::kMaxError);
 
@@ -505,8 +508,8 @@ TEST(GTCOORDS_TEST, LLtoID) {
         double lng1 = ll.lng().degrees(), lat1 = ll.lat().degrees();
 
         EXPECT_TRUE(GT::LLtoCellID(lng1, lat1, &id));
-        EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2,&level));
-        EXPECT_EQ(31,level);
+        EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level));
+        EXPECT_EQ(31, level);
         EXPECT_NEAR(lng1, lng2, GT::GetGridInterval(31));
         EXPECT_NEAR(lat1, lat2, GT::GetGridInterval(31));
     }
@@ -518,8 +521,8 @@ TEST(GTCOORDS_TEST, LLtoID) {
         double lng1 = ll.lng().degrees(), lat1 = ll.lat().degrees();
 
         EXPECT_TRUE(GT::LLtoCellID(lng1, lat1, &id, level));
-        EXPECT_TRUE(GT::CellIDtoLL(id,&lng2, &lat2, &level_));
-        EXPECT_EQ(level,level_);
+        EXPECT_TRUE(GT::CellIDtoLL(id, &lng2, &lat2, &level_));
+        EXPECT_EQ(level, level_);
         EXPECT_GE(lng1 * lng2, 0);
         EXPECT_GE(lat1 * lat2, 0);
         EXPECT_NEAR(lng1, lng2, GT::GetGridInterval(level));
@@ -529,7 +532,7 @@ TEST(GTCOORDS_TEST, LLtoID) {
 }
 //一维编码（不一定是叶子网格）向经纬度（网格质心）的转换测试
 TEST(GTCOORDS_TEST, IDtoLL) {
-    double lng1,lng2,lat1,lat2;//, J, I_, J_;
+    double lng1, lng2, lat1, lat2;//, J, I_, J_;
     uint64 id, id2;
     int level, level_;
 
@@ -538,10 +541,10 @@ TEST(GTCOORDS_TEST, IDtoLL) {
         GTCellId cellid = GTTesting::GetRandomCellId(31);
         EXPECT_TRUE(cellid.is_valid());
         id = cellid.id();
-        if(GT::CellIDtoLL(id, &lng1, &lat1, &level_)){
+        if (GT::CellIDtoLL(id, &lng1, &lat1, &level_)) {
             EXPECT_EQ(31, level_);
-            EXPECT_TRUE(GT::LLtoCellID(lng1,lat1, &id2));
-            EXPECT_EQ(id,id2);
+            EXPECT_TRUE(GT::LLtoCellID(lng1, lat1, &id2));
+            EXPECT_EQ(id, id2);
         };
     }
 
@@ -551,10 +554,10 @@ TEST(GTCOORDS_TEST, IDtoLL) {
         EXPECT_TRUE(cellid.is_valid());
 
         id = cellid.id();
-        if(GT::CellIDtoLL(id, &lng1, &lat1, &level_)){
+        if (GT::CellIDtoLL(id, &lng1, &lat1, &level_)) {
             EXPECT_EQ(level, level_);
-            EXPECT_TRUE(GT::LLtoCellID(lng1,lat1, &id2,level));
-            EXPECT_EQ(id,id2);
+            EXPECT_TRUE(GT::LLtoCellID(lng1, lat1, &id2, level));
+            EXPECT_EQ(id, id2);
         };
     }
 }
