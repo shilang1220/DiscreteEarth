@@ -15,7 +15,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "tools/s2debug.h"
+#include "tools/gt_debug.h"
 
 #include "base/logging.h"
 

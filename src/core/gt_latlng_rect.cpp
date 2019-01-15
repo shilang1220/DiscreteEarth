@@ -14,7 +14,7 @@
 #include "core/gt_cap.h"
 #include "core/gt_cell.h"
 #include "s2/edge_distances.h"
-#include "tools/s2debug.h"
+#include "tools/gt_debug.h"
 #include "s2/s2pointutil.h"
 
 using std::fabs;

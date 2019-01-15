@@ -15,12 +15,13 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "tools/s2testing.h"
+#include "tools/gt_testing.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
+#include <ctime>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -57,18 +58,18 @@ using std::vector;
 
 
 DEFINE_int32(s2_random_seed, 1,
-             "Seed value that can be passed to S2Testing::rnd.Reset()");
+             "Seed value that can be passed to GTTesting::rnd.Reset()");
 
-const double S2Testing::kEarthRadiusKm = 6371.01;
+const double GTTesting::kEarthRadiusKm = 6371.01;
 
-S2Testing::Random::Random() {
+GTTesting::Random::Random() {
   // Unfortunately we can't use FLAGS_s2_random_seed here, because the default
-  // S2Testing::Random instance is initialized before command-line flags have
+  // GTTesting::Random instance is initialized before command-line flags have
   // been parsed.
    srand(1);
 }
 
-void S2Testing::Random::Reset(int seed) {
+void GTTesting::Random::Reset(int seed) {
   srand(seed);
 }
 
@@ -91,10 +92,13 @@ inline uint64 GetBits(int num_bits) {
   // simply an alias for random().  On other systems, rand() may differ,
   // but random() should always adhere to the behavior specified in BSD.
   static const int RAND_BITS = 31;
+  static std::uniform_int_distribution<uint32> values;
+  static std::default_random_engine rng; // Create random number generator
 
   uint64 result = 0;
   for (int bits = 0; bits < num_bits; bits += RAND_BITS) {
-    result = (result << RAND_BITS) + rand();
+    uint32 rn{values(rng)};
+    result = (result << RAND_BITS) + rn;
   }
   if (num_bits < 64) {  // Not legal to shift by full bitwidth of type
     result &= ((1ULL << num_bits) - 1);
@@ -102,43 +106,59 @@ inline uint64 GetBits(int num_bits) {
   return result;
 }
 
-uint64 S2Testing::Random::Rand64() {
-  return GetBits(64);
+uint64 GTTesting::Random::Rand64() {
+    static const int RAND_BITS = 31;
+    static std::uniform_int_distribution<uint64> values;
+    static std::default_random_engine rng; // Create random number generator
+
+    return uint64(values(rng));
 }
 
-uint32 S2Testing::Random::Rand32() {
-  return GetBits(32);
+uint32 GTTesting::Random::Rand32() {
+    static const int RAND_BITS = 31;
+    static std::uniform_int_distribution<uint32> values;
+    static std::default_random_engine rng; // Create random number generator
+
+    return uint32(values(rng));
 }
 
-double S2Testing::Random::RandDouble() {
-  const int NUM_BITS = 53;
-  return ldexp(GetBits(NUM_BITS), -NUM_BITS);
+double GTTesting::Random::RandDouble() {
+  static std::uniform_real_distribution<double> values {0.0, 1.0};
+//  std::random_device rd; // Non-de terrains tic seed source
+  static std::default_random_engine rng; // Create random number generator for(size_t i {}; i<8; ++i)
+
+  return(double{values(rng)});
+//
+//  const int NUM_BITS = 53;
+//  return ldexp(GetBits(NUM_BITS), -NUM_BITS);
 }
 
-int32 S2Testing::Random::Uniform(int32 n) {
+int32 GTTesting::Random::Uniform(int32 n) {
   S2_DCHECK_GT(n, 0);
-  return static_cast<uint32>(RandDouble() * n);
+  double dbl = RandDouble();
+
+  return static_cast<uint32>(dbl * n);
 }
 
-double S2Testing::Random::UniformDouble(double min, double limit) {
+double GTTesting::Random::UniformDouble(double min, double limit) {
   S2_DCHECK_LT(min, limit);
   return min + RandDouble() * (limit - min);
 }
 
-bool S2Testing::Random::OneIn(int32 n) {
+bool GTTesting::Random::OneIn(int32 n) {
   return Uniform(n) == 0;
 }
 
-int32 S2Testing::Random::Skewed(int max_log) {
+int32 GTTesting::Random::Skewed(int max_log) {
   S2_DCHECK_GE(max_log, 0);
   S2_DCHECK_LE(max_log, 31);
   int32 base = Uniform(max_log + 1);
   return GetBits(31) & ((1U << base) - 1);
 }
 
-S2Testing::Random S2Testing::rnd;
+GTTesting::Random GTTesting::rnd;
 
-void S2Testing::AppendLoopVertices(const GTLoop& loop,
+void GTTesting::AppendLoopVertices(const GTLoop& loop,
                                    vector<S2Point>* vertices) {
 //  int n = loop.num_vertices();
 //  const S2Point* base = &loop.vertex(0);
@@ -146,7 +166,7 @@ void S2Testing::AppendLoopVertices(const GTLoop& loop,
 //  vertices->insert(vertices->end(), base, base + n);
 }
 
-vector<S2Point> S2Testing::MakeRegularPoints(const S2Point& center,
+vector<S2Point> GTTesting::MakeRegularPoints(const S2Point& center,
                                              S1Angle radius,
                                              int num_vertices) {
 //  unique_ptr<GTLoop> loop(
@@ -158,19 +178,19 @@ vector<S2Point> S2Testing::MakeRegularPoints(const S2Point& center,
   return points;
 }
 
-S1Angle S2Testing::MetersToAngle(double meters) {
+S1Angle GTTesting::MetersToAngle(double meters) {
   return KmToAngle(0.001 * meters);
 }
 
-S1Angle S2Testing::KmToAngle(double km) {
+S1Angle GTTesting::KmToAngle(double km) {
   return S1Angle::Radians(km / kEarthRadiusKm);
 }
 
-double S2Testing::AreaToMeters2(double steradians) {
+double GTTesting::AreaToMeters2(double steradians) {
   return 1e6 * AreaToKm2(steradians);
 }
 
-double S2Testing::AreaToKm2(double steradians) {
+double GTTesting::AreaToKm2(double steradians) {
   return steradians * kEarthRadiusKm * kEarthRadiusKm;
 }
 
@@ -191,12 +211,13 @@ void Dump(const GTPolygon& polygon) {
 //  std::cout << "GTPolygon: " << s2textformat::ToString(polygon) << std::endl;
 }
 
-int S2Testing::RandomLevel() {
-  int level = rnd.UniformDouble(1, 31);
+int GTTesting::RandomLevel() {
+  int32 ff = rnd.Uniform(31);
+  int level = ff+1;
   return level;
 }
 
-S2Point S2Testing::RandomPoint() {
+S2Point GTTesting::RandomPoint() {
   // The order of evaluation of function arguments is unspecified,
   // so we may not just call S2Point with three RandDouble-based args.
   // Use temporaries to induce sequence points between calls.
@@ -206,7 +227,7 @@ S2Point S2Testing::RandomPoint() {
   return S2Point(x, y, z).Normalize();
 }
 
-S2LatLng S2Testing::RandomLatLng()  {
+S2LatLng GTTesting::RandomLatLng()  {
   // The order of evaluation of function arguments is unspecified,
   // so we may not just call S2Point with three RandDouble-based args.
   // Use temporaries to induce sequence points between calls.
@@ -219,51 +240,52 @@ S2LatLng S2Testing::RandomLatLng()  {
   return S2LatLng::FromRadians(lat,lng);
 }
 
-void S2Testing::RandomIJ(uint32* pI,uint32* pJ){
+void GTTesting::RandomIJ(uint32* pI,uint32* pJ){
   RandomIJ(pI,pJ,rnd.Uniform(GT::kMaxCellLevel + 1));
 }
 
-void S2Testing::RandomIJ(uint32* pI,uint32* pJ,int level){
+void GTTesting::RandomIJ(uint32* pI,uint32* pJ,int level){
   uint32 mask;
 
-  mask = 1UL << (GT::kMaxCellLevel - level + 1);
+  mask = uint32{1} << (GT::kMaxCellLevel - level + 1);
   mask = ~mask + 1;
 
   *pI = rnd.Rand32() & mask;
   *pJ = rnd.Rand32() & mask;
 }
 
-void S2Testing::GetRandomFrame(Vector3_d* x, Vector3_d* y, Vector3_d* z) {
+void GTTesting::GetRandomFrame(Vector3_d* x, Vector3_d* y, Vector3_d* z) {
   *z = RandomPoint();
   GetRandomFrameAt(*z, x, y);
 }
 
-Matrix3x3_d S2Testing::GetRandomFrame() {
+Matrix3x3_d GTTesting::GetRandomFrame() {
   return GetRandomFrameAt(RandomPoint());
 }
 
-void S2Testing::GetRandomFrameAt(const S2Point& z, S2Point* x, S2Point *y) {
+void GTTesting::GetRandomFrameAt(const S2Point& z, S2Point* x, S2Point *y) {
   *x = z.CrossProd(RandomPoint()).Normalize();
   *y = z.CrossProd(*x).Normalize();
 }
 
-Matrix3x3_d S2Testing::GetRandomFrameAt(const S2Point& z) {
+Matrix3x3_d GTTesting::GetRandomFrameAt(const S2Point& z) {
   S2Point x, y;
   GetRandomFrameAt(z, &x, &y);
   return Matrix3x3_d::FromCols(x, y, z);
 }
 
-GTCellId S2Testing::GetRandomCellId(int level) {
+GTCellId GTTesting::GetRandomCellId(int level) {
   int face = rnd.Uniform(GTCellId::kNumFaces);
-  uint64 pos = rnd.Rand64() & ((1ULL << GTCellId::kPosBits) - 1);
+  uint64 pos = rnd.Rand64() & ((uint64{1} << GTCellId::kPosBits) - 1);
   return GTCellId::FromFacePosLevel(face, pos, level);
 }
 
-GTCellId S2Testing::GetRandomCellId() {
-  return GetRandomCellId(rnd.Uniform(GTCellId::kMaxLevel + 1));
+GTCellId GTTesting::GetRandomCellId() {
+  int level = RandomLevel();
+  return GetRandomCellId(level);
 }
 
-GTCap S2Testing::GetRandomCap(double min_area, double max_area) {
+GTCap GTTesting::GetRandomCap(double min_area, double max_area) {
   double cap_area = max_area * pow(min_area / max_area, rnd.RandDouble());
   S2_DCHECK_GE(cap_area, min_area);
   S2_DCHECK_LE(cap_area, max_area);
@@ -272,7 +294,7 @@ GTCap S2Testing::GetRandomCap(double min_area, double max_area) {
   return GTCap::FromCenterArea(RandomPoint(), cap_area);
 }
 
-void S2Testing::ConcentricLoopsPolygon(const S2Point& center,
+void GTTesting::ConcentricLoopsPolygon(const S2Point& center,
                                        int num_loops,
                                        int num_vertices_per_loop,
                                        GTPolygon* polygon) {
@@ -293,7 +315,7 @@ void S2Testing::ConcentricLoopsPolygon(const S2Point& center,
 //  polygon->InitNested(std::move(loops));
 }
 
-S2Point S2Testing::SamplePoint(const GTCap& cap) {
+S2Point GTTesting::SamplePoint(const GTCap& cap) {
   // We consider the cap axis to be the "z" axis.  We choose two other axes to
   // complete the coordinate frame.
 
@@ -314,7 +336,7 @@ S2Point S2Testing::SamplePoint(const GTCap& cap) {
          .Normalize();
 }
 
-S2Point S2Testing::SamplePoint(const GTLatLngRect& rect) {
+S2Point GTTesting::SamplePoint(const GTLatLngRect& rect) {
   // First choose a latitude uniformly with respect to area on the sphere.
   double sin_lo = sin(rect.lat().lo());
   double sin_hi = sin(rect.lat().hi());
@@ -325,7 +347,7 @@ S2Point S2Testing::SamplePoint(const GTLatLngRect& rect) {
   return S2LatLng::FromRadians(lat, lng).Normalized().ToPoint();
 }
 
-void S2Testing::CheckCovering(const Region& region,
+void GTTesting::CheckCovering(const Region& region,
                               const GTCellUnion& covering,
                               bool check_tight, GTCellId id) {
   if (!id.is_valid()) {
@@ -353,26 +375,26 @@ void S2Testing::CheckCovering(const Region& region,
   }
 }
 
-S2Testing::Fractal::Fractal()
+GTTesting::Fractal::Fractal()
     : max_level_(-1), min_level_arg_(-1), min_level_(-1),
       dimension_(log(4)/log(3)), /* standard Koch curve */
       edge_fraction_(0), offset_fraction_(0) {
   ComputeOffsets();
 }
 
-void S2Testing::Fractal::set_max_level(int max_level) {
+void GTTesting::Fractal::set_max_level(int max_level) {
   S2_DCHECK_GE(max_level, 0);
   max_level_ = max_level;
   ComputeMinLevel();
 }
 
-void S2Testing::Fractal::set_min_level(int min_level_arg) {
+void GTTesting::Fractal::set_min_level(int min_level_arg) {
   S2_DCHECK_GE(min_level_arg, -1);
   min_level_arg_ = min_level_arg;
   ComputeMinLevel();
 }
 
-void S2Testing::Fractal::ComputeMinLevel() {
+void GTTesting::Fractal::ComputeMinLevel() {
   if (min_level_arg_ >= 0 && min_level_arg_ <= max_level_) {
     min_level_ = min_level_arg_;
   } else {
@@ -380,29 +402,29 @@ void S2Testing::Fractal::ComputeMinLevel() {
   }
 }
 
-void S2Testing::Fractal::set_fractal_dimension(double dimension) {
+void GTTesting::Fractal::set_fractal_dimension(double dimension) {
   S2_DCHECK_GE(dimension, 1.0);
   S2_DCHECK_LT(dimension, 2.0);
   dimension_ = dimension;
   ComputeOffsets();
 }
 
-void S2Testing::Fractal::ComputeOffsets() {
+void GTTesting::Fractal::ComputeOffsets() {
   edge_fraction_ = pow(4.0, -1.0 / dimension_);
   offset_fraction_ = sqrt(edge_fraction_ - 0.25);
 }
 
-void S2Testing::Fractal::SetLevelForApproxMinEdges(int min_edges) {
+void GTTesting::Fractal::SetLevelForApproxMinEdges(int min_edges) {
   // Map values in the range [3*(4**n)/2, 3*(4**n)*2) to level n.
   set_min_level(round(0.5 * log2(min_edges / 3)));
 }
 
-void S2Testing::Fractal::SetLevelForApproxMaxEdges(int max_edges) {
+void GTTesting::Fractal::SetLevelForApproxMaxEdges(int max_edges) {
   // Map values in the range [3*(4**n)/2, 3*(4**n)*2) to level n.
   set_max_level(round(0.5 * log2(max_edges / 3)));
 }
 
-double S2Testing::Fractal::min_radius_factor() const {
+double GTTesting::Fractal::min_radius_factor() const {
   // The minimum radius is attained at one of the vertices created by the
   // first subdivision step as long as the dimension is not too small (at
   // least kMinDimensionForMinRadiusAtLevel1, see below).  Otherwise we fall
@@ -424,13 +446,13 @@ double S2Testing::Fractal::min_radius_factor() const {
   return 0.5;
 }
 
-double S2Testing::Fractal::max_radius_factor() const {
+double GTTesting::Fractal::max_radius_factor() const {
   // The maximum radius is always attained at either an original triangle
   // vertex or at a middle vertex from the first subdivision step.
   return max(1.0, offset_fraction_ * sqrt(3) + 0.5);
 }
 
-void S2Testing::Fractal::GetR2Vertices(vector<R2Point>* vertices) const {
+void GTTesting::Fractal::GetR2Vertices(vector<R2Point>* vertices) const {
   // The Koch "snowflake" consists of three Koch curves whose initial edges
   // form an equilateral triangle.
   R2Point v0(1.0, 0.0);
@@ -444,10 +466,10 @@ void S2Testing::Fractal::GetR2Vertices(vector<R2Point>* vertices) const {
 // Given the two endpoints (v0,v4) of an edge, recursively subdivide the edge
 // to the desired level, and insert all vertices of the resulting curve up to
 // but not including the endpoint "v4".
-void S2Testing::Fractal::GetR2VerticesHelper(const R2Point& v0,
+void GTTesting::Fractal::GetR2VerticesHelper(const R2Point& v0,
                                              const R2Point& v4, int level,
                                              vector<R2Point>* vertices) const {
-  if (level >= min_level_ && S2Testing::rnd.OneIn(max_level_ - level + 1)) {
+  if (level >= min_level_ && GTTesting::rnd.OneIn(max_level_ - level + 1)) {
     // Stop subdivision at this level.
     vertices->push_back(v0);
     return;
@@ -465,7 +487,7 @@ void S2Testing::Fractal::GetR2VerticesHelper(const R2Point& v0,
   GetR2VerticesHelper(v3, v4, level+1, vertices);
 }
 
-//std::unique_ptr<GTLoop> S2Testing::Fractal::MakeLoop(
+//std::unique_ptr<GTLoop> GTTesting::Fractal::MakeLoop(
 //    const Matrix3x3_d& frame,
 //    S1Angle nominal_radius) const {
 //  vector<R2Point> r2vertices;

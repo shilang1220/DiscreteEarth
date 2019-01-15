@@ -14,7 +14,7 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#include "tools/s2error.h"
+#include "tools/gt_error.h"
 
 #include "base/stringprintf.h"
 

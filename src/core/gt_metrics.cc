@@ -29,6 +29,7 @@
 // coordinate changes when they are measured as distances on the unit sphere.
 
 #include <core/gt_metrics.h>
+#include <s2/s2latlng.h>
 
 #include "core/gt_metrics.h"
 
@@ -72,6 +73,31 @@ namespace GT {
 
     double GetGridExactAreaErrorRMS(uint64 id) {
         return 0;
+    }
+
+    //获得某一层级的最大距离误差（原点处的网格对角线长度）
+    double GetGridMaxDistanceError(int level) {
+        S2LatLng conner1, conner2;
+        S2Point pnt1, pnt2;
+        double interval1,lngInterval,latInterval;
+
+        conner1 = S2LatLng::FromDegrees(0.0, 0.0);
+
+        interval1 = GetGridInterval(level);
+        lngInterval = interval1;
+        latInterval = interval1;
+
+        if(1 == level) {
+            lngInterval=180.00;
+            latInterval=90;
+        }
+        if(2 == level){
+            lngInterval =interval1;
+            latInterval = 90;
+        }
+        conner2 = S2LatLng::FromDegrees(0.0 + latInterval , 0.0 + lngInterval);
+
+        return fabs(S1Angle(conner1, conner2).radians());
     }
 
 }  // namespace GT

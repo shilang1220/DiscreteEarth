@@ -14,8 +14,8 @@
 
 #include "s2/s1angle.h"
 #include "s2/s2point.h"
-#include "tools/s2debug.h"
-#include "tools/s2error.h"
+#include "tools/gt_debug.h"
+#include "tools/gt_error.h"
 #include "core/gt_latlng_rect.h"
 #include "core/region.h"
 #include "core/gt_cap.h"

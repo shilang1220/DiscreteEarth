@@ -13,7 +13,7 @@
 #include "base/logging.h"
 #include "s2/r1interval.h"
 #include "s2/s1interval.h"
-#include "tools/s2debug.h"
+#include "tools/gt_debug.h"
 #include "s2/s2latlng.h"
 
 #include "s2/s2pointutil.h"

@@ -15,14 +15,15 @@
 
 // Author: ericv@google.com (Eric Veach)
 
-#ifndef S2_S2TESTING_H_
-#define S2_S2TESTING_H_
+#ifndef S2_GTTesting_H_
+#define S2_GTTesting_H_
 
 #include <algorithm>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
 
 #include "base/commandlineflags.h"
 #include "base/integral_types.h"
@@ -45,18 +46,18 @@ class GTPolygon;
 class GTPolyline;
 class Region;
 
-// You can optionally call S2Testing::rnd.Reset(FLAGS_s2_random_seed) at the
+// You can optionally call GTTesting::rnd.Reset(FLAGS_s2_random_seed) at the
 // start of a test or benchmark to ensure that its results do not depend on
 // which other tests of benchmarks have run previously.  This can help with
 // debugging.
 //
 // This flag currently does *not* affect the initial seed value for
-// S2Testing::rnd.  TODO(user): Fix this.
+// GTTesting::rnd.  TODO(user): Fix this.
 DECLARE_int32(s2_random_seed);
 
 // This class defines various static functions that are useful for writing
 // unit tests.
-class S2Testing {
+class GTTesting {
  public:
 
     // A deterministically-seeded random number generator.
@@ -251,15 +252,15 @@ class S2Testing {
 
  private:
   // Contains static methods
-  S2Testing() = delete;
-  S2Testing(const S2Testing&) = delete;
-  void operator=(const S2Testing&) = delete;
+  GTTesting() = delete;
+  GTTesting(const GTTesting&) = delete;
+  void operator=(const GTTesting&) = delete;
 };
 
 // Functions in this class return random numbers that are as good as random()
 // is.  The results are reproducible since the seed is deterministic.  This
 // class is *NOT* thread-safe; it is only intended for testing purposes.
-class S2Testing::Random {
+class GTTesting::Random {
  public:
   // Initialize using a deterministic seed.
   Random();
@@ -397,4 +398,4 @@ bool CheckDistanceResults(
               Distance::Delta::Zero(), "Extra"));
 }
 
-#endif  // S2_S2TESTING_H_
+#endif  // S2_GTTesting_H_

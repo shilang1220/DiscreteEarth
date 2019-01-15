@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "gt.h"
-#include "tools/s2testing.h"
+#include "tools/gt_testing.h"
 
 static GTCellId GetCellId(double lat_degrees, double lng_degrees) {
     GTCellId id(S2LatLng::FromDegrees(lat_degrees, lng_degrees));

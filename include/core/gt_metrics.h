@@ -43,6 +43,8 @@ namespace GT {
     double GetGridAverageErrorX(int level);
     double GetGridAverageErrorY(int level);
     double GetGridAverageErrorZ(int level);
+    //获得某一层级的最大距离误差（原点处的网格对角线长度）
+    double GetGridMaxDistanceError(int level);
 
 //    double GetGridExactErrorX(uint64 id);
     double GetGridExactDistanceErrorRMS(uint64 id);

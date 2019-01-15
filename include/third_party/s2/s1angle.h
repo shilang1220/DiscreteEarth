@@ -194,7 +194,7 @@ inline constexpr double S1Angle::radians() const {
 
 inline constexpr double S1Angle::degrees() const {
   return (180 / M_PI) * radians_;
-}
+ }
 
 // Note that the E5, E6, and E7 conversion involve two multiplications rather
 // than one.  This is mainly for backwards compatibility (changing this would

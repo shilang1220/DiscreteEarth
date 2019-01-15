@@ -474,7 +474,8 @@ inline GTCellId GTCellId::FromFace(int face) {
 }
 
 inline GTCellId GTCellId::FromFacePosLevel(int face, uint64 pos, int level) {
-    GTCellId cell(((static_cast<uint64>(face) << kPosBits) + (pos | 2))& 0XFFFFFFFFFFFFFFFE);
+
+    GTCellId cell(((static_cast<uint64>(face) << kPosBits) + pos & 0XFFFFFFFFFFFFFFFC) | 0x2 );
     return cell.parent(level);
 }
 
